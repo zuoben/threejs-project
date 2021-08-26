@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Threejs实现绘制地球，地理位置标注-经纬度转换世界坐标</title>
+		<script type="text/javascript" src="libs/three.js"></script>
+		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="dom"></div>
+		<script type="text/javascript">
+			var camera;
+			var renderer;
+			var radius = 100; // 地球半径
+			var areas = [{
+				name: "中国",
+				position: [116.20, 39.55]
+			}, {
+				name: "中非共和国",
+				position: [18.35, 4.23]
+			}, {
+				name: "智利",
+				position: [-70.40, -33.24]
+			}, {
+				name: "乍得",
+				position: [14.59, 12.10]
+			}, {
+				name: "赞比亚",
+				position: [28.16, -15.28]
+			}, {
+				name: "越南",
+				position: [105.55, 21.05]
+			}, {
+				name: "约旦",
+				position: [35.52, 31.57]
+			}, {
+				name: "英属维尔京群岛",
+				position: [-64.37, 18.27]
+			}, {
+				name: "英国",
+				position: [-0.05, 51.36]
+			}];
+
+			function init() {
+				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
+				var scene = new THREE.Scene();
+
+				var cubeLoader = new THREE.CubeTextureLoader();
+				var textureLoader = new THREE.TextureLoader();
+
+				// 创建一个摄像机，它定义了我们正在看的地方
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
+				// 将摄像机对准场景的中心
+				camera.position.z = 500;
+				camera.lookAt(scene.position);
+				var orbit = new THREE.OrbitControls(camera);
+
+				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
+				renderer = new THREE.WebGLRenderer({
+					antialias: true,
+					logarithmicDepthBuffer: true,
+				});
+				renderer.setSize(window.innerWidth, window.innerHeight);
+
+				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
+				scene.add(ambientLight);
+
+				// 在屏幕上显示坐标轴
+				var axes = new THREE.AxisHelper(radius);
+				scene.add(axes);
+
+				createEarth();
+				createAreaPoint();
+
+				var rs = coordinateWorldTurnScreen(10, 0, 10);
+				var div = document.createElement('div');
+				div.innerHTML = '立';
+				div.style.padding = '5px';
+				div.style.position = 'absolute';
+				div.style.backgroundColor = 'rgba(155,0,155,0.8)';
+				document.body.appendChild(div);
+				div.style.left = rs.x + "px";
+				div.style.top = rs.y + "px";
+				console.log(rs)
+
+				// 将呈现器的输出添加到HTML元素
+				document.getElementById("dom").appendChild(renderer.domElement);
+
+				// 启动动画
+				renderScene();
+
+				// 世界坐标转屏幕坐标
+				function coordinateWorldTurnScreen(x, y, z) {
+					let world_vector = new THREE.Vector3(x, y, z);
+					let vector = world_vector.project(camera);
+					let halfWidth = window.innerWidth / 2,
+						halfHeight = window.innerHeight / 2;
+					return {
+						x: Math.round(vector.x * halfWidth + halfWidth),
+						y: Math.round(-vector.y * halfHeight + halfHeight)
+					}
+				}
+
+				// 创建地球 半径100
+				function createEarth() {
+					var earthGeo = new THREE.SphereGeometry(radius, 50, 50);
+					var earthMater = new THREE.MeshPhongMaterial({
+						map: new THREE.TextureLoader().load('assets/earth/earth.jpg'),
+						transparent: true,
+						depthWrite: false,
+						side: THREE.DoubleSide,
+						blending: THREE.AdditiveBlending,
+						opacity: 0.8,
+						color: 0x03d98e
+					});
+					var earthMesh = new THREE.Mesh(earthGeo, earthMater);
+					scene.add(earthMesh)
+				}
+
+				function createAreaPoint() {
+					// 球面
+					let sphereGeom = new THREE.SphereGeometry(1, 20, 20),
+						sphereMat = new THREE.MeshBasicMaterial({
+							color: 0x03d98e,
+							wireframe: true
+						})
+					let sphere = new THREE.Mesh(sphereGeom, sphereMat)
+					scene.add(sphere)
+					// 地标及光锥
+					for (let i = 0, length = areas.length; i < length; i++) {
+						const position = createPosition(this.areas[i].position)
+						createHexagon(position); // 地标
+					}
+				}
+
+				// 坐标转换，
+				function createPosition(lnglat) {
+					let spherical = new THREE.Spherical
+					spherical.radius = radius;
+					const lng = lnglat[0]
+					const lat = lnglat[1]
+					const theta = (lng + 90) * (Math.PI / 180)
+					const phi = (90 - lat) * (Math.PI / 180)
+					spherical.phi = phi; // phi是方位面（水平面）内的角度，范围0~360度
+					spherical.theta = theta; // theta是俯仰面（竖直面）内的角度，范围0~180度
+					let position = new THREE.Vector3()
+					position.setFromSpherical(spherical)
+					return position
+				}
+
+				// 创建地标标记
+				function createHexagon(position) {
+					var hexagon = new THREE.Object3D()
+					let hexagonLine = new THREE.CircleGeometry(4, 6)
+					let hexagonPlane = new THREE.CircleGeometry(3, 6)
+					let vertices = hexagonLine.vertices
+					vertices.shift() // 第一个节点是中心点
+					let material = new THREE.MeshBasicMaterial({
+						color: 0xffff00,
+						side: THREE.DoubleSide,
+						opacity: 0.5
+					})
+					let circleLine = new THREE.LineLoop(hexagonLine, material)
+					let circlePlane = new THREE.Mesh(hexagonPlane, material)
+					circleLine.position.copy(position)
+					circlePlane.position.copy(position)
+					circlePlane.lookAt(new THREE.Vector3(0, 0, 0))
+					circleLine.lookAt(new THREE.Vector3(0, 0, 0))
+
+					hexagon.add(circleLine)
+					hexagon.add(circlePlane)
+					scene.add(hexagon);
+				}
+
+				function renderScene() {
+					orbit.update();
+					// 使用requestAnimationFrame函数进行渲染
+					requestAnimationFrame(renderScene);
+					renderer.render(scene, camera);
+				}
+
+				// 渲染的场景
+				renderer.render(scene, camera);
+			}
+			window.onload = init;
+
+			// 随着窗体的变化修改场景
+			function onResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+			// 监听窗体调整大小事件
+			window.addEventListener('resize', onResize, false);
+		</script>
+	</body>
+</html>

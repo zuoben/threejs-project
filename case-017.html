@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Threejs实现下雨，下雪，阴天，晴天，火焰</title>
+		<script type="text/javascript" src="libs/three.js"></script>
+		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<script type="text/javascript" src="libs/OBJLoader.js"></script>
+		<script type="text/javascript" src="libs/Tween.min.js"></script>
+		<script type="text/javascript" src="libs/dat.gui.js"></script>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="dom"></div>
+		<script type="text/javascript">
+			var camera;
+			var renderer;
+			var cloud;
+			var rainy_sw = 3; // 1雨2雪3晴4阴
+			var flame_sw = true;
+			//初始化一个空容器，装载粒子
+			var krq = new THREE.Object3D();
+			var textureLoader = new THREE.TextureLoader();
+
+			function init() {
+				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
+				var scene = new THREE.Scene();
+
+				var urls = [
+					'assets/textures/posx.jpg',
+					'assets/textures/negx.jpg',
+					'assets/textures/posy.jpg',
+					'assets/textures/negy.jpg',
+					'assets/textures/posz.jpg',
+					'assets/textures/negz.jpg'
+				];
+				var urls1 = [
+					'assets/textures/posx_gray.jpg',
+					'assets/textures/negx_gray.jpg',
+					'assets/textures/posy_gray.jpg',
+					'assets/textures/negy_gray.jpg',
+					'assets/textures/posz_gray.jpg',
+					'assets/textures/negz_gray.jpg'
+				];
+
+				var cubeLoader = new THREE.CubeTextureLoader();
+				scene.background = cubeLoader.load(urls);
+
+				// 创建一个摄像机，它定义了我们正在看的地方
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+				// 将摄像机对准场景的中心
+				camera.position.x = 10;
+				camera.position.y = 50;
+				camera.position.z = 90;
+				camera.lookAt(scene.position);
+				var orbit = new THREE.OrbitControls(camera);
+
+				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
+				renderer = new THREE.WebGLRenderer({
+					antialias: true,
+					logarithmicDepthBuffer: true,
+				});
+				renderer.setClearColor(new THREE.Color(0x121A39));
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				var alight = new THREE.AmbientLight("#ffffff", 1);
+				alight.name = "aLight";
+				scene.add(alight);
+
+				// 在屏幕上显示坐标轴
+				var axes = new THREE.AxesHelper(100);
+				// scene.add(axes);
+
+				// 将平面添加到场景中
+				createPlaneGeometryBasicMaterial();
+
+				// 将呈现器的输出添加到HTML元素
+				document.getElementById("dom").appendChild(renderer.domElement);
+
+				// 使用GUI调试库
+				var controls = new function() {
+					this.rainy = function() {
+						scene.remove(scene.getObjectByName("particles_snowy"));
+						if (rainy_sw != 1) {
+							rainy_sw = 1;
+							scene.background = cubeLoader.load(urls1);
+							scene.getObjectByName("aLight").intensity = 0.6;
+							createPointRainy();
+						}
+					}
+
+					this.snowy = function() {
+						scene.remove(scene.getObjectByName("particles_rainy"));
+						if (rainy_sw != 2) {
+							rainy_sw = 2;
+							scene.background = cubeLoader.load(urls1);
+							scene.getObjectByName("aLight").intensity = 2;
+							createPointRainy();
+						}
+					}
+
+					this.sunny = function() {
+						if (rainy_sw != 3) {
+							scene.remove(scene.getObjectByName("particles_rainy"));
+							scene.remove(scene.getObjectByName("particles_snowy"));
+							scene.background = cubeLoader.load(urls);
+							scene.getObjectByName("aLight").intensity = 1.2;
+							rainy_sw = 3;
+						}
+
+					}
+
+					this.cloudy = function() {
+						if (rainy_sw != 4) {
+							scene.remove(scene.getObjectByName("particles_rainy"));
+							scene.remove(scene.getObjectByName("particles_snowy"));
+							scene.background = cubeLoader.load(urls1);
+							scene.getObjectByName("aLight").intensity = 1;
+							rainy_sw = 4;
+						}
+					}
+
+					this.flame = function() {
+						if (flame_sw) {
+							initFlame();
+							flame_sw = !flame_sw;
+						}
+					}
+				}
+
+				var gui = new dat.GUI();
+
+				gui.add(controls, 'rainy'); // 雨
+				gui.add(controls, 'snowy'); // 雪
+				gui.add(controls, 'sunny'); // 晴
+				gui.add(controls, 'cloudy'); // 阴
+				gui.add(controls, 'flame'); // 火焰
+
+				// 启动动画
+				renderScene();
+
+				function createPointRainy() {
+					var img = rainy_sw == 1 ? "raindrop.png" : rainy_sw == 2 ? "snowflake.png" : "";
+					var name = rainy_sw == 1 ? "particles_rainy" : rainy_sw == 2 ? "particles_snowy" : "";
+					var texture = new THREE.TextureLoader().load("assets/textures/" + img);
+					var geom = new THREE.Geometry();
+
+					var material = new THREE.PointsMaterial({
+						size: 1.5,
+						transparent: true, // 是否设置透明度
+						opacity: 1, // 透明
+						map: texture, // 粒子材质
+						blending: THREE.AdditiveBlending,
+						sizeAttenuation: true, // 是否相同尺寸
+						color: 0xffffff
+					});
+
+					var range = 120;
+					for (var i = 0; i < 1500; i++) {
+						var particle = new THREE.Vector3(
+							Math.random() * range - range / 2,
+							Math.random() * range * 1.5,
+							1 + (i / 10 - 80)
+						)
+						if (rainy_sw == 2) {
+							// 定义雨滴以多快的速度落下,纵向运动速度的范围是0.1～0.3
+							particle.velocityY = (0.1 + Math.random() / 5) - 0.1;
+							// 定义粒子（雨滴）如何水平移动,横向运动速度的范围是-0.16～+0.16
+							particle.velocityX = ((Math.random() - 0.5) / 3) - 0.05;
+						} else {
+							particle.velocityY = 0.15 + Math.random() / 5;
+							particle.velocityX = (Math.random() - 0.5) / 3;
+						}
+						geom.vertices.push(particle);
+					}
+
+					cloud = new THREE.Points(geom, material);
+					cloud.sortParticles = true;
+					cloud.name = name;
+					scene.add(cloud);
+				}
+
+				function initFlame() {
+					var texture = new THREE.TextureLoader().load("assets/textures/flamex.png");
+					//sprite材质
+					var material = new THREE.SpriteMaterial({
+						//以canvas作为纹理
+						map: texture,
+						//混合度 加法混合
+						blending: THREE.AdditiveBlending
+					});
+
+					//循环1000  添加粒子
+					for (var i = 0; i < 2000; i++) {
+						var particle = new THREE.Sprite(material);
+						initParticle(particle, i);
+						krq.add(particle);
+						krq.name = "particles_flame";
+					}
+					scene.add(krq);
+				}
+
+				/**
+				 * 粒子 延迟发散
+				 * @param particle
+				 * @param delay
+				 */
+				function initParticle(particle, delay) {
+					particle.position.set(5, Math.random() + 5, 0);
+					particle.scale.x = particle.scale.y = Math.random() * 3;
+					//下面是一系列的动画
+					var xx = Math.random() * 10 - 5;
+					var yy = Math.cos((Math.PI / 100) * xx) * 20;
+					//位移
+					new TWEEN.Tween(particle.position)
+						.delay(delay)
+						.to({
+							x: xx,
+							y: yy,
+							z: Math.random() * 10 - 5
+						}, 2000)
+						.onComplete(function() {
+							initParticle(particle, delay);
+						})
+						.start();
+					// 大小
+					new TWEEN.Tween(particle.scale)
+						.delay(delay)
+						.to({
+							x: 0.01,
+							y: 0.01
+						}, 1000)
+						.start();
+				}
+
+				/**
+				 * 创建地面并添加材质
+				 * wrapS属性定义的是纹理沿x轴方向的行为，而warpT属性定义的是纹理沿y轴方向的行为。
+				 * Three.js为这些属性提供了如下两个选项：
+				 * ·THREE.RepeatWrapping允许纹理重复自己。
+				 * ·THREE.ClampToEdgeWrapping是属性的默认值。
+				 * 属性值为THREE.ClampToEdgeWrapping时，那么纹理的整体不会重复，只会重复纹理边缘的像素来填满剩下的空间。
+				 */
+				function createPlaneGeometryBasicMaterial() {
+					var cubeMaterial = new THREE.MeshStandardMaterial({
+						map: textureLoader.load("assets/textures/cd.jpg"),
+						side: THREE.DoubleSide,
+					});
+					cubeMaterial.map.wrapS = THREE.RepeatWrapping;
+					cubeMaterial.map.wrapT = THREE.RepeatWrapping;
+					cubeMaterial.map.repeat.set(3, 3)
+					// 创建地平面并设置大小
+					var planeGeometry = new THREE.PlaneGeometry(100, 100);
+					var plane = new THREE.Mesh(planeGeometry, cubeMaterial);
+
+					// 设置平面位置并旋转
+					plane.rotation.x = -0.5 * Math.PI;
+					plane.position.x = 0;
+					plane.position.z = -5;
+					plane.position.y = -5;
+					scene.add(plane);
+				}
+
+				function renderScene() {
+					orbit.update(); // 拖动
+					TWEEN.update();
+
+					if (cloud) {
+						var vertices = cloud.geometry.vertices;
+						vertices.forEach(function(v) {
+							v.y = v.y - (v.velocityY);
+							v.x = v.x - (v.velocityX);
+
+							if (v.y <= 0) v.y = 60;
+							if (v.x <= -20 || v.x >= 20) v.velocityX = v.velocityX * -1;
+						});
+						cloud.geometry.verticesNeedUpdate = true;
+					}
+
+					// 使用requestAnimationFrame函数进行渲染
+					requestAnimationFrame(renderScene);
+					renderer.render(scene, camera);
+				}
+
+				// 渲染的场景
+				renderer.render(scene, camera);
+			}
+			window.onload = init;
+
+			// 随着窗体的变化修改场景
+			function onResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+			// 监听窗体调整大小事件
+			window.addEventListener('resize', onResize, false);
+		</script>
+	</body>
+</html>

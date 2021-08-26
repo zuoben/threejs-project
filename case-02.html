@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>使用threejs创建几何体添加坐标轴材质阴影动画</title>
+		<script type="text/javascript" src="libs/three.js"></script>
+		<script type="text/javascript" src="libs/dat.gui.js"></script>
+		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="dom"></div>
+		<script type="text/javascript">
+			var camera;
+			var renderer;
+			function init() {
+				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
+				var scene = new THREE.Scene();
+
+				// 创建一个摄像机，它定义了我们正在看的地方
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+				// 将摄像机对准场景的中心
+				camera.position.x = 10;
+				camera.position.y = 50;
+				camera.position.z = 90;
+				camera.lookAt(scene.position);
+				var orbit = new THREE.OrbitControls(camera);
+
+				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
+				renderer = new THREE.WebGLRenderer();
+				renderer.setClearColor(new THREE.Color("#0e0934"));
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				// 设置渲染器需要阴影效果
+				renderer.shadowMapEnabled = true;
+
+				// 在屏幕上显示坐标轴
+				var axes = new THREE.AxisHelper(100);
+				scene.add(axes);
+
+				// 将平面添加到场景中
+				var plane = createPlaneGeometryBasicMaterial();
+				scene.add(plane);
+
+				// 将立方体添加到场景中
+				var cube = createBoxGeometryLambertMaterial();
+				scene.add(cube);
+
+				// 将球体添加到场景中
+				var sphere = createSphereGeometryLambertMaterial();
+				scene.add(sphere);
+				
+				// 为阴影添加光源
+				var spotLight = new THREE.SpotLight(0xffffff);
+				spotLight.position.set(-40, 60, -10);
+				// 设置产生阴影的光源
+				spotLight.castShadow = true;
+				spotLight.shadowCameraVisible = true;
+				scene.add(spotLight);
+
+				// 将呈现器的输出添加到HTML元素
+				document.getElementById("dom").appendChild(renderer.domElement);
+				
+				// 使用GUI调试库
+				var controls = new function () {
+					// 设置初始值
+				    this.rotationSpeed = 0.02;
+				    this.bouncingSpeed = 0.03;
+					this.numberOfObjects = scene.children.length;
+					// 随机生成一个立方体
+					this.addCube = function () {
+					    // 将立方体添加到场景中
+					    scene.add(createBoxGeometryLambertMaterialRandom());
+						// 更新界面中的对象数量
+					    this.numberOfObjects = scene.children.length;
+					};
+					
+					// 移除场景中的对象，移除添加到场景中的最后一个对象
+					this.removeCube = function () {
+						// 获取场景中的所有对象
+						var allChildren = scene.children;
+						var lastObject = allChildren[allChildren.length - 1];
+						// 只移除THREE.Mesh对象
+						if (lastObject instanceof THREE.Mesh && lastObject != plane && lastObject != cube && lastObject != sphere) {
+							scene.remove(lastObject);
+							// 更新界面中的对象数量
+							this.numberOfObjects = scene.children.length;
+						}
+					};
+					
+					// 打印场景中的所有对象
+					this.outputObjects = function () {
+						console.log(scene.children);
+					}
+				};
+				var gui = new dat.GUI();
+				// 设置两个变量的取值范围
+				gui.add(controls, 'rotationSpeed', 0, 0.5);
+				gui.add(controls, 'bouncingSpeed', 0, 0.5);
+				// 添加事件
+				gui.add(controls, 'addCube');
+				gui.add(controls, 'removeCube');
+				gui.add(controls, 'outputObjects');
+				// 监听变量
+				gui.add(controls, 'numberOfObjects').listen();
+				
+				// 启动动画
+				renderScene();
+				
+				// 创建一个随机大小颜色的立方体
+				function createBoxGeometryLambertMaterialRandom() {
+					var cubeSize = Math.ceil((Math.random() * 3));
+					// 创建一个立方体并设置大小
+					var cubeGeometry = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
+					// MeshLambertMaterial设置材质
+					var cubeMaterial = new THREE.MeshLambertMaterial({color: Math.random() * 0xffffff});
+					var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+					// 设置该物体投射阴影
+					cube.castShadow = true;
+					// 设置该立方体的名称
+					cube.name = "cube-" + scene.children.length;
+					// 设置立方体位置
+					cube.position.x = -30 + Math.round((Math.random() * 60));
+					cube.position.y = Math.round((Math.random() * 5));
+					cube.position.z = -20 + Math.round((Math.random() * 20));
+					return cube;
+				}
+				// 创建一个MeshLambertMaterial材质的立方体
+				function createBoxGeometryLambertMaterial() {
+					// 创建一个立方体并设置大小
+					var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
+					// MeshLambertMaterial设置材质
+					var cubeMaterial = new THREE.MeshLambertMaterial({color: 0xff0000});
+					var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+					// 设置该物体投射阴影
+					cube.castShadow = true;
+					// 设置立方体位置
+					cube.position.x = -4;
+					cube.position.y = 3;
+					cube.position.z = 0;
+					return cube;
+				}
+				// 创建一个基础材质的立方体
+				function createBoxGeometryBasicMaterial() {
+					// 创建一个立方体并设置大小
+					var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
+					// MeshBasicMaterial（基础材质不会对光源有反应只会使用指定的颜色渲染）
+					var cubeMaterial = new THREE.MeshBasicMaterial({
+						color: 0xff0000,
+						wireframe: true
+					});
+					var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+					// 设置立方体位置
+					cube.position.x = -10;
+					cube.position.y = 3;
+					cube.position.z = 0;
+					return cube;
+				}
+				// 创建一个平面
+				function createPlaneGeometryBasicMaterial() {
+					// 创建地平面并设置大小
+					var planeGeometry = new THREE.PlaneGeometry(100, 70);
+					var planeMaterial = new THREE.MeshBasicMaterial({
+						color: 0xcccccc
+					});
+					var plane = new THREE.Mesh(planeGeometry, planeMaterial);
+					// 设置接受阴影
+					plane.receiveShadow = true;
+			
+					// 设置平面位置并旋转
+					plane.rotation.x = -0.5 * Math.PI;
+					plane.position.x = 0;
+					plane.position.y = 0;
+					plane.position.z = 0;
+					return plane;
+				}
+				// 创建一个球形几何体
+				function createSphereGeometryLambertMaterial() {
+					// 创建一个球体
+					var sphereGeometry = new THREE.SphereGeometry(4, 20, 20);
+					// var sphereMaterial = new THREE.MeshBasicMaterial({
+					// 	color: 0x7777ff,
+					// 	wireframe: true
+					// });
+					var sphereMaterial = new THREE.MeshLambertMaterial({color: 0xff0000});
+					var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+					// 设置该物体投射阴影
+					sphere.castShadow = true;
+			
+					// 位置范围
+					sphere.position.x = 20;
+					sphere.position.y = 4;
+					sphere.position.z = 2;
+					return sphere;
+				}
+				
+				// 动画渲染
+				var step = 0;
+				function renderScene() {
+					// 遍历场景中所有子对象
+					scene.traverse(function (e) {
+					    if (e instanceof THREE.Mesh && e != sphere && e != plane) {
+							// 将立方体绕轴旋转
+					        e.rotation.x += controls.rotationSpeed;
+					        e.rotation.y += controls.rotationSpeed;
+					        e.rotation.z += controls.rotationSpeed;
+					    }
+					});
+					
+					orbit.update();
+				    // 将立方体绕轴旋转
+					cube.rotation.x += controls.rotationSpeed;
+					cube.rotation.y += controls.rotationSpeed;
+					cube.rotation.z += controls.rotationSpeed;
+				
+				    // 将球上下弹起
+				    step += controls.bouncingSpeed;
+				    sphere.position.x = 20 + ( 10 * (Math.cos(step)));
+				    sphere.position.y = 2 + ( 10 * Math.abs(Math.sin(step)));
+				
+				    // 使用requestAnimationFrame函数进行渲染
+				    requestAnimationFrame(renderScene);
+				    renderer.render(scene, camera);
+				}
+
+				// 渲染的场景
+				renderer.render(scene, camera);
+			}
+			window.onload = init;
+			
+			function onResize() {
+			    camera.aspect = window.innerWidth / window.innerHeight;
+			    camera.updateProjectionMatrix();
+			    renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+			// 监听调整大小事件
+			window.addEventListener('resize', onResize, false);
+		</script>
+	</body>
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Threejs加载城市obj模型，加载人物gltf模型，Tweenjs实现人物根据规划的路线运动</title>
+		<script type="text/javascript" src="libs/three.js"></script>
+		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<script type="text/javascript" charset="UTF-8" src="libs/Tween.min.js"></script>
+		<script type="text/javascript" charset="UTF-8" src="libs/GLTFLoader.js"></script>
+
+		<script type="text/javascript" src="libs/OBJLoader.js"></script>
+		<script type="text/javascript" src="libs/MTLLoader.js"></script>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="dom"></div>
+		<script type="text/javascript">
+			var camera;
+			var renderer;
+			var clock = new THREE.Clock();
+			var mixer = new THREE.AnimationMixer();
+			var clipAction
+			var animationClip
+			var pobj
+
+			function init() {
+				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
+				var scene = new THREE.Scene();
+
+				var urls = [
+					'assets/textures/posx.jpg',
+					'assets/textures/negx.jpg',
+					'assets/textures/posy.jpg',
+					'assets/textures/negy.jpg',
+					'assets/textures/posz.jpg',
+					'assets/textures/negz.jpg'
+				];
+
+				var cubeLoader = new THREE.CubeTextureLoader();
+				scene.background = cubeLoader.load(urls);
+
+				// 创建一个摄像机，它定义了我们正在看的地方
+				camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+				// 将摄像机对准场景的中心
+				camera.position.x = 20;
+				camera.position.y = 15;
+				camera.position.z = 35;
+				camera.lookAt(scene.position);
+				var orbit = new THREE.OrbitControls(camera);
+
+				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
+				// initialize basic renderer
+				renderer = new THREE.WebGLRenderer({
+					antialias: true,
+					logarithmicDepthBuffer: true,
+				});
+				renderer.setSize(window.innerWidth, window.innerHeight);
+
+				// 将平面添加到场景中
+				var plane = createPlaneGeometryBasicMaterial();
+				scene.add(plane);
+
+				// 在屏幕上显示坐标轴
+				var axes = new THREE.AxesHelper(100);
+				scene.add(axes);
+
+				// var trackballControls = initTrackballControls(camera, renderer);
+
+				// 添加环境光
+				scene.add(new THREE.AmbientLight(0x666666));
+				scene.add(new THREE.AmbientLight("#ffffff", 1));
+				// 将呈现器的输出添加到HTML元素
+				document.getElementById("dom").appendChild(renderer.domElement);
+
+				var points = initLine();
+				// 将球体添加到场景中
+
+				initModel();
+				initPeople();
+
+				// 启动动画
+				renderScene();
+
+				var i = 0;
+
+				function tweenComplete() {
+					if (i < points.length) {
+						switch (i) {
+							case 0:
+								pobj.rotateY(Math.PI);
+								break;
+							case 1:
+							case 5:
+							case 8:
+							case 9:
+								pobj.rotateY(-0.5 * Math.PI);
+								break;
+							case 2:
+							case 3:
+							case 4:
+							case 6:
+							case 7:
+								pobj.rotateY(0.5 * Math.PI);
+								break;
+							case 10:
+								mixer.stopAllAction();
+								break;
+
+						}
+						tween = new TWEEN.Tween(points[i])
+							.to(points[i + 1], 3000)
+							.easing(TWEEN.Easing.Linear.None)
+							.onUpdate(function() {
+								pobj.position.set(this.x, this.y, this.z);
+							})
+							.onComplete(tweenComplete)
+							.start();
+						i++;
+					}
+				}
+
+				// 添加模型
+				function initModel() {
+					var mtlLoader = new THREE.MTLLoader();
+					mtlLoader.setPath("assets/models/obj_mtl/")
+					mtlLoader.load('city.mtl', function(materials) {
+						materials.preload();
+
+						var objLoader = new THREE.OBJLoader();
+						objLoader.setMaterials(materials);
+						objLoader.load('assets/models/obj_mtl/city.obj', function(object) {
+							mesh = object;
+							mesh.scale.set(3, 3, 3);
+							mesh.position.y = -5;
+							scene.add(mesh);
+						});
+					});
+				}
+
+				// 添加人物模型
+				function initPeople() {
+					var loader = new THREE.GLTFLoader();
+					loader.load('assets/models/man/man.gltf', function(result) {
+						result.scene.scale.set(1, 1, 1);
+						result.scene.translateY(0);
+						pobj = result.scene;
+						scene.add(result.scene);
+
+						tweenComplete();
+
+						mixer = new THREE.AnimationMixer(result.scene);
+						animationClip = result.animations[0];
+						clipAction = mixer.clipAction(animationClip).play();
+						animationClip = clipAction.getClip();
+					});
+				}
+
+				// 创建一个平面
+				function createPlaneGeometryBasicMaterial() {
+					var textureLoader = new THREE.TextureLoader();
+					var cubeMaterial = new THREE.MeshStandardMaterial({
+						map: textureLoader.load("assets/textures/cd.jpg"),
+					});
+					cubeMaterial.map.wrapS = THREE.RepeatWrapping;
+					cubeMaterial.map.wrapT = THREE.RepeatWrapping;
+					cubeMaterial.map.repeat.set(18, 18)
+					// 创建地平面并设置大小
+					var planeGeometry = new THREE.PlaneGeometry(500, 500);
+					var plane = new THREE.Mesh(planeGeometry, cubeMaterial);
+
+					// 设置平面位置并旋转
+					plane.rotation.x = -0.5 * Math.PI;
+					plane.position.x = 0;
+					plane.position.y = -5;
+					plane.position.z = 0;
+					return plane;
+				}
+
+				// 初始化线路
+				function initLine() {
+					var pArr = [{
+						x: 5 * 3,
+						y: -3.8,
+						z: -0.7 * 3
+					}, {
+						x: -0.6 * 3,
+						y: -3.8,
+						z: -0.7 * 3
+					}, {
+						x: -0.6 * 3,
+						y: -3.8,
+						z: -1.8 * 3
+					}, {
+						x: -4 * 3,
+						y: -3.8,
+						z: -1.8 * 3
+					}, {
+						x: -4 * 3,
+						y: -3.8,
+						z: 2.8 * 3
+					}, {
+						x: -1.2 * 3,
+						y: -3.8,
+						z: 2.8 * 3
+					}, {
+						x: -1.2 * 3,
+						y: -3.8,
+						z: 4.3 * 3
+					}, {
+						x: 1.7 * 3,
+						y: -3.8,
+						z: 4.3 * 3
+					}, {
+						x: 1.7 * 3,
+						y: -3.8,
+						z: -0.4 * 3
+					}, {
+						x: 4.4 * 3,
+						y: -3.8,
+						z: -0.4 * 3
+					}, {
+						x: 4.4 * 3,
+						y: -3.8,
+						z: 5 * 3
+					}];
+					var points = [];
+					var geometry = new THREE.Geometry();
+					for (var i = 0; i < pArr.length; i++) {
+						var randomX = pArr[i].x;
+						var randomY = pArr[i].y;
+						var randomZ = pArr[i].z;
+						var vector = new THREE.Vector3(randomX, randomY, randomZ);
+						geometry.vertices.push(vector);
+						points.push(vector);
+					}
+					var material = new THREE.LineBasicMaterial({
+						color: 0xff0000
+					});
+					var line = new THREE.Line(geometry, material);
+					scene.add(line);
+					return points;
+				}
+
+				// 动画渲染
+				var step = 5;
+
+				function renderScene() {
+					TWEEN.update();
+					orbit.update();
+					var delta = clock.getDelta();
+					mixer.update(delta);
+					// 使用requestAnimationFrame函数进行渲染
+					requestAnimationFrame(renderScene);
+					renderer.render(scene, camera);
+				}
+
+				// 渲染的场景
+				renderer.render(scene, camera);
+
+
+				document.addEventListener('mousedown', onDocumentMouseDown, false);
+
+				function onDocumentMouseDown(event) {
+					// 点击屏幕创建一个向量
+					var vector = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window
+						.innerHeight) * 2 + 1, 0.5);
+					vector = vector.unproject(camera); // 将屏幕的坐标转换成三维场景中的坐标
+					var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+					var intersects = raycaster.intersectObjects(mesh.children, true);
+					console.log(intersects)
+					if (intersects.length > 0) {
+						// intersects[0].object.material.color.set("#ffffff");
+					}
+				}
+
+				// 创建一个球形几何体
+				function createSphereGeometryLambertMaterial(point) {
+					// 创建一个球体
+					var sphereGeometry = new THREE.SphereGeometry(0.2, 20, 20);
+					var sphereMaterial = new THREE.MeshBasicMaterial({
+						color: 0x7777ff,
+						wireframe: true
+					});
+					var sphereMaterial = new THREE.MeshLambertMaterial({
+						color: 0xff0000
+					});
+					var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+					// 设置该物体投射阴影
+					sphere.castShadow = true;
+
+					// 位置范围
+					sphere.position.x = point.x;
+					sphere.position.y = point.y;
+					sphere.position.z = point.z;
+					return sphere;
+				}
+			}
+			window.onload = init;
+
+			function onResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+			// 监听调整大小事件
+			window.addEventListener('resize', onResize, false);
+		</script>
+	</body>
+</html>

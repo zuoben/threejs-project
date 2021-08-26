@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Threejs中使用astar(A*)算法寻路导航</title>
+		<script type="text/javascript" src="libs/three.js"></script>
+		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<script type="text/javascript" charset="UTF-8" src="libs/Tween.min.js"></script>
+		<script type="text/javascript" src="libs/astar.js"></script>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="dom"></div>
+		<script type="text/javascript">
+			var camera;
+			var renderer;
+			var clock = new THREE.Clock();
+			var length = 36;
+			var ws = 2;
+			var graph = [];
+			var mesh = [];
+			var resultArray = new Array();
+			var isCaculate = false;
+
+			function init() {
+				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
+				var scene = new THREE.Scene();
+
+				var urls = [
+					'assets/textures/posx.jpg',
+					'assets/textures/negx.jpg',
+					'assets/textures/posy.jpg',
+					'assets/textures/negy.jpg',
+					'assets/textures/posz.jpg',
+					'assets/textures/negz.jpg'
+				];
+
+				var cubeLoader = new THREE.CubeTextureLoader();
+				scene.background = cubeLoader.load(urls);
+
+				// 创建一个摄像机，它定义了我们正在看的地方
+				camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 1000);
+				// 将摄像机对准场景的中心
+				camera.position.x = 60;
+				camera.position.y = 35;
+				camera.position.z = 60;
+				camera.lookAt({
+					x: 0,
+					y: 5,
+					z: -20
+				});
+				var orbit = new THREE.OrbitControls(camera);
+				orbit.target = camera.position;
+				orbit.update();
+
+				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
+				// initialize basic renderer
+				renderer = new THREE.WebGLRenderer();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+
+				// 将平面添加到场景中
+				var plane = createPlaneGeometryBasicMaterial();
+				scene.add(plane);
+
+				// 在屏幕上显示坐标轴
+				var axes = new THREE.AxesHelper(100);
+				scene.add(axes);
+
+				// var trackballControls = initTrackballControls(camera, renderer);
+
+				scene.add(new THREE.AmbientLight(0x666666));
+
+
+				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
+				scene.add(ambientLight);
+				document.getElementById("dom").appendChild(renderer.domElement);
+
+				initGround();
+				initGrid();
+				initGridArr();
+
+				// 启动动画
+				renderScene();
+
+				// 创建一个地面
+				function createPlaneGeometryBasicMaterial() {
+					var textureLoader = new THREE.TextureLoader();
+					var cubeMaterial = new THREE.MeshStandardMaterial({
+						map: textureLoader.load("assets/textures/cd.jpg"),
+					});
+					cubeMaterial.map.wrapS = THREE.RepeatWrapping;
+					cubeMaterial.map.wrapT = THREE.RepeatWrapping;
+					cubeMaterial.map.repeat.set(18, 18)
+					// 创建地平面并设置大小
+					var planeGeometry = new THREE.PlaneGeometry(500, 500);
+					var plane = new THREE.Mesh(planeGeometry, cubeMaterial);
+
+					// 设置平面位置并旋转
+					plane.rotation.x = -0.5 * Math.PI;
+					plane.position.x = 0;
+					plane.position.z = 0;
+					return plane;
+				}
+
+				// 初始化线路
+				function initLine(pArr) {
+					var points = [];
+					var geometry = new THREE.Geometry();
+					for (var i = 0; i < pArr.length; i++) {
+						var randomX = pArr[i].x;
+						var randomY = pArr[i].y;
+						var randomZ = pArr[i].z;
+						var vector = new THREE.Vector3(randomX, randomY, randomZ);
+						geometry.vertices.push(vector);
+						points.push(vector);
+					}
+					var material = new THREE.LineBasicMaterial({
+						color: 0x0000FF
+					});
+					var line = new THREE.Line(geometry, material);
+					scene.add(line);
+					return points;
+				}
+
+				// 绘制路网
+				function initGround() {
+					var geometry = new THREE.Geometry();
+					geometry.vertices.push(new THREE.Vector3(0, 0, 0));
+					geometry.vertices.push(new THREE.Vector3(length, 0, 0));
+
+					for (var i = 0; i <= length / ws; i++) {
+						var material = new THREE.LineBasicMaterial({
+							color: 0x808080
+						});
+						var line = new THREE.Line(geometry, material);
+						line.position.z = i * ws;
+						scene.add(line);
+
+						var line = new THREE.Line(geometry, material);
+						line.position.x = i * ws;
+						line.position.z = length;
+						line.rotation.y = 90 * Math.PI / 180;
+						scene.add(line);
+					}
+				}
+
+				// 初始化障碍物
+				function initGrid() {
+					for (var i = 0; i < length / ws; i++) {
+						var nodeRow = [];
+						for (var j = 0; j < length / ws; j++) {
+							var salt = Math.random() * 7;
+							if (salt > 2) {
+								nodeRow.push(1);
+							} else {
+								nodeRow.push(0);
+							}
+							if (salt <= 2) {
+								var cube = new THREE.Mesh(new THREE.CubeGeometry(1, 1, 1), new THREE.MeshBasicMaterial({
+									color: 0xC0C0C0
+								}));
+								let x = ws * j + ws / 2;
+								let z = ws * i + ws / 2;
+								cube.position.set(x, 1.2, z);
+								scene.add(cube);
+								mesh.push(cube);
+							}
+						}
+						graph.push(nodeRow);
+					}
+				}
+
+				function initGridArr() {
+					for (var i = 0; i < length / ws; i++) {
+						var nodeRow = [];
+						for (var j = 0; j < length / ws; j++) {
+							nodeRow.push(1);
+						}
+						graph.push(nodeRow);
+					}
+				}
+
+				//计算路径
+				function caculatePath(resultArray) {
+					var maps = new Graph(graph); // 地图
+					var startX = parseInt(resultArray[0].position.z / ws);
+					var startY = parseInt(resultArray[0].position.x / ws);
+					var endX = parseInt(resultArray[1].position.z / ws);
+					var endY = parseInt(resultArray[1].position.x / ws);
+					var start = maps.grid[startX][startY];
+					var end = maps.grid[endX][endY];
+					result = astar.search(maps, start, end);
+					if (result.length == 0) {
+						alert("无可到达路径");
+						cleanSphere();
+						return;
+					}
+
+					var nArr = [{
+						x: resultArray[0].position.x,
+						z: resultArray[0].position.z,
+						y: 1.2
+					}];
+					for (var i = 0; i < result.length; i++) {
+						let d = {
+							x: result[i].y * ws + ws / 2,
+							y: 1.2,
+							z: result[i].x * ws + ws / 2,
+						}
+						nArr.push(d);
+					}
+					initLine(nArr);
+				}
+
+				//清除小球
+				function cleanSphere() {
+					let child = scene.children; //获取场景中的所有子对象
+					for (var i = 0; i < child.length; i++) {
+						if (child[i].geometry instanceof THREE.SphereGeometry) { //几何对象是球体几何
+							scene.remove(child[i]); //从场景中移除
+							i--;
+						}
+					}
+					isCaculate = false;
+				}
+
+				//初始球体
+				function initSphere(x, z) {
+					if (isCaculate) {
+						cleanSphere();
+					}
+					var geometry = new THREE.SphereGeometry(ws / 2, 30, 30); //球体几何
+					var material = new THREE.MeshBasicMaterial({
+						color: 0xffff00
+					}); //网格基础材料
+
+					if (resultArray.length == 0) {
+						var sphere = new THREE.Mesh(geometry, material);
+						sphere.position.x = x;
+						sphere.position.y = 1;
+						sphere.position.z = z;
+						resultArray.push(sphere);
+						scene.add(sphere);
+					} else if (resultArray[0].position.x != x || resultArray[0].position.z != z) {
+						var sphere = new THREE.Mesh(geometry, material);
+						sphere.position.x = x;
+						sphere.position.y = 1;
+						sphere.position.z = z;
+						resultArray.push(sphere);
+						scene.add(sphere);
+						caculatePath(resultArray);
+						isCaculate = true;
+						resultArray = new Array();
+					}
+				}
+
+				// 拾取对象
+				function pickupObjects(event) {
+					// 点击屏幕创建一个向量
+					var raycaster = new THREE.Raycaster();
+					var vector = new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window
+						.innerHeight) * 2 + 1);
+					var fxl = new THREE.Vector3(0, 1, 0);
+					var groundplane = new THREE.Plane(fxl, 0);
+					raycaster.setFromCamera(vector, camera);
+					var ray = raycaster.ray;
+					let intersects = ray.intersectPlane(groundplane);
+					let x = intersects.x;
+					let z = intersects.z;
+
+					if (x < 0 || z < 0 || length < z || length < x) {
+						return;
+					}
+
+					var k, m;
+					for (var i = 0; i < length; i += ws) {
+						if (x >= i && x < i + ws) {
+							k = i + ws / 2;
+						}
+					}
+					for (var j = 0; j < length; j += ws) {
+						if (z >= j && z < j + ws) {
+							m = j + ws / 2;
+						}
+					}
+
+
+					initSphere(k, m); //初始化球体
+				}
+				document.addEventListener('click', pickupObjects, false); //监听单击拾取对象初始化球体
+
+				// 动画渲染
+				var step = 5;
+
+				function renderScene() {
+					orbit.update();
+
+					// 使用requestAnimationFrame函数进行渲染
+					requestAnimationFrame(renderScene);
+					renderer.render(scene, camera);
+				}
+
+				// 渲染的场景
+				renderer.render(scene, camera);
+			}
+			window.onload = init;
+
+			function onResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+			// 监听调整大小事件
+			window.addEventListener('resize', onResize, false);
+		</script>
+	</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Threejs实现引入工厂模型，去除多余草地</title>
+		<script type="text/javascript" src="libs/three.js"></script>
+		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<script type="text/javascript" src="libs/OBJLoader.js"></script>
+		<script type="text/javascript" src="libs/MTLLoader.js"></script>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+		<link href='libs/nprogress.css' rel='stylesheet' />
+	</head>
+	<body>
+		<div id="dom"></div>
+		<script type="text/javascript">
+			var camera;
+			var renderer;
+			var mesh = [];
+
+			function init() {
+				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
+				var scene = new THREE.Scene();
+
+				var cubeLoader = new THREE.CubeTextureLoader();
+
+				// 创建一个摄像机，它定义了我们正在看的地方
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+				// 将摄像机对准场景的中心
+				camera.position.x = 10;
+				camera.position.y = 50;
+				camera.position.z = 90;
+				camera.lookAt(scene.position);
+				var orbit = new THREE.OrbitControls(camera);
+
+				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
+				renderer = new THREE.WebGLRenderer({
+					antialias: true,
+					logarithmicDepthBuffer: true,
+				});
+				renderer.setClearColor(new THREE.Color("#0e0934"));
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				// 基础光源，并应用到场景
+				scene.add(new THREE.AmbientLight("#ffffff", 1.5));
+				
+				initModel();
+
+				// 将呈现器的输出添加到HTML元素
+				document.getElementById("dom").appendChild(renderer.domElement);
+
+				// 启动动画
+				renderScene();
+
+				// 添加模型
+				function initModel() {
+					var mtlLoader = new THREE.MTLLoader();
+					mtlLoader.setPath("assets/models/factory_new/")
+					mtlLoader.load('factory.mtl', function(materials) {
+						materials.preload();
+
+						var objLoader = new THREE.OBJLoader();
+						objLoader.setMaterials(materials);
+						objLoader.load('assets/models/factory_new/factory.obj', function(object) {
+							mesh = object;
+							mesh.scale.set(0.0003, 0.0003, 0.0003);
+							mesh.position.set(-200, 0.5, -200);
+							scene.add(mesh);
+						});
+					});
+				}
+				
+				document.addEventListener('click', onDocumentMouseDown, false); //监听单击拾取对象初始化球体
+				
+				function onDocumentMouseDown(event) {
+					// 点击屏幕创建一个向量
+					var vector = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window
+						.innerHeight) * 2 + 1, 0.5);
+					vector = vector.unproject(camera); // 将屏幕的坐标转换成三维场景中的坐标
+					var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+					var intersects = raycaster.intersectObjects(mesh.children, true);
+					console.log(intersects)
+					if (intersects.length > 0) {
+						// intersects[0].object.material.color.set("#006100");
+					}
+				}
+
+				function renderScene() {
+					orbit.update();
+					// 使用requestAnimationFrame函数进行渲染
+					requestAnimationFrame(renderScene);
+					renderer.render(scene, camera);
+				}
+
+				// 渲染的场景
+				renderer.render(scene, camera);
+			}
+			window.onload = init;
+
+			// 随着窗体的变化修改场景
+			function onResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+			// 监听窗体调整大小事件
+			window.addEventListener('resize', onResize, false);
+		</script>
+	</body>
+</html>

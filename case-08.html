@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Threejs实现天空盒，全景场景，地面草地</title>
+		<script type="text/javascript" src="libs/three.js"></script>
+		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="dom"></div>
+		<script type="text/javascript">
+			var camera;
+			var renderer;
+
+			function init() {
+				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
+				var scene = new THREE.Scene();
+
+				var urls = [
+					'assets/textures/posx.jpg',
+					'assets/textures/negx.jpg',
+					'assets/textures/posy.jpg',
+					'assets/textures/negy.jpg',
+					'assets/textures/posz.jpg',
+					'assets/textures/negz.jpg'
+				];
+
+				var cubeLoader = new THREE.CubeTextureLoader();
+				scene.background = cubeLoader.load(urls);
+
+				// 创建一个摄像机，它定义了我们正在看的地方
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+				// 将摄像机对准场景的中心
+				camera.position.x = 10;
+				camera.position.y = 50;
+				camera.position.z = 90;
+				camera.lookAt(scene.position);
+				var orbit = new THREE.OrbitControls(camera);
+
+				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
+				renderer = new THREE.WebGLRenderer({
+					antialias: true,
+					logarithmicDepthBuffer: true,
+				});
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				// scene.add(new THREE.AmbientLight(0x666666));
+
+				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
+				scene.add(ambientLight);
+
+				// 在屏幕上显示坐标轴
+				var axes = new THREE.AxisHelper(100);
+				scene.add(axes);
+
+				// 将平面添加到场景中
+				var plane = createPlaneGeometryBasicMaterial();
+				scene.add(plane);
+
+				// 将呈现器的输出添加到HTML元素
+				document.getElementById("dom").appendChild(renderer.domElement);
+
+				// 启动动画
+				renderScene();
+
+				/**
+				 * 创建地面并添加材质
+				 * wrapS属性定义的是纹理沿x轴方向的行为，而warpT属性定义的是纹理沿y轴方向的行为。
+				 * Three.js为这些属性提供了如下两个选项：
+				 * ·THREE.RepeatWrapping允许纹理重复自己。
+				 * ·THREE.ClampToEdgeWrapping是属性的默认值。
+				 * 属性值为THREE.ClampToEdgeWrapping时，那么纹理的整体不会重复，只会重复纹理边缘的像素来填满剩下的空间。
+				 */
+				function createPlaneGeometryBasicMaterial() {
+					var textureLoader = new THREE.TextureLoader();
+					var cubeMaterial = new THREE.MeshStandardMaterial({
+						map: textureLoader.load("assets/textures/cd.jpg"),
+					});
+					cubeMaterial.map.wrapS = THREE.RepeatWrapping;
+					cubeMaterial.map.wrapT = THREE.RepeatWrapping;
+					cubeMaterial.map.repeat.set(8, 8)
+					// 创建地平面并设置大小
+					var planeGeometry = new THREE.PlaneGeometry(100, 100);
+					var plane = new THREE.Mesh(planeGeometry, cubeMaterial);
+
+					// 设置平面位置并旋转
+					plane.rotation.x = -0.5 * Math.PI;
+					plane.position.x = 0;
+					plane.position.z = 0;
+					return plane;
+				}
+
+				function renderScene() {
+					orbit.update();
+					// 使用requestAnimationFrame函数进行渲染
+					requestAnimationFrame(renderScene);
+					renderer.render(scene, camera);
+				}
+
+				// 渲染的场景
+				renderer.render(scene, camera);
+			}
+			window.onload = init;
+
+			// 随着窗体的变化修改场景
+			function onResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+			// 监听窗体调整大小事件
+			window.addEventListener('resize', onResize, false);
+		</script>
+	</body>
+</html>
