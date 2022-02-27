@@ -51,11 +51,14 @@
 				scene.background = cubeLoader.load(urls);
 
 				// 创建一个摄像机，它定义了我们正在看的地方
-				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 300000);
 				// 将摄像机对准场景的中心
-				camera.position.x = 10;
-				camera.position.y = 50;
-				camera.position.z = 90;
+				// camera.position.x = 10;
+				// camera.position.y = 50;
+				// camera.position.z = 90;
+				camera.position.x = -39569;
+				camera.position.y = 18106;
+				camera.position.z = 42591;
 				camera.lookAt(scene.position);
 				var orbit = new THREE.OrbitControls(camera);
 
@@ -194,7 +197,7 @@
 					});
 
 					//循环1000  添加粒子
-					for (var i = 0; i < 2000; i++) {
+					for (var i = 0; i < 3000; i++) {
 						var particle = new THREE.Sprite(material);
 						initParticle(particle, i);
 						krq.add(particle);
@@ -210,18 +213,18 @@
 				 */
 				function initParticle(particle, delay) {
 					particle.position.set(5, Math.random() + 5, 0);
-					particle.scale.x = particle.scale.y = Math.random() * 3;
+					particle.scale.x = particle.scale.y = Math.random() * 1000;
 					//下面是一系列的动画
-					var xx = Math.random() * 10 - 5;
-					var yy = Math.cos((Math.PI / 100) * xx) * 20;
+					var xx = Math.random() * 100000 - 5;
+					var yy = Math.cos((Math.PI / 10) * xx) * 20;
 					//位移
 					new TWEEN.Tween(particle.position)
 						.delay(delay)
 						.to({
 							x: xx,
 							y: yy,
-							z: Math.random() * 10 - 5
-						}, 2000)
+							z: Math.random() * 2000 - 5  // 喷的范围
+						}, 1000)
 						.onComplete(function() {
 							initParticle(particle, delay);
 						})
@@ -253,7 +256,7 @@
 					cubeMaterial.map.wrapT = THREE.RepeatWrapping;
 					cubeMaterial.map.repeat.set(3, 3)
 					// 创建地平面并设置大小
-					var planeGeometry = new THREE.PlaneGeometry(100, 100);
+					var planeGeometry = new THREE.PlaneGeometry(11100, 11100);
 					var plane = new THREE.Mesh(planeGeometry, cubeMaterial);
 
 					// 设置平面位置并旋转
