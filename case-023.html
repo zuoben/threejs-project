@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Threejs实现故宫3D展示</title>
+		<title>Three.js飞机模型沿着轨迹进行运动，并保持运动方向</title>
 		<script type="text/javascript" src="libs/three.js"></script>
 		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<script type="text/javascript" src="libs/GLTFLoader.js"></script>
 		<style>
 			body {
 				margin: 0;
@@ -16,30 +17,19 @@
 		<script type="text/javascript">
 			var camera;
 			var renderer;
+			var mesh;
+			var mixer;
+			var curve;
 
 			function init() {
-
-				var urls = [
-					'assets/textures/posx.jpg',
-					'assets/textures/negx.jpg',
-					'assets/textures/posy.jpg',
-					'assets/textures/negy.jpg',
-					'assets/textures/posz.jpg',
-					'assets/textures/negz.jpg'
-				];
 				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
 				var scene = new THREE.Scene();
-				var cubeLoader = new THREE.CubeTextureLoader();
-				scene.background = cubeLoader.load(urls);
-				scene.opacity = 0;
-
-				var cubeLoader = new THREE.CubeTextureLoader();
-				var textureLoader = new THREE.TextureLoader();
 
 				// 创建一个摄像机，它定义了我们正在看的地方
-				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100000);
 				// 将摄像机对准场景的中心
-				camera.position.z = 500;
+				camera.position.z = 8000;
+				camera.position.y = 8000;
 				camera.lookAt(scene.position);
 				var orbit = new THREE.OrbitControls(camera);
 
@@ -48,6 +38,7 @@
 					antialias: true,
 					logarithmicDepthBuffer: true,
 				});
+				renderer.setClearColor(new THREE.Color("#0e0934"));
 				renderer.setSize(window.innerWidth, window.innerHeight);
 
 				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
@@ -58,12 +49,92 @@
 
 				// 启动动画
 				renderScene();
-				
+				initFeiji();
+
+				function initFeiji() {
+					var loader = new THREE.GLTFLoader();
+					loader.load('assets/models/feiji/feiji.glb', function(result) {
+						mesh = result.scene
+						mesh.position.set(-1000, -5000, -5000)
+						scene.add(mesh);
+						motion()
+					});
+				}
+
+				function motion() {
+					// 通过类CatmullRomCurve3创建一个3D样条曲线
+					curve = new THREE.CatmullRomCurve3([
+						new THREE.Vector3(-1000, -5000, -5000),
+						new THREE.Vector3(1000, 0, 0),
+						new THREE.Vector3(800, 5000, 5000),
+						new THREE.Vector3(-500, 0, 10000)
+					]);
+					// 样条曲线均匀分割100分，返回51个顶点坐标
+					var points = curve.getPoints(100);
+					// 控制台查看返回的顶点坐标
+					// console.log('points', points);
+					var geometry = new THREE.Geometry();
+					// 把从曲线轨迹上获得的顶点坐标赋值给几何体
+					geometry.vertices = points
+					var material = new THREE.LineBasicMaterial({
+						color: 0x4488ff
+					});
+					var line = new THREE.Line(geometry, material);
+					scene.add(line)
+
+					// 通过Threejs的帧动画相关API播放网格模型沿着曲线做动画运动
+					// 声明一个数组用于存储时间序列
+					let arr = []
+					for (let i = 0; i < 101; i++) {
+						arr.push(i)
+					}
+					// 生成一个时间序列
+					var times = new Float32Array(arr);
+
+					var posArr = []
+					points.forEach(elem => {
+						posArr.push(elem.x, elem.y, elem.z)
+					});
+					// 创建一个和时间序列相对应的位置坐标系列
+					var values = new Float32Array(posArr);
+					// 创建一个帧动画的关键帧数据，曲线上的位置序列对应一个时间序列
+					var posTrack = new THREE.KeyframeTrack('.position', times, values);
+					let duration = 101;
+					let clip = new THREE.AnimationClip("default", duration, [posTrack]);
+					mixer = new THREE.AnimationMixer(mesh);
+					let AnimationAction = mixer.clipAction(clip);
+					AnimationAction.play();
+				}
+
+				function changeLookAt(t) {
+					// 当前点在线条上的位置
+					var position = curve.getPointAt(t);
+					mesh.position.copy(position);
+
+					// 返回一个点t在曲线上位置向量的法线向量
+					const tangent = curve.getTangentAt(t);
+					// 位置向量和切线向量相加即为所需朝向的点向量
+					const lookAtVec = tangent.add(position);
+					mesh.lookAt(lookAtVec);
+				}
+
+				var clock = new THREE.Clock(); //声明一个时钟对象
+				const loopTime = 10 * 1000; // loopTime: 循环一圈的时间
 				function renderScene() {
 					orbit.update();
 					// 使用requestAnimationFrame函数进行渲染
 					requestAnimationFrame(renderScene);
 					renderer.render(scene, camera);
+					// 更新帧动画的时间
+					if (mixer) {
+						mixer.update(clock.getDelta());
+					}
+
+					if (curve) {
+						let time = Date.now();
+						let t = (time % loopTime) / loopTime; // 计算当前时间进度百分比
+						changeLookAt(t);
+					}
 				}
 
 				// 渲染的场景

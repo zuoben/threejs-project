@@ -17,7 +17,9 @@
 		<script type="text/javascript">
 			var camera;
 			var renderer;
-
+			var mesh;
+			var mixer;
+			
 			function init() {
 
 				var urls = [
@@ -57,31 +59,58 @@
 				// 启动动画
 				renderScene();
 				initFang();
-				
-				
+
 				// 添加坊的模型
 				function initFang() {
 					var loader = new THREE.GLTFLoader();
 					loader.load('assets/models/fang/model.glb', function(result) {
-						console.log(result)
-						// result.scene.translateY(0);
-						// pobj = result.scene;
+						result.scene.traverse(function(child) {
+							if (child.isMesh) {
+								child.material.emissive = child.material.color;
+								child.material.emissiveMap = child.material.map;
+							}
+						})
 						scene.add(result.scene);
-				
-						// tweenComplete();
-				
-						// mixer = new THREE.AnimationMixer(result.scene);
-						// animationClip = result.animations[0];
-						// clipAction = mixer.clipAction(animationClip).play();
-						// animationClip = clipAction.getClip();
 					});
 				}
-				
+
+				// 拾取对象
+				function pickupObjects(event) {
+					// 点击屏幕创建一个向量
+					var raycaster = new THREE.Raycaster();
+					var vector = new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window
+						.innerHeight) * 2 + 1);
+					var fxl = new THREE.Vector3(0, 1, 0);
+					var groundplane = new THREE.Plane(fxl, 0);
+					raycaster.setFromCamera(vector, camera);
+					var ray = raycaster.ray;
+					let intersects = ray.intersectPlane(groundplane);
+					console.log(intersects)
+
+
+					// 点击屏幕创建一个向量
+					var vector1 = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window
+						.innerHeight) * 2 + 1, 0.5);
+					vector1 = vector1.unproject(camera); // 将屏幕的坐标转换成三维场景中的坐标
+					var raycaster = new THREE.Raycaster(camera.position, vector1.sub(camera.position).normalize());
+					var intersects1 = raycaster.intersectObjects(scene.children, true);
+					if (intersects1.length > 0) {
+						console.log(intersects1)
+						intersects1[0].object.material.color.set("#ff0000");
+					}
+				}
+				document.addEventListener('click', pickupObjects, false); //监听单击拾取对象初始化球体
+
+				var clock = new THREE.Clock(); //声明一个时钟对象
 				function renderScene() {
 					orbit.update();
 					// 使用requestAnimationFrame函数进行渲染
 					requestAnimationFrame(renderScene);
 					renderer.render(scene, camera);
+					// 更新帧动画的时间
+					if (mixer) {
+						mixer.update(clock.getDelta());
+					}
 				}
 
 				// 渲染的场景
