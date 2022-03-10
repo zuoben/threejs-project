@@ -4,6 +4,7 @@
 		<title>Threejs实现故宫3D展示</title>
 		<script type="text/javascript" src="libs/three.js"></script>
 		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<script type="text/javascript" src="libs/GLTFLoader.js"></script>
 		<style>
 			body {
 				margin: 0;
@@ -18,26 +19,16 @@
 			var renderer;
 
 			function init() {
-
-				var urls = [
-					'assets/textures/posx.jpg',
-					'assets/textures/negx.jpg',
-					'assets/textures/posy.jpg',
-					'assets/textures/negy.jpg',
-					'assets/textures/posz.jpg',
-					'assets/textures/negz.jpg'
-				];
 				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
 				var scene = new THREE.Scene();
 				var cubeLoader = new THREE.CubeTextureLoader();
-				scene.background = cubeLoader.load(urls);
 				scene.opacity = 0;
 
 				var cubeLoader = new THREE.CubeTextureLoader();
 				var textureLoader = new THREE.TextureLoader();
 
 				// 创建一个摄像机，它定义了我们正在看的地方
-				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000000);
 				// 将摄像机对准场景的中心
 				camera.position.z = 500;
 				camera.lookAt(scene.position);
@@ -48,6 +39,7 @@
 					antialias: true,
 					logarithmicDepthBuffer: true,
 				});
+				renderer.setClearColor(new THREE.Color("#0e0934"));
 				renderer.setSize(window.innerWidth, window.innerHeight);
 
 				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
@@ -58,6 +50,17 @@
 
 				// 启动动画
 				renderScene();
+				initGugong();
+
+				function initGugong() {
+					var loader = new THREE.GLTFLoader();
+					loader.load('https://lingjingweapp.oss-cn-beijing.aliyuncs.com/assets/card-bag/feiji.glb', function(result) {
+						mesh = result.scene
+						mesh.position.set(-1000, -5000, -5000)
+						scene.add(mesh);
+						motion()
+					});
+				}
 				
 				function renderScene() {
 					orbit.update();
