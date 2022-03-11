@@ -50,17 +50,6 @@
 
 				// 启动动画
 				renderScene();
-				initGugong();
-
-				function initGugong() {
-					var loader = new THREE.GLTFLoader();
-					loader.load('https://lingjingweapp.oss-cn-beijing.aliyuncs.com/assets/card-bag/feiji.glb', function(result) {
-						mesh = result.scene
-						mesh.position.set(-1000, -5000, -5000)
-						scene.add(mesh);
-						motion()
-					});
-				}
 				
 				function renderScene() {
 					orbit.update();
