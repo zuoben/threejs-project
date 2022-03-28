@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Threejs自来水厂3D可视化，加载模型，水流监测，标签展示</title>
+		<script type="text/javascript" src="libs/three.js"></script>
+		<script type="text/javascript" src="libs/dat.gui.js"></script>
+		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<script type="text/javascript" src="libs/GLTFLoader.js"></script>
+		<script type="text/javascript" charset="UTF-8" src="libs/Tween.min.js"></script>
+
+		<script type="text/javascript" src="libs/MakeTextSprite.js"></script>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="dom"></div>
+		<script id="vs1" type="x-shader/x-vertex">
+			varying vec3 vNormal;
+			varying vec3 vPositionNormal;
+			void main() 
+			{
+				vNormal = normalize( normalMatrix * normal ); // 转换到视图空间
+				vPositionNormal = normalize(( modelViewMatrix * vec4(position, 1.0) ).xyz);
+				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+			}
+
+		</script>
+		<script id="fs1" type="x-shader/x-fragment">
+			uniform vec3 glowColor;
+			uniform float b;
+			uniform float p;
+			uniform float s;
+			varying vec3 vNormal;
+			varying vec3 vPositionNormal;
+			void main() 
+			{
+				float a = pow( b + s * abs(dot(vNormal, vPositionNormal)), p );
+				gl_FragColor = vec4( glowColor, a );
+			}
+
+		</script>
+		<script type="text/javascript">
+			var camera;
+			var renderer;
+			var texture;
+			var selectedObjects = [];
+
+			function init() {
+				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
+				var scene = new THREE.Scene();
+				var cubeLoader = new THREE.CubeTextureLoader();
+				scene.opacity = 0;
+
+				var cubeLoader = new THREE.CubeTextureLoader();
+				var textureLoader = new THREE.TextureLoader();
+
+				// 创建一个摄像机，它定义了我们正在看的地方
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
+				// 将摄像机对准场景的中心
+				camera.position.z = 200;
+				camera.position.y = 100;
+				// camera.position.y = 150;
+				// camera.position.x = 150;
+				camera.lookAt(scene.position);
+				var orbit = new THREE.OrbitControls(camera);
+
+				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
+				renderer = new THREE.WebGLRenderer({
+					antialias: true,
+					logarithmicDepthBuffer: true,
+				});
+				renderer.setClearColor(new THREE.Color("#0e0934"));
+				renderer.setSize(window.innerWidth, window.innerHeight);
+
+				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
+				scene.add(ambientLight);
+
+				// 在屏幕上显示坐标轴
+				var axes = new THREE.AxisHelper(500);
+				// scene.add(axes);
+
+				// 将呈现器的输出添加到HTML元素
+				document.getElementById("dom").appendChild(renderer.domElement);
+
+				// 启动动画
+				initTubeModel();
+				initShuiChang();
+				renderScene();
+
+				function initShuiChang() {
+					var loader = new THREE.GLTFLoader();
+					loader.load('assets/models/shuichang/shuichang.glb', function(result) {
+						var object = result.scene;
+
+						object.traverse(function(item) {
+							if (item instanceof THREE.Mesh) {
+								// item.castShadow = true;
+								// item.receiveShadow = true;
+
+								//慢射颜色：000 纯黑    照明颜色： #00a7ff
+								// item.material.color.set(0x1DA9FC) ;
+								// item.material.transparent= true,
+								// item.material.opacity= 0.5,
+								// item.material.wireframe = true;
+								selectedObjects.push(item);
+							}
+						});
+						object.scale.set(2, 2, 2);
+						object.rotateY(3.14);
+						scene.add(object);
+						// shaderObj(object);
+					});
+				}
+
+				function shaderObj(selectedObjects) {
+					const customMaterial = new THREE.ShaderMaterial({
+						uniforms: {
+							"s": {
+								type: "f",
+								value: -1.0
+							},
+							"b": {
+								type: "f",
+								value: 1.0
+							}, //bias 颜色最亮的位置
+							"p": {
+								type: "f",
+								value: 1.0
+							}, //power决定了透明度变化速度及方向。
+							glowColor: {
+								type: "c",
+								value: new THREE.Color(0x1DA9FC)
+							}
+						},
+						vertexShader: document.getElementById('vs1').textContent,
+						fragmentShader: document.getElementById('fs1').textContent,
+						side: THREE.FrontSide,
+						blending: THREE.AdditiveBlending,
+						transparent: true,
+						opacity: 0.4
+					})
+
+					selectedObjects.material = customMaterial;
+				}
+
+				function createPath(pointsArr) {
+					pointsArr = pointsArr.map((point) => new THREE.Vector3(...point)); // 将参数数组转换成点数组的形式
+
+					// 方法一：自定义三维路径 curvePath
+					const path = new THREE.CurvePath();
+					for (let i = 0; i < pointsArr.length - 1; i++) {
+						const lineCurve = new THREE.LineCurve3(pointsArr[i], pointsArr[i + 1]); // 每两个点之间形成一条三维直线
+						path.curves.push(lineCurve); // curvePath有一个curves属性，里面存放组成该三维路径的各个子路径
+					}
+					return path;
+				}
+
+				const count = 200
+				const gColor = '#28f260'
+				const prop1 = {
+					width: 416,
+					height: 112,
+					pos: [60, 35, 30],
+					// scale:[24, 6, 0]
+					scale: [0.24375 * count, 0.065625 * count, 0]
+				}
+				const tab1 = [
+					['一级高压泵后压力：', '20.2bar', gColor],
+					['一级循环泵后压力：', '0.2bar', ]
+				]
+
+				const prop2 = {
+					width: 352,
+					height: 196,
+					pos: [-60, 40, 0],
+					scale: [0.20625 * count, 0.11484375 * count, 0],
+				}
+
+				const tab2 = [
+					['进水情况', ''],
+					['进水温度：', '25.6℃', gColor],
+					['进水流量：', '2.5m³', ],
+					['进水电导：', '28.5ms/cm', gColor],
+				]
+
+				const prop3 = {
+					width: 384,
+					height: 256,
+					pos: [5, 60, -60],
+					scale: [0.225 * count, 0.15 * count, 0]
+				}
+				const tab3 = [
+					['产水情况', ''],
+					['一级回收率：', '58%', gColor],
+					['一级产水流量：', '1.75㎡', ],
+					['一级产水电量：', '980.5/cm', gColor],
+					['一级产水电量：', '0.5bar', gColor],
+				]
+
+				const prop4 = {
+					width: 256,
+					height: 64,
+					pos: [-85, 30, 40],
+					scale: [0.15 * count, 0.0375 * count, 0],
+				}
+				const tab4 = [
+					['泵机状态 ', '• 开启', gColor],
+				]
+
+				const prop5 = {
+					width: 256,
+					height: 64,
+					pos: [-10, 50, 30],
+					scale: [0.15 * count, 0.0375 * count, 0],
+				}
+				const tab5 = [
+					['阀门状态 ', '• 开启', gColor],
+				]
+				const props = [prop1, prop2, prop3, prop4, prop5]
+				const tabs = [tab1, tab2, tab3, tab4, tab5]
+
+				handleDatachange();
+				setInterval(handleDatachange, 2000)
+
+				function handleDatachange() {
+					let r = (Math.random() * 10 + 20).toFixed(2)
+					tab2[1][1] = r + '℃'
+					if (r > 25) tab2[1][2] = 'red'
+					else tab2[1][2] = gColor
+
+					r = Math.random().toFixed(2)
+					tab3[4][1] = r + 'bar'
+					if (r > 0.5) tab3[4][2] = 'red';
+					else tab3[4][2] = gColor
+
+					if (Math.random() > 0.5) {
+						tab5[0][1] = '• 开启'
+						tab5[0][2] = gColor
+					} else {
+						tab5[0][1] = '• 关闭'
+						tab5[0][2] = 'red'
+					}
+					console.time('render sprite')
+					initSprite()
+					console.timeEnd('render sprite')
+				}
+
+				function initSprite() {
+					clearSprite();
+					(scene.children || []).forEach((v, idx) => {
+						if (v.type == 'Mesh') {
+							const borderColor = 'rgba(39, 179, 236, 1)'
+							const color = 'rgba(255,255,255, 1)'
+							makeTextSprite1(scene, tabs, props, {
+								color: color,
+								borderColor,
+								backgroundColor: 'rgba(255,255,255,0.05)'
+							});
+						}
+					});
+				}
+
+				// 清空雪碧图
+				function clearSprite(type = 'Sprite') {
+					const children = [];
+					(scene.children || []).forEach((v, idx) => {
+						if (v.type !== type) {
+							children.push(v);
+						}
+					});
+					scene.children = children;
+				}
+
+				function initTubeModel() {
+					var pointsArr = [
+						[42, 0, 10],
+						[21, 0, 10],
+						[21, 0, 1],
+						[-3, 0, 1],
+						[-3, 0, -18],
+						[-10, 0, -18],
+						[-10, 0, 5],
+						[1, 0, 5],
+						[1, 0, 24],
+						[-27, 0, 24],
+						[-27, 0, 18],
+						[-46, 0, 19],
+						[-46, 0, -4],
+						[-25, 0, -6],
+						[-25, 0, -19],
+						[-35, 0, -20],
+						[-35, 0, -26],
+						[-30, 0, -30],
+						[3, 0, -30]
+					];
+					var curve = createPath(pointsArr)
+					var tubeGeometry = new THREE.TubeGeometry(curve, 1000, 0.5, 100, false);
+					var textureLoader = new THREE.TextureLoader();
+					texture = textureLoader.load('assets/textures/arrow1.jpg'); //./ZS箭头.svg  ./arrow.jpg
+					// 设置阵列模式为 RepeatWrapping
+					texture.wrapS = THREE.RepeatWrapping
+					texture.wrapT = THREE.RepeatWrapping
+					texture.repeat.x = 50;
+					texture.repeat.y = 2;
+					texture.offset.y = 0.5;
+
+					var tubeMaterial = new THREE.MeshPhongMaterial({
+						map: texture,
+						transparent: true,
+						color: 0x47d8fa,
+						side: THREE.DoubleSide,
+						//opacity: 0.4,
+					});
+
+					// 设置数组材质对象作为网格模型材质参数
+					var mesh = new THREE.Mesh(tubeGeometry, tubeMaterial); //网格模型对象Mesh
+					mesh.position.y = 2;
+					mesh.position.x += 7;
+					mesh.rotateZ(3.14);
+					mesh.scale.set(2, 2, 2);
+					scene.add(mesh); //网格模型添加到场景中
+				}
+
+				document.addEventListener('click', onDocumentMouseDown, false);
+
+				function onDocumentMouseDown(event) {
+					// 点击屏幕创建一个向量
+					var vector = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window
+						.innerHeight) * 2 + 1, 0.5);
+					vector = vector.unproject(camera); // 将屏幕的坐标转换成三维场景中的坐标
+					var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+					var intersects = raycaster.intersectObjects(scene.children, true);
+					if (intersects.length > 0) {
+						var pos = intersects[0].object.position;
+						console.log(intersects[0])
+					}
+				}
+
+				function renderScene() {
+					TWEEN.update();
+					orbit.update();
+					// 使用requestAnimationFrame函数进行渲染
+					requestAnimationFrame(renderScene);
+					renderer.render(scene, camera);
+					texture.offset.x -= 0.04
+				}
+
+				// 渲染的场景
+				renderer.render(scene, camera);
+			}
+			window.onload = init;
+
+			// 随着窗体的变化修改场景
+			function onResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+			// 监听窗体调整大小事件
+			window.addEventListener('resize', onResize, false);
+		</script>
+	</body>
+</html>
