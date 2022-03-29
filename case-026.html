@@ -61,8 +61,8 @@
 				// 创建一个摄像机，它定义了我们正在看的地方
 				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
 				// 将摄像机对准场景的中心
-				camera.position.z = 200;
-				camera.position.y = 100;
+				camera.position.z = 100;
+				camera.position.y = 200;
 				// camera.position.y = 150;
 				// camera.position.x = 150;
 				camera.lookAt(scene.position);
@@ -71,7 +71,6 @@
 				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
 				renderer = new THREE.WebGLRenderer({
 					antialias: true,
-					logarithmicDepthBuffer: true,
 				});
 				renderer.setClearColor(new THREE.Color("#0e0934"));
 				renderer.setSize(window.innerWidth, window.innerHeight);
@@ -93,26 +92,21 @@
 
 				function initShuiChang() {
 					var loader = new THREE.GLTFLoader();
+					// assets/models/fang/shapan.glb'
 					loader.load('assets/models/shuichang/shuichang.glb', function(result) {
 						var object = result.scene;
-
+						console.log(object)
 						object.traverse(function(item) {
 							if (item instanceof THREE.Mesh) {
-								// item.castShadow = true;
-								// item.receiveShadow = true;
-
-								//慢射颜色：000 纯黑    照明颜色： #00a7ff
-								// item.material.color.set(0x1DA9FC) ;
-								// item.material.transparent= true,
-								// item.material.opacity= 0.5,
-								// item.material.wireframe = true;
-								selectedObjects.push(item);
+								// item.material.color.set(0x1DA9FC);
+								// item.material.transparent = true;
+								// item.material.opacity = 0.5;
+								shaderObj(item);
 							}
 						});
 						object.scale.set(2, 2, 2);
 						object.rotateY(3.14);
 						scene.add(object);
-						// shaderObj(object);
 					});
 				}
 
@@ -140,7 +134,7 @@
 						fragmentShader: document.getElementById('fs1').textContent,
 						side: THREE.FrontSide,
 						blending: THREE.AdditiveBlending,
-						transparent: true,
+						// transparent: true,
 						opacity: 0.4
 					})
 
@@ -223,8 +217,8 @@
 				const props = [prop1, prop2, prop3, prop4, prop5]
 				const tabs = [tab1, tab2, tab3, tab4, tab5]
 
-				handleDatachange();
-				setInterval(handleDatachange, 2000)
+				// handleDatachange();
+				// setInterval(handleDatachange, 2000)
 
 				function handleDatachange() {
 					let r = (Math.random() * 10 + 20).toFixed(2)
@@ -319,7 +313,6 @@
 					// 设置数组材质对象作为网格模型材质参数
 					var mesh = new THREE.Mesh(tubeGeometry, tubeMaterial); //网格模型对象Mesh
 					mesh.position.y = 2;
-					mesh.position.x += 7;
 					mesh.rotateZ(3.14);
 					mesh.scale.set(2, 2, 2);
 					scene.add(mesh); //网格模型添加到场景中
