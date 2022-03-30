@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Threejs实现天空盒，全景场景，雪天空地</title>
+		<script type="text/javascript" src="libs/three.js"></script>
+		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="dom"></div>
+		<script type="text/javascript">
+			var camera;
+			var renderer;
+
+			function init() {
+
+				var urls1 = [
+					'assets/bgImage/skyBox1/px_r.jpg',
+					'assets/bgImage/skyBox1/nx_l.jpg',
+					'assets/bgImage/skyBox1/ny_f.jpg',
+					'assets/bgImage/skyBox1/py_b.jpg',
+					'assets/bgImage/skyBox1/pz_t.jpg',
+					'assets/bgImage/skyBox1/nz_b.jpg',
+				];
+				
+				var urls2 = [
+					'assets/bgImage/skyBox2/px_r.jpg',
+					'assets/bgImage/skyBox2/nx_l.jpg',
+					'assets/bgImage/skyBox2/ny_f.jpg',
+					'assets/bgImage/skyBox2/py_b.jpg',
+					'assets/bgImage/skyBox2/pz_t.jpg',
+					'assets/bgImage/skyBox2/nz_b.jpg',
+				];
+				var urls3 = [
+					'assets/bgImage/skyBox3/posx.jpg',
+					'assets/bgImage/skyBox3/negx.jpg',
+					'assets/bgImage/skyBox3/posy.jpg',
+					'assets/bgImage/skyBox3/negy.jpg',
+					'assets/bgImage/skyBox3/posz.jpg',
+					'assets/bgImage/skyBox3/negz.jpg'
+				];
+				var urls4 = [
+					'assets/bgImage/skyBox4/posx.jpg',
+					'assets/bgImage/skyBox4/negx.jpg',
+					'assets/bgImage/skyBox4/posy.jpg',
+					'assets/bgImage/skyBox4/negy.jpg',
+					'assets/bgImage/skyBox4/posz.jpg',
+					'assets/bgImage/skyBox4/negz.jpg',
+				];
+				var urls5 = [
+					'assets/bgImage/skyBox5/posx.jpg',
+					'assets/bgImage/skyBox5/negx.jpg',
+					'assets/bgImage/skyBox5/posy.jpg',
+					'assets/bgImage/skyBox5/negy.jpg',
+					'assets/bgImage/skyBox5/posz.jpg',
+					'assets/bgImage/skyBox5/negz.jpg'
+				];
+				var urls6 = [
+					'assets/bgImage/skyBox6/posx.jpg',
+					'assets/bgImage/skyBox6/negx.jpg',
+					'assets/bgImage/skyBox6/posy.jpg',
+					'assets/bgImage/skyBox6/negy.jpg',
+					'assets/bgImage/skyBox6/posz.jpg',
+					'assets/bgImage/skyBox6/negz.jpg'
+				];
+				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
+				var scene = new THREE.Scene();
+				var cubeLoader = new THREE.CubeTextureLoader();
+				scene.background = cubeLoader.load(urls2);
+				scene.opacity = 0;
+
+				var cubeLoader = new THREE.CubeTextureLoader();
+				var textureLoader = new THREE.TextureLoader();
+
+				// 创建一个摄像机，它定义了我们正在看的地方
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
+				// 将摄像机对准场景的中心
+				camera.position.z = 500;
+				camera.lookAt(scene.position);
+				var orbit = new THREE.OrbitControls(camera);
+
+				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
+				renderer = new THREE.WebGLRenderer({
+					antialias: true,
+					logarithmicDepthBuffer: true,
+				});
+				renderer.setSize(window.innerWidth, window.innerHeight);
+
+				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
+				scene.add(ambientLight);
+
+				// 将呈现器的输出添加到HTML元素
+				document.getElementById("dom").appendChild(renderer.domElement);
+
+				// 启动动画
+				renderScene();
+				
+				function renderScene() {
+					orbit.update();
+					// 使用requestAnimationFrame函数进行渲染
+					requestAnimationFrame(renderScene);
+					renderer.render(scene, camera);
+				}
+
+				// 渲染的场景
+				renderer.render(scene, camera);
+			}
+			window.onload = init;
+
+			// 随着窗体的变化修改场景
+			function onResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+			// 监听窗体调整大小事件
+			window.addEventListener('resize', onResize, false);
+		</script>
+	</body>
+</html>

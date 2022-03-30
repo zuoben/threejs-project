@@ -1,0 +1,7 @@
+这6张图片是：朝前的Back（posz）、朝后的Front（negz）、朝上的Up（posy）、朝下的Down（negy）、朝右的Right（posx）和朝左的Left（negx）。
+Three.js会将这些图片整合到一起来创建一个无缝的环境贴图。网上有很多站点可以下载全景图片，但是它们经常以球形等距圆柱投影图的形式提供。
+要使用这种图片，最简单的方法是使用在线转换工具将它们转换成分离的图片文件。下面两个网站可以实现这种转换：
+·https://jaxry.github.io/panorama-to-cubemap/
+·https://www.360toolkit.co/convert-spherical-equirectangular-tocubemap.html
+
+顺序：右左上下前后

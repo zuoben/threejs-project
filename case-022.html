@@ -21,19 +21,10 @@
 			var mixer;
 			
 			function init() {
-
-				var urls = [
-					'assets/textures/posx.jpg',
-					'assets/textures/negx.jpg',
-					'assets/textures/posy.jpg',
-					'assets/textures/negy.jpg',
-					'assets/textures/posz.jpg',
-					'assets/textures/negz.jpg'
-				];
 				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
 				var scene = new THREE.Scene();
 				var textureLoader = new THREE.TextureLoader();
-				scene.background = textureLoader.load("assets/textures/fangbg.jpg");
+				scene.background = textureLoader.load("assets/bgImage/fangbg.jpg");
 
 				// 创建一个摄像机，它定义了我们正在看的地方
 				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100000);
