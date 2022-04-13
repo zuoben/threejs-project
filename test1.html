@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>俄罗斯方块</title>
+	<meta charset="utf-8">
+	<style type="text/css">
+		.container{
+			left: 50px;
+			height: 360px;
+			width:200px;
+			background-color: #000000;
+			position:relative;
+
+		}
+		.activity_model{
+			height: 20px;
+			width: 20px;
+			top:0px;
+			left:0px;
+			border-style:solid;
+			border-width: 1px;
+			border-color: #ffffff;
+			background-color: #0000FE;
+			position: absolute;
+		}
+		.fixed_model{
+			height: 20px;
+			width: 20px;
+			top:0px;
+			left:0px;
+			border-style:solid;
+			border-width: 1px;
+			border-color: #333333;
+			background-color: #fefefe;
+			position: absolute;
+		}
+		.score{
+			height: 100px;
+			width: 300px;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+		}
+		.score_score{
+			height: 50px;
+			width: 300px;
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+			align-items: center;
+		}
+	</style>
+	<script type="text/javascript" src="http://cdn.bootcss.com/lodash.js/4.16.6/lodash.min.js"></script>
+	<script type="text/javascript">
+		//分数
+		var GAME_SCORE = 0;
+		//暂停状态
+		var CANCEL_STATE = false;
+		//游戏速度
+		var LEVEL = 1;
+		//游戏默认得分
+		var SCORE = 100;
+		//常数值
+		const STEP = 20;
+		const ROW_COUNT = 18;
+		const COL_COUNT = 10;
+
+		//定时器
+		var mInterval = null;
+
+		//模型类
+		const MODELS = [
+			//L
+			{
+				0:{
+					row:2,
+					col:0
+				},
+				1:{
+					row:2,
+					col:1
+				},
+				2:{
+					row:2,
+					col:2
+				},
+				3:{
+					row:1,
+					col:2
+				}
+			},
+			//凸形
+			{
+				0:{
+					row:1,
+					col:1
+				},
+				1:{
+					row:0,
+					col:0
+				},
+				2:{
+					row:1,
+					col:0
+				},
+				3:{
+					row:2,
+					col:0
+				}
+			},
+			//田
+			{
+				0:{
+					row:1,
+					col:1
+				},
+				1:{
+					row:2,
+					col:1
+				},
+				2:{
+					row:1,
+					col:2
+				},
+				3:{
+					row:2,
+					col:2
+				}
+			},
+			//一 形
+			{
+				0:{
+					row:0,
+					col:0
+				},
+				1:{
+					row:0,
+					col:1
+				},
+				2:{
+					row:0,
+					col:2
+				},
+				3:{
+					row:0,
+					col:3
+				}
+			},
+			//Z形状
+			{
+				0:{
+					row:1,
+					col:1
+				},
+				1:{
+					row:1,
+					col:2
+				},
+				2:{
+					row:2,
+					col:2
+				},
+				3:{
+					row:2,
+					col:3
+				}
+			}
+		]
+
+
+		//当前使用的模型
+		var currentModel = {}
+
+		//16宫格的位置
+		var currentX = 0;
+		var currentY = 0;
+
+		//所有块元素的位置 行_列：块元素
+		var fixedBlocks = {}
+
+
+		//初始化
+		function init() {
+			// body...
+			createModel();
+			onKeyDown();
+		}
+
+		//键盘事件监听
+		function onKeyDown(){
+			document.onkeydown = function (event){
+			//console.log(event.keyCode)
+				switch(event.keyCode){
+					case 37:
+						console.log("左");
+						move(-1,0)
+						break;
+					case 38:
+						console.log("上");
+						rotate()
+						break;
+					case 39:
+						console.log("右");
+						move(1,0)
+						break;
+					case 40:
+						console.log("下");
+						move(0,1)
+						break;
+				}
+			}
+		}
+
+
+		//创建所使用的模型
+		function createModel(){
+			//先判断游戏是否结束，结束了才能生成新的块元素进行使用
+			if(isGameOver()){
+				GameOver();
+				return ;
+			}
+
+			//初始化16宫格
+			currentX = 0;
+			currentY = 0;
+			//确定使用的模型类型
+			currentModel = MODELS[_.random(0,MODELS.length - 1)]
+			//生成对应数量的块元素
+			for(let key in currentModel){
+				var divEle = document.createElement("div");
+				divEle.className = "activity_model"
+				document.getElementById("container").appendChild(divEle);
+			}
+			//将生成的块元素进行定位
+			localtionBlocks();
+			//开始下落
+			autoDown();
+		}
+
+		//根据模型来定位块元素的位置
+		//完成定位的功能-移动模型就是进行不断的定位
+		function localtionBlocks(){
+			//检查一下当前的模型位置是否合理
+			checkBound();
+			//拿到所有的块元素
+			let eles = document.getElementsByClassName("activity_model");
+			for (var i = 0; i < eles.length; i++) {
+				//单个块元素
+				let activityModelEles = eles[i];
+				//每个块元素对应的数据
+				
+				let blockmodel = currentModel[i]
+				//每个块元素的位置由16宫格和自己相对的位置共同确定
+				activityModelEles.style.top = (blockmodel.row + currentY) * STEP + "px";
+				activityModelEles.style.left = (blockmodel.col + currentX) * STEP + "px";
+			}
+			// 找到每个块元素对应的数据
+			// 根据数据指定位置
+			
+		}
+
+		//移动
+		function move(x,y){
+			// let activity = document.getElementsByClassName("activity_model")[0]
+			// //需要检查一下有没有越界，再者不能进行向上的移动
+			// activity.style.top = parseInt(activity.style.top||0) + y*STEP + "px";
+			// activity.style.left = parseInt(activity.style.left||0) + x*STEP + "px";
+			// 进行移动的其实是整个模型-16宫格移动
+			
+			//移动前检查下下一个动作是否会导致无法移动
+			
+			if(isMeet(currentX + x,currentY+y,currentModel)){
+				if(y!==0){
+					fixedBottomModel();
+				}
+				return;
+			}
+			currentX+=x;
+			currentY+=y;
+			//根据16宫格位置定位块元素位置
+			localtionBlocks();
+		}
+
+		//旋转
+		function rotate(){
+			//旋转后的行=旋转前的列
+			//旋转后的列=3-旋转前的行
+			//遍历当前使用的模型
+			
+			//旋转时也检查下每个元素是否会相撞
+			//利用外置库创建一个新的模型对象
+			let clonecurrentModel = _.cloneDeep(currentModel);
+
+
+
+			for(let key in clonecurrentModel){
+				//获取这个模型中的每一块
+				let blockmodel = clonecurrentModel[key];
+				let temp = blockmodel.row;
+				blockmodel.row = blockmodel.col;
+				blockmodel.col = 3 - temp;
+			}
+
+			if(isMeet(currentX,currentY,clonecurrentModel)){
+				return;
+			}
+
+			currentModel = clonecurrentModel;
+			//console.log(currentModel === clonecurrentModel);
+			localtionBlocks();
+		}
+
+		//边界检测-控制模型在容器中
+		function checkBound(){
+			//定义模型可以活动的边界
+			let left = 0;
+			let right = COL_COUNT;
+			let bottom = ROW_COUNT;
+			//如果当前的模型超过了边界，所在的16宫格对应的后退一步
+			for(let key in currentModel){
+				let blockmodel = currentModel[key];
+				//左
+				if((blockmodel.col + currentX) < left){
+					currentX++;
+				}
+				//右
+				if((blockmodel.col + currentX) >= right){
+					currentX--;
+				}
+				//底部
+				if((blockmodel.row + currentY) >= bottom){
+					currentY--;
+					//然后模型不能动了
+					fixedBottomModel();
+				}
+			}
+		}
+
+		//抵达底部的模型就固定
+		function fixedBottomModel(){
+			//改变模型的样式-改颜色
+			//让模型无法移动-让16宫格也不动
+			let eles = document.getElementsByClassName("activity_model");
+			for (var i = eles.length - 1; i >= 0; i--) {
+				//单个块元素
+				let activityModelEles = eles[i];
+				//每个块元素类名
+				activityModelEles.className = "fixed_model";
+				let blockmodel = currentModel[i];
+				//将固定了的块元素进行记录
+				fixedBlocks[(currentY + blockmodel.row)+"_"+(currentX + blockmodel.col)] = activityModelEles;
+			}
+			
+			//固定模型后去判断是否有一行铺满了要进行清理
+			isRemove();
+			//创建新模型
+			createModel();
+		}
+
+		//判断模型之间受否产生了碰撞
+		function isMeet(x,y,model){
+			//同一个位置只能有一个块元素
+			//x,y：16宫格将要抵达的位置
+			//model：模型元素将要完成的变化:旋转
+			//查看在当前这个模型的每个位置上是否已经存在了元素
+			for (var key in model) {
+				var blockmodel = model[key];
+				if(fixedBlocks[(y+blockmodel.row)+"_"+(x+blockmodel.col)]){
+					return true;
+				}
+				//这里写了return false自然会出问题，因为第一个没有碰到就返回没碰到本身就不对
+				//
+			}
+			return false
+		}
+
+		function isRemove(){
+			//判断一行是否已经被铺满了，如果被铺满了就清楚当前行所有的元素
+			for(let i = 0; i < ROW_COUNT; i++){
+				let flag = true
+				for(let j = 0; j < COL_COUNT; j++){
+					if(!fixedBlocks[i+"_"+j]){
+						flag = false
+						break
+					}
+				}
+				//判断当前行是否被铺满
+				if(flag == true){
+					//console.log("清除")
+					removeline(i)
+				}
+			}
+		}
+		
+		function removeline(line){
+			for(let i = 0; i < COL_COUNT; i++){
+				//删除改行的块元素
+				document.getElementById("container").removeChild(fixedBlocks[line+"_"+i]);
+				fixedBlocks[line+"_"+i] = null;
+			}
+			//清除当前行后，当前后上面的块元素要落到底部
+			downline(line);
+			//然后总得分增加
+			score_count();
+		}
+		//清理行之上的元素下落
+		function downline(line){
+			for (let i = line - 1; i >= 0; i--) {
+				for(let j = 0;j < COL_COUNT; j++){
+					if(!fixedBlocks[i+"_"+j]){
+						continue;
+					}
+					//对于每个清理行之上的元素增大top然后记录块元素的记录也要更改，改变索引名称  A->B  new C=A 则C->B 让A->null 就变成了C->B  
+					//元素位置下落
+					fixedBlocks[(i+1)+"_"+j] = fixedBlocks[i+"_"+j];
+					//实现元素位置下落
+					fixedBlocks[(i+1)+"_"+j].style.top = (i+1)*STEP + "px";
+					//清除原来的块元素
+					fixedBlocks[i+"_"+j] = null;
+				}
+			}
+		}
+		//模型自动降落
+		
+		function autoDown(){
+			if(mInterval){
+				clearInterval(mInterval);
+			}
+			mInterval = setInterval(function(){
+				move(0,1);
+			},1000/LEVEL)
+		}
+
+		//判断游戏结束
+		function isGameOver(){
+			//第0行存在块元素就结束了
+			for(let i = 0; i < COL_COUNT; i++){
+				if(fixedBlocks["0_"+i]){
+					return true
+				}
+			}
+			return false
+		}
+		//游戏结束
+		function GameOver(){
+			if(mInterval){
+				clearInterval(mInterval);
+			}
+			alert("GameOver")
+		}
+		//开始游戏
+		function start(){
+			createModel();
+			onKeyDown();
+		}
+		//重新开始游戏
+		function restart(){
+			//清楚所有的块元素然后继续
+			//暂停状态变为没有暂停
+			//计时器取消
+			//当前的16宫格位置从开始开始
+			window.location.reload();
+		}
+		//暂停游戏
+		function cancel(){
+			if(CANCEL_STATE){
+				//如果暂停了，就继续
+				autoDown();
+				CANCEL_STATE = false;
+				onKeyDown();
+			}else{
+				if(mInterval){
+					clearInterval(mInterval);
+				}
+				CANCEL_STATE = true;
+
+				//鼠标监听事件取消
+				document.onkeydown = null;
+			}
+		}
+		//改变游戏的速度
+		function levelUP(){
+			if(LEVEL <= 3){
+				LEVEL++;
+				autoDown();
+				onKeyDown();
+			}
+		}
+		function levelDOWN(){
+			if(LEVEL >= 1){
+				LEVEL--;
+				autoDown();
+				onKeyDown();
+			}
+		}
+		//计算分数
+		function score_count(){
+			let leastscore = parseInt(document.getElementById("score").innerText);
+			//console.log(leastscore);
+			leastscore += LEVEL * SCORE;
+			document.getElementById("score").innerText = leastscore;
+		}
+</script>
+</head>
+<body>
+<!-- 背景容器 -->
+	<div class="container" id="container">
+		<!-- 块元素 -->
+	</div>
+	<div class="score">
+		<div class="score_score">
+			<p id="score">0</p>
+			<p>分</p>
+		</div>
+		<div class="score_control">
+			<button onclick="start()">开始</button>
+			<button onclick="restart()">重新</button>
+			<button onclick="cancel()">暂停</button>
+			<button onclick="levelUP()">levelUP</button>
+			<button onclick="levelDOWN()">levelDOWN</button>
+		</div>
+	</div>
+</body>
+</html>
+

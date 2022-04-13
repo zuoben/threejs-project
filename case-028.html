@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Threejs实现最美的星球</title>
+		<script type="text/javascript" src="libs/three.js"></script>
+		<script type="text/javascript" src="libs/dat.gui.js"></script>
+		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<style>
+			html,
+			body {
+				width: 100%;
+				height: 100%;
+				overflow: hidden;
+				background: #000;
+				background: #0c0604 url(assets/bgImage/bg_loading.jpg) no-repeat center;
+				background-size: cover;
+			}
+
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+
+			#three {
+				position: absolute;
+				top: 0;
+			}
+		</style>
+	</head>
+	<body>
+		<canvas id="bg"></canvas>
+		<div id="three"></div>
+		<script type="text/javascript">
+			var _createClass = function() {
+				function defineProperties(target, props) {
+					for (var i = 0; i < props.length; i++) {
+						var descriptor = props[i];
+						descriptor.enumerable = descriptor.enumerable || false;
+						descriptor.configurable = true;
+						if ("value" in descriptor) descriptor.writable = true;
+						Object.defineProperty(target, descriptor.key, descriptor);
+					}
+				}
+				return function(Constructor, protoProps, staticProps) {
+					if (protoProps) defineProperties(Constructor.prototype, protoProps);
+					if (staticProps) defineProperties(Constructor, staticProps);
+					return Constructor;
+				};
+			}();
+
+			function _classCallCheck(instance, Constructor) {
+				if (!(instance instanceof Constructor)) {
+					throw new TypeError("Cannot call a class as a function");
+				}
+			}
+			var Stars = function() {
+				function Stars(ctx, width, height, num) {
+					// _classCallCheck(this, Stars);
+
+					this.ctx = ctx;
+					this.width = width * 2;
+					this.height = height * 2;
+					this.num = num;
+
+					this.init();
+				}
+				_createClass(Stars, [{
+					key: 'init',
+					value: function init() {
+
+						this.stars = [];
+
+						for (var i = 0; i < this.num; i++) {
+
+							var star = {};
+							star.x = Math.random() * this.width;
+							star.y = Math.random() * this.height;
+							star.r = Math.random() + 1;
+
+							this.stars.push(star);
+						}
+					}
+				}, {
+					key: 'draw',
+					value: function draw() {
+						var _this = this;
+
+						this.ctx.save();
+
+						this.stars.forEach(function(star) {
+							_this.ctx.fillStyle = _this.getColor();
+							_this.ctx.beginPath();
+							_this.ctx.arc(star.x, star.y, star.r, 0, 2 * Math.PI);
+							_this.ctx.fill();
+						});
+
+						this.ctx.restore();
+					}
+				}, {
+					key: 'getColor',
+					value: function getColor() {
+
+						var n = Math.random();
+						var color = void 0;
+
+						if (n < 0.5) {
+							color = '#d6edff';
+						} else {
+							color = '#858bc5';
+						}
+
+						return color;
+					}
+				}]);
+
+				return Stars;
+			}();
+			// 流星
+			var Meteor = function() {
+				function Meteor(ctx, width, height) {
+					_classCallCheck(this, Meteor);
+
+					this.ctx = ctx;
+					this.width = width * 2;
+					this.height = height * 2;
+					this.init();
+				}
+
+				_createClass(Meteor, [{
+					key: 'init',
+					value: function init() {
+
+						// this.x = this.width - 166;
+						this.x = Math.random() * this.width;
+						this.y = Math.random() * this.height / 2;
+
+						this.speed = Math.floor(Math.random() * 5 + 2);
+					}
+				}, {
+					key: 'draw',
+					value: function draw() {
+						var _this2 = this;
+
+						this.ctx.save();
+
+						if (!this.img) {
+							this.img = new Image();
+							this.img.onload = function() {
+								_this2.ctx.drawImage(_this2.img, _this2.x, _this2.y);
+							};
+							this.img.src = "assets/earth/bg_meteor.png";
+						} else {
+							this.ctx.drawImage(this.img, this.x, this.y);
+						}
+
+						this.ctx.restore();
+					}
+				}, {
+					key: 'flow',
+					value: function flow() {
+
+						// if (this.x < -166 || this.y > this.height) {
+						if (this.y > this.height) {
+							return true;
+						} else {
+
+							return false;
+						}
+					}
+				}, {
+					key: 'move',
+					value: function move() {
+						// let x = 1;
+						// let y = 1;
+						this.ctx.clearRect(this.x, this.y, 166, 130);
+
+						this.x -= this.speed;
+						this.y += this.speed;
+
+						this.draw();
+					}
+				}]);
+				return Meteor;
+			}();
+
+			var count = 0;
+			var meteors = [];
+			var animate = function animate() {
+				count++;
+
+				if (stars) {
+					count % 10 === 0 && stars.draw();
+				}
+				if (meteors.length > 0) {
+					meteors.forEach(function(meteor, index) {
+
+						if (meteor.flow()) {
+							context.clearRect(meteor.x, meteor.y, 166, 130);
+							meteor.init();
+							meteor.draw();
+						} else {
+
+							meteor.move();
+						}
+					});
+				}
+
+				requestAnimationFrame(animate);
+			};
+
+			var createMeteors = function createMeteors() {
+				for (var i = 0; i < 2; i++) {
+					meteors.push(new Meteor(context, width, height));
+					meteors[i].draw();
+				}
+			};
+
+			var init = function init() {
+				width = document.documentElement.clientWidth;
+				height = document.documentElement.clientHeight;
+				canvas = document.getElementById("bg");
+				context = canvas.getContext('2d');
+				canvas.width = width;
+				canvas.height = height;
+				stars = new Stars(context, width, height, 50);
+				stars.draw();
+				createMeteors();
+				animate();
+			};
+
+			init();
+		</script>
+		<script type="text/javascript">
+			var camera;
+			var renderer;
+			var earth, cloud;
+
+			function init() {
+				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
+				var scene = new THREE.Scene();
+
+				// 创建一个摄像机，它定义了我们正在看的地方
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
+				// 将摄像机对准场景的中心
+				camera.position.z = 160;
+				camera.lookAt(scene.position);
+				var orbit = new THREE.OrbitControls(camera);
+
+				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
+				renderer = new THREE.WebGLRenderer({
+					antialias: true,
+					logarithmicDepthBuffer: true,
+					alpha: true
+				});
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				// 设置渲染器需要阴影效果
+				renderer.shadowMapEnabled = true;
+
+				// 在屏幕上显示坐标轴
+				var axes = new THREE.AxisHelper(100);
+				// scene.add(axes);
+
+				// point light (upper left)
+				pointLight = new THREE.PointLight(0xffffff);
+				pointLight.position.set(-400, 100, 150);
+				scene.add(pointLight);
+
+				// ambient light
+				ambientLight = new THREE.AmbientLight(0x222222);
+				scene.add(ambientLight);
+
+				createEarth();
+				animate();
+
+				// 将呈现器的输出添加到HTML元素
+				document.getElementById("three").appendChild(renderer.domElement);
+
+				// 启动动画
+				renderScene();
+
+				// 创建地球 半径100
+				function createEarth() {
+					var earthGeo = new THREE.SphereGeometry(30, 50, 50);
+					var earth_texture = new THREE.TextureLoader().load("assets/earth/tx/earth.jpeg");
+					var earth_bump = new THREE.TextureLoader().load("assets/earth/tx/bump.jpeg");
+					var earth_specular = new THREE.TextureLoader().load("assets/earth/tx/spec.jpeg");
+					var earth_geometry = new THREE.SphereGeometry(30, 32, 32);
+					var earthMater = new THREE.MeshPhongMaterial({
+						shininess: 40,
+						bumpScale: 1,
+						map: earth_texture,
+						bumpMap: earth_bump,
+						specularMap: earth_specular
+					});
+					earth = new THREE.Mesh(earthGeo, earthMater);
+					scene.add(earth)
+
+					var cloud_texture = new THREE.TextureLoader().load('assets/earth/tx/cloud.png');
+					var cloud_geometry = new THREE.SphereGeometry(31, 32, 32);
+					var cloud_material = new THREE.MeshBasicMaterial({
+						shininess: 10,
+						map: cloud_texture,
+						transparent: true,
+						opacity: 0.5
+					});
+					cloud = new THREE.Mesh(cloud_geometry, cloud_material);
+					scene.add(cloud);
+				}
+
+				function animate() {
+					requestAnimationFrame(animate);
+					earth.rotation.y += 0.001;
+					cloud.rotation.y += 0.001;
+					renderer.render(scene, camera);
+				}
+
+				function renderScene() {
+					orbit.update();
+					// 使用requestAnimationFrame函数进行渲染
+					requestAnimationFrame(renderScene);
+					renderer.render(scene, camera);
+				}
+
+				// 渲染的场景
+				renderer.render(scene, camera);
+			}
+			window.onload = init;
+
+			// 随着窗体的变化修改场景
+			function onResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+			// 监听窗体调整大小事件
+			window.addEventListener('resize', onResize, false);
+		</script>
+	</body>
+</html>
