@@ -12,7 +12,8 @@
 				height: 100%;
 				overflow: hidden;
 				background: #000;
-				background: #0c0604 url(assets/bgImage/bg_loading.jpg) no-repeat center;
+				/* background: #0c0604 url(assets/bgImage/bg_loading.jpg) no-repeat center; */
+				background: url(assets/bgImage/ba_starry.jpg) no-repeat;
 				background-size: cover;
 			}
 
@@ -234,6 +235,9 @@
 			var camera;
 			var renderer;
 			var earth, cloud;
+			var group = new THREE.Group();
+			var groupGa = new THREE.Group();
+			var earthBool = false;
 
 			function init() {
 				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
@@ -241,8 +245,7 @@
 
 				// 创建一个摄像机，它定义了我们正在看的地方
 				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
-				// 将摄像机对准场景的中心
-				camera.position.z = 160;
+				camera.position.z = 2200;
 				camera.lookAt(scene.position);
 				var orbit = new THREE.OrbitControls(camera);
 
@@ -269,8 +272,14 @@
 				ambientLight = new THREE.AmbientLight(0x222222);
 				scene.add(ambientLight);
 
-				createEarth();
+				galaxy();
+				if (earthBool) {
+					createEarth();
+				}
 				animate();
+				stars();
+				scene.add(group);
+				scene.add(groupGa);
 
 				// 将呈现器的输出添加到HTML元素
 				document.getElementById("three").appendChild(renderer.domElement);
@@ -278,7 +287,7 @@
 				// 启动动画
 				renderScene();
 
-				// 创建地球 半径100
+				// 创建地球
 				function createEarth() {
 					var earthGeo = new THREE.SphereGeometry(30, 50, 50);
 					var earth_texture = new THREE.TextureLoader().load("assets/earth/tx/earth.jpeg");
@@ -307,10 +316,136 @@
 					scene.add(cloud);
 				}
 
+				/**
+				 * 定义星系组合体
+				 * @param position 星系位置
+				 * @param radius 星系半径
+				 * @param size 星系大小
+				 * @returns {{satellite: THREE.Mesh, speed: *}} 卫星组合对象;速度
+				 */
+				function initGalaxy(radius, size, position, imgUrl) {
+					var track = new THREE.Mesh(new THREE.RingGeometry(size - 1.8, size, 100, 1),
+						new THREE.MeshBasicMaterial({
+							color: "#517878",
+							side: THREE.DoubleSide
+						}));
+					track.name = "galaxy_CMesh"
+					var centerMesh = new THREE.Mesh(); //材质设定
+					var starLite = new THREE.Sprite(new THREE.SpriteMaterial({
+						map: THREE.ImageUtils.loadTexture(imgUrl),
+						side: THREE.DoubleSide
+					}));
+					starLite.name = "galaxy_Sprite"
+					starLite.scale.set(size, size, size);
+					var pivotPoint = new THREE.Object3D();
+					pivotPoint.add(starLite);
+					pivotPoint.add(track);
+					centerMesh.add(pivotPoint);
+					centerMesh.rotation.set(position.x, position.y, position.z);
+					centerMesh.position.set(position.x, position.y, position.z);
+					centerMesh.name = "galaxy_PMesh"
+					return centerMesh;
+				}
+
+				function galaxy() {
+					var urlArr = ["assets/earth/BANU.png", "assets/earth/DEV.png", "assets/earth/uee.png",
+						"assets/earth/UNC.png", "assets/earth/VNCL.png", "assets/earth/XIAN.png"
+					];
+					for (var i = 0; i < 100; i++) {
+						var index = Math.floor(Math.random() * urlArr.length); //随机生成
+
+						var n = Math.random() * 200 * i;
+						var x = Math.cos((Math.PI / 10) * (Math.random() * 200)) * 100;
+						var y = Math.cos((Math.PI / 10) * (Math.random() * 200)) * 50;
+						var z = Math.cos((Math.PI / 10) * (Math.random() * 200)) * 500;
+
+						groupGa.add(initGalaxy(30, 17, {
+							x: THREE.Math.randFloatSpread(2000),
+							y: THREE.Math.randFloatSpread(1000),
+							z: THREE.Math.randFloatSpread(2000)
+						}, urlArr[index]));
+					}
+				}
+
+				function stars() {
+					var starsGeometry = new THREE.Geometry();
+					for (var i = 0; i < 3000; i++) {
+						var starVector = new THREE.Vector3(
+							THREE.Math.randFloatSpread(4000),
+							THREE.Math.randFloatSpread(3000),
+							THREE.Math.randFloatSpread(4000)
+						);
+						starsGeometry.vertices.push(starVector);
+						starsGeometry.name = "starsGeometry" + i;
+					}
+					var starsMaterial = new THREE.PointsMaterial({
+						color: 0x888888,
+						sizeAttenuation: false
+					})
+					var starsPoint = new THREE.Points(starsGeometry, starsMaterial);
+					starsPoint.name = "starsPoint";
+					group.add(starsPoint);
+				}
+
+
+				/**
+				 * 返回行星轨道的组合体
+				 * @param starLiteSize 行星的大小
+				 * @param starLiteRadius 行星的旋转半径
+				 * @param rotation 行星组合体的x,y,z三个方向的旋转角度
+				 * @param speed 行星运动速度
+				 * @param imgUrl 行星的贴图
+				 * @param scene 场景
+				 * @returns {{satellite: THREE.Mesh, speed: *}} 卫星组合对象;速度
+				 */
+				var initSatellite = function(starLiteSize, starLiteRadius, rotation, speed, imgUrl) {
+					var track = new THREE.Mesh(new THREE.RingGeometry(starLiteRadius, starLiteRadius + 0.05, 50, 1),
+						new THREE.MeshBasicMaterial());
+					var centerMesh = new THREE.Mesh(new THREE.SphereGeometry(1, 1, 1), new THREE
+						.MeshLambertMaterial()); //材质设定
+					var starLite = new THREE.Sprite(new THREE.SpriteMaterial({
+						map: THREE.ImageUtils.loadTexture(imgUrl)
+					}));
+					starLite.scale.x = starLite.scale.y = starLite.scale.z = starLiteSize;
+					starLite.position.set(starLiteRadius, 0, 0);
+
+					var pivotPoint = new THREE.Object3D();
+					pivotPoint.add(starLite);
+					pivotPoint.add(track);
+					centerMesh.add(pivotPoint);
+					centerMesh.rotation.set(rotation.x, rotation.y, rotation.z);
+					// scene.add(centerMesh);
+					// return {starLite: centerMesh, speed: speed};
+				}
+
+				document.addEventListener('mousemove', onDocumentMouseDown, false);
+				// document.addEventListener('click', onDocumentMouseDown, false);
+
+				function onDocumentMouseDown(event) {
+					// 点击屏幕创建一个向量
+					var vector = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window
+						.innerHeight) * 2 + 1, 0.5);
+					vector = vector.unproject(camera); // 将屏幕的坐标转换成三维场景中的坐标
+					var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+					// var intersects = raycaster.intersectObjects(scene.children, true);
+					var intersects = raycaster.intersectObjects(groupGa.children, true);
+					// console.log(intersects)
+					if (intersects.length > 0) {
+						// var pos = intersects[0].object.position;
+						console.log(intersects[0].object.parent.children[1])
+						// intersects[0].object.material.color.set("0xff0000");
+						intersects[0].object.parent.children[1].material.color.set("#90d5d5")
+					}
+				}
+
 				function animate() {
 					requestAnimationFrame(animate);
-					earth.rotation.y += 0.001;
-					cloud.rotation.y += 0.001;
+					if (earthBool) {
+						earth.rotation.y += 0.001;
+						cloud.rotation.y += 0.001;
+					}
+					group.rotation.y += 0.0005;
+					// groupGa.rotation.y -= 0.0005;
 					renderer.render(scene, camera);
 				}
 
