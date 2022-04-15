@@ -5,6 +5,7 @@
 		<script type="text/javascript" src="libs/three.js"></script>
 		<script type="text/javascript" src="libs/dat.gui.js"></script>
 		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<script type="text/javascript" charset="UTF-8" src="libs/Tween.min.js"></script>
 		<style>
 			html,
 			body {
@@ -237,7 +238,9 @@
 			var earth, cloud;
 			var group = new THREE.Group();
 			var groupGa = new THREE.Group();
-			var earthBool = false;
+			var earthBool = true;
+			// 中心球体轨道组合体（行星）
+			var starLites = [];
 
 			function init() {
 				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
@@ -245,9 +248,13 @@
 
 				// 创建一个摄像机，它定义了我们正在看的地方
 				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
-				camera.position.z = 2200;
+				camera.position.z = 3200;
 				camera.lookAt(scene.position);
 				var orbit = new THREE.OrbitControls(camera);
+				// 设置相机距离原点的最远距离
+				// orbit.minDistance = 300;
+				// 设置相机距离原点的最远距离
+				// orbit.maxDistance = 3200
 
 				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
 				renderer = new THREE.WebGLRenderer({
@@ -272,14 +279,15 @@
 				ambientLight = new THREE.AmbientLight(0x222222);
 				scene.add(ambientLight);
 
+				// 星团
 				galaxy();
 				if (earthBool) {
-					createEarth();
+					createEarth(100);
 				}
 				animate();
 				stars();
 				scene.add(group);
-				scene.add(groupGa);
+				// scene.add(groupGa);
 
 				// 将呈现器的输出添加到HTML元素
 				document.getElementById("three").appendChild(renderer.domElement);
@@ -288,12 +296,18 @@
 				renderScene();
 
 				// 创建地球
-				function createEarth() {
-					var earthGeo = new THREE.SphereGeometry(30, 50, 50);
+				function createEarth(radius) {
+					var track = new THREE.Mesh(new THREE.RingGeometry(radius + 80, radius + 79.7, 100, 1),
+						new THREE.MeshBasicMaterial({
+							color: "#517878",
+							side: THREE.DoubleSide
+						}));
+					track.rotation.set(-Math.PI * 0.45, Math.PI * 0.1, 0);
+					// scene.add(track);
+					var earthGeo = new THREE.SphereGeometry(radius, radius, radius);
 					var earth_texture = new THREE.TextureLoader().load("assets/earth/tx/earth.jpeg");
 					var earth_bump = new THREE.TextureLoader().load("assets/earth/tx/bump.jpeg");
 					var earth_specular = new THREE.TextureLoader().load("assets/earth/tx/spec.jpeg");
-					var earth_geometry = new THREE.SphereGeometry(30, 32, 32);
 					var earthMater = new THREE.MeshPhongMaterial({
 						shininess: 40,
 						bumpScale: 1,
@@ -305,7 +319,7 @@
 					scene.add(earth)
 
 					var cloud_texture = new THREE.TextureLoader().load('assets/earth/tx/cloud.png');
-					var cloud_geometry = new THREE.SphereGeometry(31, 32, 32);
+					var cloud_geometry = new THREE.SphereGeometry(radius + 5, radius + 5, radius + 5);
 					var cloud_material = new THREE.MeshBasicMaterial({
 						shininess: 10,
 						map: cloud_texture,
@@ -314,10 +328,13 @@
 					});
 					cloud = new THREE.Mesh(cloud_geometry, cloud_material);
 					scene.add(cloud);
+
+					var pos = new THREE.Vector3(0, 0, 300);
+					animateCamera(camera.position, pos, orbit.target, orbit.target);
 				}
 
 				/**
-				 * 定义星系组合体
+				 * 定义星团组合体
 				 * @param position 星系位置
 				 * @param radius 星系半径
 				 * @param size 星系大小
@@ -347,6 +364,9 @@
 					return centerMesh;
 				}
 
+				/**
+				 * 生成星团
+				 */
 				function galaxy() {
 					var urlArr = ["assets/earth/BANU.png", "assets/earth/DEV.png", "assets/earth/uee.png",
 						"assets/earth/UNC.png", "assets/earth/VNCL.png", "assets/earth/XIAN.png"
@@ -367,6 +387,9 @@
 					}
 				}
 
+				/**
+				 * 星星粒子
+				 */
 				function stars() {
 					var starsGeometry = new THREE.Geometry();
 					for (var i = 0; i < 3000; i++) {
@@ -387,7 +410,6 @@
 					group.add(starsPoint);
 				}
 
-
 				/**
 				 * 返回行星轨道的组合体
 				 * @param starLiteSize 行星的大小
@@ -398,9 +420,10 @@
 				 * @param scene 场景
 				 * @returns {{satellite: THREE.Mesh, speed: *}} 卫星组合对象;速度
 				 */
-				var initSatellite = function(starLiteSize, starLiteRadius, rotation, speed, imgUrl) {
-					var track = new THREE.Mesh(new THREE.RingGeometry(starLiteRadius, starLiteRadius + 0.05, 50, 1),
-						new THREE.MeshBasicMaterial());
+				var initSatellite = function(starLiteSize, starLiteRadius, rotation, speed, imgUrl, scene) {
+					var track = new THREE.Mesh(new THREE.RingGeometry(starLiteRadius, starLiteRadius + 0.3, 200, 1),
+						new THREE
+						.MeshBasicMaterial());
 					var centerMesh = new THREE.Mesh(new THREE.SphereGeometry(1, 1, 1), new THREE
 						.MeshLambertMaterial()); //材质设定
 					var starLite = new THREE.Sprite(new THREE.SpriteMaterial({
@@ -413,9 +436,58 @@
 					pivotPoint.add(starLite);
 					pivotPoint.add(track);
 					centerMesh.add(pivotPoint);
-					centerMesh.rotation.set(rotation.x, rotation.y, rotation.z);
-					// scene.add(centerMesh);
-					// return {starLite: centerMesh, speed: speed};
+					centerMesh.rotation.set(-Math.PI * 0.45, Math.PI * 0.1, 0);
+					scene.add(centerMesh);
+					return {
+						starLite: centerMesh,
+						speed: speed
+					};
+				}
+				
+				// 地球卫星
+				starLites.push(initSatellite(10, 150, {
+					x: 0,
+					y: 0,
+					z: 0
+				}, 0.01, 'assets/earth/satellite.png', scene));
+
+				// current1 相机当前的位置
+				// target1 相机的目标位置
+				// current2 当前的controls的target
+				// target2 新的controls的target
+				function animateCamera(current1, target1, current2, target2) {
+					var tween = new TWEEN.Tween({
+						x1: current1.x, // 相机当前位置x
+						y1: current1.y, // 相机当前位置y
+						z1: current1.z, // 相机当前位置z
+						x2: current2.x, // 控制当前的中心点x
+						y2: current2.y, // 控制当前的中心点y
+						z2: current2.z // 控制当前的中心点z
+					});
+					tween.to({
+						x1: target1.x, // 新的相机位置x
+						y1: target1.y, // 新的相机位置y
+						z1: target1.z, // 新的相机位置z
+						x2: target2.x, // 新的控制中心点位置x
+						y2: target2.y, // 新的控制中心点位置x
+						z2: target2.z // 新的控制中心点位置x
+					}, 2000);
+					tween.onUpdate(function() {
+						camera.position.x = this.x1;
+						camera.position.y = this.y1;
+						camera.position.z = this.z1;
+						orbit.target.x = this.x2;
+						orbit.target.y = this.y2;
+						orbit.target.z = this.z2;
+						orbit.update();
+
+						if (earthBool) {
+							earth.rotation.y += 0.1;
+							cloud.rotation.y += 0.1;
+						}
+					})
+					tween.easing(TWEEN.Easing.Cubic.InOut);
+					tween.start();
 				}
 
 				document.addEventListener('mousemove', onDocumentMouseDown, false);
@@ -446,10 +518,16 @@
 					}
 					group.rotation.y += 0.0005;
 					// groupGa.rotation.y -= 0.0005;
+					
+					for (var i = 0; i < starLites.length; i++) {
+					    starLites[i].starLite.rotation.z -= starLites[i].speed;
+					}
+					
 					renderer.render(scene, camera);
 				}
 
 				function renderScene() {
+					TWEEN.update();
 					orbit.update();
 					// 使用requestAnimationFrame函数进行渲染
 					requestAnimationFrame(renderScene);
