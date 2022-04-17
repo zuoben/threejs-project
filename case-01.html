@@ -5,6 +5,7 @@
 		<script type="text/javascript" src="libs/three.js"></script>
 		<script type="text/javascript" src="libs/dat.gui.js"></script>
 		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<script type="text/javascript" charset="UTF-8" src="libs/Tween.min.js"></script>
 		<style>
 			body {
 				margin: 0;
@@ -17,6 +18,9 @@
 		<script type="text/javascript">
 			var camera;
 			var renderer;
+			var clock = new THREE.Clock(); //声明一个时钟对象
+			var mixer
+
 			function init() {
 				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
 				var scene = new THREE.Scene();
@@ -24,14 +28,17 @@
 				// 创建一个摄像机，它定义了我们正在看的地方
 				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 				// 将摄像机对准场景的中心
-				camera.position.x = 10;
+				// camera.position.x = 10;
 				camera.position.y = 50;
 				camera.position.z = 90;
 				camera.lookAt(scene.position);
 				var orbit = new THREE.OrbitControls(camera);
 
 				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
-				renderer = new THREE.WebGLRenderer();
+				renderer = new THREE.WebGLRenderer({
+					antialias: true,
+					logarithmicDepthBuffer: true,
+				});
 				renderer.setClearColor(new THREE.Color("#0e0934"));
 				renderer.setSize(window.innerWidth, window.innerHeight);
 				// 设置渲染器需要阴影效果
@@ -45,43 +52,131 @@
 				var plane = createPlaneGeometryBasicMaterial();
 				scene.add(plane);
 
-				// 将立方体添加到场景中
-				var cube = createBoxGeometryBasicMaterial();
-				scene.add(cube);
 
+				const group = new THREE.Group(); // 外层对象
+				group.name = 'group';
+				group.position.set(-2, 0, 0); // 设置外层对象的中心为原本想要旋转的位置
+
+				// 将立方体添加到场景中
+				const group1 = new THREE.Group(); // 外层对象
+				group1.name = 'group1';
+				// var pos1 = new THREE.Vector3(-2, 2, 0);
+				var cube1 = createBoxGeometryBasicMaterial();
+				group1.position.set(0, 2, 0); // 设置外层对象的中心为原本想要旋转的位置
+				group1.add(cube1);
+				cube1.position.set(-2, 0, 0); // 设置外层对象的中心为原本想要旋转的位置
+				// scene.add(group1);
+				// setTimeout(function(){
+				// 	group1.rotateY(Math.PI / 2)
+				// }, 1000)
+
+				const group2 = new THREE.Group(); // 外层对象
+				group2.name = 'group2';
+				// var pos2 = new THREE.Vector3(-2, 2, -1);
+				var cube2 = createBoxGeometryBasicMaterial();
+				group2.position.set(0, 0, 1); // 设置外层对象的中心为原本想要旋转的位置
+				group2.add(cube2);
+				cube2.position.set(-2, 0, 0); // 设置外层对象的中心为原本想要旋转的位置
+				group1.add(group2);
+console.log(group1)
+				scene.add(group1);
+				// group.add(group2);
+				// scene.add(group);
+				// const times = [0, 3]; // 关键帧时间数组
+				// const rotationValues1 = [0, Math.PI / 2];
+				// const rotationTrack1 = new THREE.KeyframeTrack(
+				// 	'group.rotation[y]',
+				// 	times,
+				// 	rotationValues1
+				// ); // 关键帧轨道
+				// const duration = 3; // 持续时间 (单位秒)
+				// const clip = new THREE.AnimationClip('open', duration, [rotationTrack1]); // 动画剪辑
+
+				// // 播放编辑好的关键帧数据
+				// const mixer = new THREE.AnimationMixer(group); // 动画混合器
+				// const AnimationAction = mixer.clipAction(clip); // 返回所传入的剪辑参数的AnimationAction
+				// AnimationAction1.timeScale = 1; // 可以调节播放速度，默认是1。为0时动画暂停。值为负数时动画会反向执行。
+				// AnimationAction.play(); // 开始播放
+
+setTimeout(function(){
+	
+	tweenComplete();
+},1000);
+
+
+				function tweenComplete() {
+					var num = 0;
+					var num2 = 0;
+					new TWEEN.Tween({y: 0, z: 0, x: 0, y1: 0})
+						.to({y: Math.PI / 2, z: 4, x: -4, y1: -Math.PI}, 3000)
+						.easing(TWEEN.Easing.Linear.None)
+						// .repeat(0)
+						.onUpdate(function() {
+							group1.rotateY(this.y - num);
+							// group1.children[1].rotateY(this.y - num);
+							// group2.rotateY(this.y - num);
+							// group2.rotateY(this.y - num);
+							
+							
+							group1.children[1].position.set(-4, 0, 1); // 设置外层对象的中心为原本想要旋转的位置
+							cube2.position.set(2, 0, 0); // 设置外层对象的中心为原本想要旋转的位置
+							group2.rotateY(this.y1 - num2);
+							num = this.y;
+							num2 = this.y1;
+						})
+						// .onComplete(tweenComplete1)
+						.start();
+				}
+				function tweenComplete1() {
+					
+					// group1.children[1].position.set(-4, 0, 1); // 设置外层对象的中心为原本想要旋转的位置
+					// cube2.position.set(2, 0, 0); // 设置外层对象的中心为原本想要旋转的位置
+				// group2.position.set(-4, 0, 0); // 设置外层对象的中心为原本想要旋转的位置
+					var num = 0;
+					new TWEEN.Tween({y: 0})
+						.to({y: -Math.PI}, 1000)
+						.easing(TWEEN.Easing.Linear.None)
+						.repeat(0)
+						.onUpdate(function() {
+							group2.rotateY(this.y - num);
+							num = this.y;
+						})
+						.start();
+				}
 				// 将球体添加到场景中
 				var sphere = createSphereGeometryLambertMaterial();
-				scene.add(sphere);
+				// scene.add(sphere);
 
 				// 将呈现器的输出添加到HTML元素
 				document.getElementById("dom").appendChild(renderer.domElement);
-				
+
 				// 使用GUI调试库
-				var controls = new function () {
+				var controls = new function() {
 					this.numberOfObjects = scene.children.length;
 					// 随机生成一个立方体
-					this.addCube = function () {
-					    // 将立方体添加到场景中
-					    scene.add(createBoxGeometryLambertMaterial());
+					this.addCube = function() {
+						// 将立方体添加到场景中
+						scene.add(createBoxGeometryLambertMaterial());
 						// 更新界面中的对象数量
-					    this.numberOfObjects = scene.children.length;
+						this.numberOfObjects = scene.children.length;
 					};
-					
+
 					// 移除场景中的对象，移除添加到场景中的最后一个对象
-					this.removeCube = function () {
+					this.removeCube = function() {
 						// 获取场景中的所有对象
 						var allChildren = scene.children;
 						var lastObject = allChildren[allChildren.length - 1];
 						// 只移除THREE.Mesh对象
-						if (lastObject instanceof THREE.Mesh && lastObject != plane && lastObject != cube && lastObject != sphere) {
+						if (lastObject instanceof THREE.Mesh && lastObject != plane && lastObject != cube &&
+							lastObject != sphere) {
 							scene.remove(lastObject);
 							// 更新界面中的对象数量
 							this.numberOfObjects = scene.children.length;
 						}
 					};
-					
+
 					// 打印场景中的所有对象
-					this.outputObjects = function () {
+					this.outputObjects = function() {
 						console.log(scene.children);
 					}
 				};
@@ -92,10 +187,75 @@
 				gui.add(controls, 'outputObjects');
 				// 监听变量
 				gui.add(controls, 'numberOfObjects').listen();
-				
+
 				// 启动动画
 				renderScene();
-				
+				// gaogemen();
+				function gaogemen() {
+      // 创建平面
+      const planeGeometry = new THREE.PlaneGeometry(300, 300); // 生成平面几何
+      const planeMaterial = new THREE.MeshLambertMaterial({
+        // 生成材质
+        color: 0xcccccc,
+      });
+      const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial); // 生成平面网格
+      planeMesh.rotation.x = -Math.PI / 2; //绕X轴旋转90度
+      // scene.add(planeMesh); // 添加到场景中
+
+      // 创建平行光源
+      const light = new THREE.DirectionalLight(0xffffff, 1); // 平行光，颜色为白色，强度为1
+      light.position.set(-40, 40, 20); // 设置灯源位置
+      scene.add(light); // 添加到场景中
+
+					 // 创建门框
+					      const doorFrameSide = new THREE.BoxBufferGeometry(1, 20, 2); // 侧边门框
+					      const doorFrameTop = new THREE.BoxBufferGeometry(12, 1, 2); // 上门框
+					      const doorFrameMaterial = new THREE.MeshLambertMaterial({
+					        color: 0xad4800,
+					      });
+					      const doorFrameLeftMesh = new THREE.Mesh(
+					        doorFrameSide,
+					        doorFrameMaterial
+					      );
+					      const doorFrameTopMesh = new THREE.Mesh(doorFrameTop, doorFrameMaterial);
+					      const doorFrameRightMesh = doorFrameLeftMesh.clone();
+					      doorFrameLeftMesh.position.set(-5.5, 10, 0);
+					      doorFrameRightMesh.position.set(5.5, 10, 0);
+					      doorFrameTopMesh.position.set(0, 20.5, 0);
+					      scene.add(doorFrameLeftMesh);
+					      scene.add(doorFrameRightMesh);
+					      scene.add(doorFrameTopMesh);
+					
+					      // 创建门
+					      const door = new THREE.BoxBufferGeometry(10, 20, 0.5);
+					      const doorMaterial = new THREE.MeshLambertMaterial({ color: 0xd88c00 });
+					      const doorMesh = new THREE.Mesh(door, doorMaterial);
+					
+					      // 实现门围绕特定轴旋转
+					      const group = new THREE.Group();
+					      group.position.set(5, 10, 0); // 设置外层对象的中心为原本想要旋转的位置
+					      group.add(doorMesh);
+					      group.name = 'door';
+					      doorMesh.position.set(-5, 0, 0);
+					      scene.add(group);
+					
+					      const times = [0, 3]; // 关键帧时间数组
+					      const rotationValues = [0, -Math.PI / 2];
+					      const rotationTrack = new THREE.KeyframeTrack(
+					        'door.rotation[y]',
+					        times,
+					        rotationValues
+					      ); // 关键帧轨道
+					      const duration = 3; // 持续时间 (单位秒)
+					      const clip = new THREE.AnimationClip('open', duration, [rotationTrack]); // 动画剪辑
+					
+					      // 播放编辑好的关键帧数据
+					      mixer = new THREE.AnimationMixer(group); // 动画混合器
+					      const AnimationAction = mixer.clipAction(clip); // 返回所传入的剪辑参数的AnimationAction
+					      AnimationAction.timeScale = 1; // 可以调节播放速度，默认是1。为0时动画暂停。值为负数时动画会反向执行。
+					      AnimationAction.play(); // 开始播放
+				}
+
 				// 创建一个随机大小颜色的立方体
 				function createBoxGeometryLambertMaterial() {
 					var cubeSize = Math.ceil((Math.random() * 3));
@@ -120,16 +280,16 @@
 				// 创建一个基础材质的立方体
 				function createBoxGeometryBasicMaterial() {
 					// 创建一个立方体并设置大小
-					var cubeGeometry = new THREE.BoxGeometry(4, 4, 4);
+					var cubeGeometry = new THREE.BoxGeometry(4, 4, 0.5);
 					var cubeMaterial = new THREE.MeshBasicMaterial({
-						color: 0xff0000,
-						wireframe: true // 线性
+						color: "#ff0000",
+						// wireframe: true // 线性
 					});
 					var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 					// 设置立方体位置
-					cube.position.x = -10;
-					cube.position.y = 3;
-					cube.position.z = 0;
+					// cube.position.x = pos.x;
+					// cube.position.y = pos.y;
+					// cube.position.z = pos.z;
 					return cube;
 				}
 				// 创建一个平面
@@ -140,7 +300,7 @@
 						color: 0xcccccc
 					});
 					var plane = new THREE.Mesh(planeGeometry, planeMaterial);
-			
+
 					// 设置平面位置并旋转
 					plane.rotation.x = -0.5 * Math.PI;
 					plane.position.x = 0;
@@ -163,24 +323,30 @@
 					sphere.position.z = 2;
 					return sphere;
 				}
-				
+
 				function renderScene() {
+					TWEEN.update();
 					orbit.update();
-				    // 使用requestAnimationFrame函数进行渲染
-				    requestAnimationFrame(renderScene);
-				    renderer.render(scene, camera);
+
+					if (mixer) {
+						mixer.update(clock.getDelta());
+					// 	// mixer2.update(clock.getDelta());
+					}
+					// 使用requestAnimationFrame函数进行渲染
+					requestAnimationFrame(renderScene);
+					renderer.render(scene, camera);
 				}
 
 				// 渲染的场景
 				renderer.render(scene, camera);
 			}
 			window.onload = init;
-			
+
 			// 随着窗体的变化修改场景
 			function onResize() {
-			    camera.aspect = window.innerWidth / window.innerHeight;
-			    camera.updateProjectionMatrix();
-			    renderer.setSize(window.innerWidth, window.innerHeight);
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
 			}
 			// 监听窗体调整大小事件
 			window.addEventListener('resize', onResize, false);
