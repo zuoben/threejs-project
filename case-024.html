@@ -4,7 +4,9 @@
 		<title>Threejs实现故宫3D展示</title>
 		<script type="text/javascript" src="libs/three.js"></script>
 		<script type="text/javascript" src="libs/OrbitControls.js"></script>
-		<script type="text/javascript" src="libs/GLTFLoader.js"></script>
+		<script type="text/javascript" src="libs/OBJLoader.js"></script>
+		<script type="text/javascript" src="libs/MTLLoader.js"></script>
+		<script type="text/javascript" src="libs/nprogress.js"></script>
 		<style>
 			body {
 				margin: 0;
@@ -17,16 +19,14 @@
 		<script type="text/javascript">
 			var camera;
 			var renderer;
+			var mesh = [];
 
 			function init() {
 				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
 				var scene = new THREE.Scene();
-				var cubeLoader = new THREE.CubeTextureLoader();
-				scene.opacity = 0;
-
-				var cubeLoader = new THREE.CubeTextureLoader();
 				var textureLoader = new THREE.TextureLoader();
-
+				scene.background = textureLoader.load("assets/bgImage/fangbg.jpg");
+				
 				// 创建一个摄像机，它定义了我们正在看的地方
 				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000000);
 				// 将摄像机对准场景的中心
@@ -39,7 +39,6 @@
 					antialias: true,
 					logarithmicDepthBuffer: true,
 				});
-				renderer.setClearColor(new THREE.Color("#0e0934"));
 				renderer.setSize(window.innerWidth, window.innerHeight);
 
 				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
@@ -50,6 +49,39 @@
 
 				// 启动动画
 				renderScene();
+				initGugong();
+
+				// 添加坊的模型
+				function initGugong() {
+					var mtlLoader = new THREE.MTLLoader();
+					mtlLoader.setPath("assets/models/gugong/")
+					mtlLoader.load('file.mtl', function(materials) {
+						materials.preload();
+
+						var objLoader = new THREE.OBJLoader();
+						objLoader.setMaterials(materials);
+						objLoader.load('assets/models/gugong/file.obj', function(object) {
+							mesh = object;
+							mesh.scale.set(0.3, 0.3, 0.3);
+							mesh.position.set(-20, -50, -200);
+							console.log(object)
+							object.traverse(function(child) {
+								if (child.isMesh) {
+									// child.material.emissive = child.material.color;
+									child.material.emissiveMap = child.material.map;
+								}
+								if (child.material) {
+									child.material.side = THREE.DoubleSide;
+								}
+							})
+							scene.add(mesh);
+						}, function(xhr) {
+							let num = Math.floor(xhr.loaded / xhr.total * 100) / 100;
+							NProgress.set(num)
+							console.log('加载完成的百分比'+(xhr.loaded/xhr.total*100)+'%');
+						});
+					});
+				}
 				
 				function renderScene() {
 					orbit.update();
