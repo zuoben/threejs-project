@@ -34,6 +34,7 @@
 					'assets/bgImage/skyBox4/negz.jpg'
 				];
 
+				var lod = new THREE.LOD();
 				var cubeLoader = new THREE.CubeTextureLoader();
 				scene.background = cubeLoader.load(urls);
 
@@ -61,15 +62,24 @@
 
 				// 将平面添加到场景中
 				var plane = createPlaneGeometryBasicMaterial();
-				scene.add(plane);
+				// scene.add(plane);
 
 				// 将立方体添加到场景中
 				var cube = createBoxGeometryBasicMaterial();
-				scene.add(cube);
+				lod.addLevel(cube, 200);
+				// scene.add(cube);
+
+				var cube_img = createBoxGeometryBasicMaterialImg();
+				lod.addLevel(cube_img, 100);
+				// scene.add(cube_img);
 
 				// 将球体添加到场景中
 				var sphere = createSphereGeometryLambertMaterial();
-				scene.add(sphere);
+				lod.addLevel(sphere, 300);
+				// scene.add(sphere);
+				
+				// lod.position.z = -300
+				scene.add(lod);
 
 				// 将呈现器的输出添加到HTML元素
 				document.getElementById("dom").appendChild(renderer.domElement);
@@ -105,7 +115,7 @@
 				}
 
 				// 创建一个基础材质的立方体
-				function createBoxGeometryBasicMaterial() {
+				function createBoxGeometryBasicMaterialImg() {
 					var texture = THREE.ImageUtils.loadTexture("assets/textures/brick-wall.jpg");
 					var mat = new THREE.MeshPhongMaterial();
 					mat.map = texture;
@@ -119,6 +129,22 @@
 					return cube;
 				}
 
+
+				// 创建一个基础材质的立方体
+				function createBoxGeometryBasicMaterial() {
+					// 创建一个立方体并设置大小
+					var cubeGeometry = new THREE.BoxGeometry(14, 14, 4);
+					// MeshBasicMaterial（基础材质不会对光源有反应只会使用指定的颜色渲染）
+					var cubeMaterial = new THREE.MeshBasicMaterial({
+						color: 0xff0000,
+					});
+					var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+					// 设置立方体位置
+					cube.position.x = -5;
+					cube.position.y = 10;
+					cube.position.z = -30;
+					return cube;
+				}
 
 				// 创建一个球形几何体
 				function createSphereGeometryLambertMaterial() {
@@ -137,9 +163,9 @@
 					sphere.position.z = 2;
 					return sphere;
 				}
-				
+
 				document.addEventListener('click', onDocumentMouseDown, false); //监听单击拾取对象初始化球体
-				
+
 				function onDocumentMouseDown(event) {
 					// 点击屏幕创建一个向量
 					var vector = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window
@@ -155,9 +181,10 @@
 
 				function renderScene() {
 					orbit.update();
+					lod.update(camera)
 					// 使用requestAnimationFrame函数进行渲染
-					requestAnimationFrame(renderScene);
 					renderer.render(scene, camera);
+					requestAnimationFrame(renderScene);
 				}
 
 				// 渲染的场景
