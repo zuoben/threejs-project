@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Threejs实现卫星太阳板折叠</title>
+		<script type="text/javascript" src="libs/three.js"></script>
+		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<script type="text/javascript" src="libs/GLTFLoader.js"></script>
+		<script type="text/javascript" src="libs/dat.gui.js"></script>
+		<script type="text/javascript" charset="UTF-8" src="libs/Tween.min.js"></script>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="dom"></div>
+		<script type="text/javascript">
+			var camera;
+			var renderer;
+
+			function init() {
+				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
+				var scene = new THREE.Scene();
+				var textureLoader = new THREE.TextureLoader();
+				scene.background = textureLoader.load("assets/bgImage/ba_starry.jpg");
+
+				// 创建一个摄像机，它定义了我们正在看的地方
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+				camera.position.y = 150;
+				// camera.position.z = 90;
+				camera.position.x = 100;
+				camera.lookAt(scene.position);
+				var orbit = new THREE.OrbitControls(camera);
+
+				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
+				renderer = new THREE.WebGLRenderer({
+					antialias: true,
+					logarithmicDepthBuffer: true,
+				});
+				renderer.setSize(window.innerWidth, window.innerHeight);
+
+				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
+				scene.add(ambientLight);
+
+				// 将呈现器的输出添加到HTML元素
+				document.getElementById("dom").appendChild(renderer.domElement);
+
+				// 在屏幕上显示坐标轴
+				var axes = new THREE.AxesHelper(100);
+				// scene.add(axes);
+
+				// 启动动画
+				renderScene();
+				createWeiXing();
+				createLeiDa();
+
+				// 外层对象
+				const group1 = new THREE.Group();
+				group1.name = 'group1';
+				// 设置偏移中心点位置
+				group1.position.set(0, 0, 6);
+
+				var cube1 = createTaiYangBan("#00aa00");
+				group1.add(cube1);
+				cube1.position.set(-4, 0, 0);
+
+				// 外层对象
+				const group2 = new THREE.Group();
+				group2.name = 'group2';
+				// 设置外层对象的中心为原本想要旋转的位置
+				group2.position.set(-8, 0, 1);
+
+				var cube2 = createTaiYangBan("#0055ff");
+				group2.add(cube2);
+				// 设置偏移中心点位置
+				cube2.position.set(4, 0, 0);
+
+				// 外层对象
+				const group3 = new THREE.Group();
+				group3.name = 'group3';
+				// 设置外层对象的中心为原本想要旋转的位置
+				group3.position.set(8, 0, 1);
+
+				var cube3 = createTaiYangBan("#ff5500");
+				group3.add(cube3);
+				// 设置偏移中心点位置
+				cube3.position.set(-4, 0, 0);
+
+				group2.add(group3);
+				group1.add(group2);
+				scene.add(group1);
+
+				// 第二个太阳板
+				// 外层对象
+				const group11 = new THREE.Group();
+				// 设置偏移中心点位置
+				group11.position.set(0, 0, -4);
+
+				var cube11 = createTaiYangBan("#00aa00");
+				group11.add(cube11);
+				cube11.position.set(-4, 0, 0);
+
+				// 外层对象
+				const group12 = new THREE.Group();
+				// 设置外层对象的中心为原本想要旋转的位置
+				group12.position.set(-8, 0, -1);
+
+				var cube12 = createTaiYangBan("#0055ff");
+				group12.add(cube12);
+				// 设置偏移中心点位置
+				cube12.position.set(4, 0, 0);
+
+				// 外层对象
+				const group13 = new THREE.Group();
+				// 设置外层对象的中心为原本想要旋转的位置
+				group13.position.set(8, 0, -1);
+
+				var cube13 = createTaiYangBan("#ff5500");
+				group13.add(cube13);
+				// 设置偏移中心点位置
+				cube13.position.set(-4, 0, 0);
+
+				group12.add(group13);
+				group11.add(group12);
+				scene.add(group11);
+
+				setTimeout(function() {
+					tweenComplete();
+				}, 1000);
+
+				function tweenComplete() {
+					var num1 = 0,
+						num2 = 0,
+						num3 = 0,
+						num11 = 0,
+						num12 = 0,
+						num13 = 0;
+					new TWEEN.Tween({
+							y1: 0,
+							y2: 0,
+							y3: 0,
+							z: 1,
+							y11: 0,
+							y12: 0,
+							y13: 0,
+							z1: -1,
+							waves: 13,
+							dia: 1,
+						})
+						.to({
+							y1: Math.PI / 2,
+							y2: -Math.PI,
+							y3: Math.PI,
+							z: 0,
+							y11: -Math.PI / 2,
+							y12: Math.PI,
+							y13: -Math.PI,
+							z1: 0,
+							waves: 50,
+							dia: 8,
+						}, 3000)
+						.easing(TWEEN.Easing.Linear.None)
+						.onUpdate(function() {
+							group2.position.z = this.z;
+							group3.position.z = this.z;
+							group1.rotateY(this.y1 - num1);
+							group2.rotateY(this.y2 - num2);
+							group3.rotateY(this.y3 - num3);
+
+
+							group12.position.z = this.z1;
+							group13.position.z = this.z1;
+							group11.rotateY(this.y11 - num11);
+							group12.rotateY(this.y12 - num12);
+							group13.rotateY(this.y13 - num13);
+							scene.rotateZ(this.y1 - num1);
+
+							num1 = this.y1;
+							num2 = this.y2;
+							num3 = this.y3;
+
+							num11 = this.y11;
+							num12 = this.y12;
+							num13 = this.y13;
+
+							initSatellite(this.waves, this.dia);
+						})
+						.onComplete(tweenComplete1)
+						.start();
+				}
+
+				function tweenComplete1() {
+					var num1 = 0,
+						num2 = 0,
+						num3 = 0,
+						num11 = 0,
+						num12 = 0,
+						num13 = 0;
+					new TWEEN.Tween({
+							y1: 0,
+							y2: 0,
+							y3: 0,
+							z: 0,
+							y11: 0,
+							y12: 0,
+							y13: 0,
+							z1: 0,
+							waves: 13,
+							dia: 1,
+						})
+						.to({
+							y1: -Math.PI / 2,
+							y2: Math.PI,
+							y3: -Math.PI,
+							z: 1,
+							y11: Math.PI / 2,
+							y12: -Math.PI,
+							y13: Math.PI,
+							z1: -1,
+							waves: 50,
+							dia: 8,
+						}, 3000)
+						.easing(TWEEN.Easing.Linear.None)
+						.onUpdate(function() {
+							group2.position.z = this.z;
+							group3.position.z = this.z;
+							group1.rotateY(this.y1 - num1);
+							group2.rotateY(this.y2 - num2);
+							group3.rotateY(this.y3 - num3);
+
+							group12.position.z = this.z1;
+							group13.position.z = this.z1;
+							group11.rotateY(this.y11 - num11);
+							group12.rotateY(this.y12 - num12);
+							group13.rotateY(this.y13 - num13);
+							scene.rotateY(this.y1 - num1);
+
+							num1 = this.y1;
+							num2 = this.y2;
+							num3 = this.y3;
+
+							num11 = this.y11;
+							num12 = this.y12;
+							num13 = this.y13;
+
+							initSatellite(this.waves, this.dia);
+						})
+						.onComplete(tweenComplete)
+						.start();
+				}
+
+				// 创建一个基础太阳板
+				function createTaiYangBan(color) {
+					// 创建一个立方体并设置大小
+					var cubeGeometry = new THREE.BoxGeometry(8, 8, 1);
+					var cubeMaterial = new THREE.MeshBasicMaterial({
+						color: color,
+					});
+					var cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+					return cube;
+				}
+
+				// 创建一个卫星主体
+				function createWeiXing() {
+					// 创建一个立方体并设置大小
+					var wxGeometry = new THREE.CylinderGeometry(5, 5, 20, 100, 0);
+					var wxMaterial = new THREE.MeshBasicMaterial({
+						color: "#55557f",
+					});
+					var weixing = new THREE.Mesh(wxGeometry, wxMaterial);
+					weixing.position.set(0, 0, 1);
+					weixing.rotateZ(-Math.PI / 2);
+					scene.add(weixing);
+				}
+
+				// 创建一个雷达
+				function createLeiDa() {
+					// 创建一个立方体并设置大小
+					var wxGeometry = new THREE.CylinderGeometry(4, 0, 5, 100, 0);
+					var wxMaterial = new THREE.MeshBasicMaterial({
+						color: "#ffaa00",
+					});
+					var weixing = new THREE.Mesh(wxGeometry, wxMaterial);
+					weixing.position.set(10, 0, 1);
+					weixing.rotateZ(-Math.PI / 2);
+					scene.add(weixing);
+				}
+				
+				// 雷达信号
+				function initSatellite(positionX, starLiteRadius) {
+					var group = new THREE.Group();
+					var obj = scene.getObjectByName("satellite");
+					scene.remove(obj);
+
+					var wxMaterial = new THREE.MeshBasicMaterial({
+						color: "#ffffff",
+						side: THREE.DoubleSide
+					});
+					var signalGeometry1 = new THREE.RingGeometry(starLiteRadius, starLiteRadius + 0.1, 100, 0);
+					var signal1 = new THREE.Mesh(signalGeometry1, wxMaterial);
+					signal1.position.z = -1;
+
+					var signalGeometry2 = new THREE.RingGeometry(starLiteRadius + 2, starLiteRadius + 2.1, 100, 0);
+					var signal2 = new THREE.Mesh(signalGeometry2, wxMaterial);
+					signal2.position.z = -10;
+
+					var signalGeometry3 = new THREE.RingGeometry(starLiteRadius + 3, starLiteRadius + 3.1, 100, 0);
+					var signal3 = new THREE.Mesh(signalGeometry3, wxMaterial);
+					signal3.position.z = -20;
+
+
+					group.rotateY(-Math.PI / 2);
+					group.position.set(positionX, 0, 1);
+					group.name = "satellite";
+					group.add(signal1);
+					group.add(signal2);
+					group.add(signal3);
+					scene.add(group);
+				}
+
+				var clock = new THREE.Clock(); //声明一个时钟对象
+				function renderScene() {
+					TWEEN.update();
+					orbit.update();
+					// 使用requestAnimationFrame函数进行渲染
+					requestAnimationFrame(renderScene);
+					renderer.render(scene, camera);
+				}
+
+				// 渲染的场景
+				renderer.render(scene, camera);
+			}
+			window.onload = init;
+
+			// 随着窗体的变化修改场景
+			function onResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+			// 监听窗体调整大小事件
+			window.addEventListener('resize', onResize, false);
+		</script>
+	</body>
+</html>
