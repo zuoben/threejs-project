@@ -4,8 +4,9 @@
 		<title>Threejs实现卫星太阳板折叠</title>
 		<script type="text/javascript" src="libs/three.js"></script>
 		<script type="text/javascript" src="libs/OrbitControls.js"></script>
-		<script type="text/javascript" src="libs/GLTFLoader.js"></script>
+		<script type="text/javascript" src="libs/ColladaLoader.js"></script>
 		<script type="text/javascript" src="libs/dat.gui.js"></script>
+		<script type="text/javascript" charset="UTF-8" src="libs/Tween.min.js"></script>
 		<style>
 			body {
 				margin: 0;
@@ -18,19 +19,26 @@
 		<script type="text/javascript">
 			var camera;
 			var renderer;
-			var mesh;
-			var mixer;
-			
+
 			function init() {
+				var urls = [
+					'assets/bgImage/skyBox6/posx.jpg',
+					'assets/bgImage/skyBox6/negx.jpg',
+					'assets/bgImage/skyBox6/posy.jpg',
+					'assets/bgImage/skyBox6/negy.jpg',
+					'assets/bgImage/skyBox6/posz.jpg',
+					'assets/bgImage/skyBox6/negz.jpg'
+				];
 				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
 				var scene = new THREE.Scene();
-				var textureLoader = new THREE.TextureLoader();
+				var cubeLoader = new THREE.CubeTextureLoader();
+				scene.background = cubeLoader.load(urls);
+				scene.opacity = 0;
 
 				// 创建一个摄像机，它定义了我们正在看的地方
 				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100000);
 				// 将摄像机对准场景的中心
-				camera.position.z = 2000;
-				camera.position.y = 800;
+				camera.position.z = 5;
 				camera.lookAt(scene.position);
 				var orbit = new THREE.OrbitControls(camera);
 
@@ -39,18 +47,17 @@
 					antialias: true,
 					logarithmicDepthBuffer: true,
 				});
-				renderer.setClearColor(new THREE.Color("#0e0934"));
 				renderer.setSize(window.innerWidth, window.innerHeight);
 
 				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
 				scene.add(ambientLight);
-
+				
 				// 将呈现器的输出添加到HTML元素
 				document.getElementById("dom").appendChild(renderer.domElement);
 
 				// 启动动画
 				renderScene();
-				
+
 				// 拾取对象
 				function pickupObjects(event) {
 					// 点击屏幕创建一个向量
@@ -73,7 +80,7 @@
 					var intersects1 = raycaster.intersectObjects(scene.children, true);
 					if (intersects1.length > 0) {
 						console.log(intersects1)
-						intersects1[0].object.material.color.set("#ff0000");
+						// intersects1[0].object.material.color.set("#ff0000");
 					}
 				}
 				document.addEventListener('click', pickupObjects, false); //监听单击拾取对象初始化球体
@@ -84,10 +91,6 @@
 					// 使用requestAnimationFrame函数进行渲染
 					requestAnimationFrame(renderScene);
 					renderer.render(scene, camera);
-					// 更新帧动画的时间
-					if (mixer) {
-						mixer.update(clock.getDelta());
-					}
 				}
 
 				// 渲染的场景
