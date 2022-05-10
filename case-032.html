@@ -70,18 +70,12 @@
 				function initFang() {
 					var loader = new THREE.ColladaLoader();
 					loader.load('assets/models/abb_irb52_7_120.dae', function(collada) {
-
 						dae = collada.scene;
-
 						dae.traverse(function(child) {
-
 							if (child.isMesh) {
-
 								// model does not have normals
 								child.material.flatShading = true;
-
 							}
-
 						});
 						// dae.scale = 1000;
 						dae.updateMatrix();
@@ -94,31 +88,18 @@
 				}
 
 				function setupTween() {
-
-					const duration = THREE.Math.randInt(1000, 5000);
-
+					const duration = THREE.Math.randInt(1000, 2000);
 					const target = {};
-
 					for (const prop in kinematics.joints) {
-
 						if (kinematics.joints.hasOwnProperty(prop)) {
-
 							if (!kinematics.joints[prop].static) {
-
 								const joint = kinematics.joints[prop];
-
 								const old = tweenParameters[prop];
-
 								const position = old ? old : joint.zeroPosition;
-
 								tweenParameters[prop] = position;
-
 								target[prop] = THREE.Math.randInt(joint.limits.min, joint.limits.max);
-
 							}
-
 						}
-
 					}
 					kinematicsTween = new TWEEN.Tween(tweenParameters).to(target, duration).easing(TWEEN.Easing.Quadratic.Out);
 					kinematicsTween.onUpdate(function(object) {
@@ -134,33 +115,6 @@
 					kinematicsTween.start();
 					setTimeout(setupTween, duration);
 				}
-
-				// 拾取对象
-				function pickupObjects(event) {
-					// 点击屏幕创建一个向量
-					var raycaster = new THREE.Raycaster();
-					var vector = new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window
-						.innerHeight) * 2 + 1);
-					var fxl = new THREE.Vector3(0, 1, 0);
-					var groundplane = new THREE.Plane(fxl, 0);
-					raycaster.setFromCamera(vector, camera);
-					var ray = raycaster.ray;
-					let intersects = ray.intersectPlane(groundplane);
-					// console.log(intersects)
-
-
-					// 点击屏幕创建一个向量
-					var vector1 = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window
-						.innerHeight) * 2 + 1, 0.5);
-					vector1 = vector1.unproject(camera); // 将屏幕的坐标转换成三维场景中的坐标
-					var raycaster = new THREE.Raycaster(camera.position, vector1.sub(camera.position).normalize());
-					var intersects1 = raycaster.intersectObjects(scene.children, true);
-					if (intersects1.length > 0) {
-						console.log(intersects1)
-						// intersects1[0].object.material.color.set("#ff0000");
-					}
-				}
-				document.addEventListener('click', pickupObjects, false); //监听单击拾取对象初始化球体
 
 				var clock = new THREE.Clock(); //声明一个时钟对象
 				function renderScene() {
