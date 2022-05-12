@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Threejs引入字体，实现3D字体，广告标语，Canvas画布作为纹理贴图实现滚动字幕</title>
+		<script type="text/javascript" src="libs/three.js"></script>
+		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<script type="text/javascript" src="libs/ColladaLoader.js"></script>
+		<script type="text/javascript" src="libs/dat.gui.js"></script>
+		<script type="text/javascript" charset="UTF-8" src="libs/Tween.min.js"></script>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="dom"></div>
+		<script type="text/javascript">
+			var camera;
+			var renderer;
+			var fontMesh;
+			var canvasTexture;
+
+			function init() {
+				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
+				var scene = new THREE.Scene();
+				scene.opacity = 0;
+
+				// 创建一个摄像机，它定义了我们正在看的地方
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100000);
+				// 将摄像机对准场景的中心
+				camera.position.z = 500;
+				camera.lookAt(scene.position);
+				var orbit = new THREE.OrbitControls(camera);
+
+				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
+				renderer = new THREE.WebGLRenderer({
+					antialias: true,
+					logarithmicDepthBuffer: true,
+				});
+				renderer.setClearColor(new THREE.Color("#0e0934"));
+				renderer.setSize(window.innerWidth, window.innerHeight);
+
+				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
+				scene.add(ambientLight);
+
+				// 将呈现器的输出添加到HTML元素
+				document.getElementById("dom").appendChild(renderer.domElement);
+
+				// 启动动画
+				renderScene();
+				add3DFont();
+				addLEDScreen();
+
+				function add3DFont() {
+					new THREE.FontLoader().load('font/FZYaoTi_Regular.json', function(font) {
+						//加入立体文字
+						var text = new THREE.TextGeometry("天青色等烟雨，而我在等你！", {
+							// 设定文字字体
+							font: font,
+							//尺寸
+							size: 24,
+							//厚度
+							height: 5
+						});
+						text.computeBoundingBox();
+						// 设置偏移
+						text.translate(-220, 0, 0);
+						//3D文字材质
+						var m = new THREE.MeshStandardMaterial({
+							color: "#FF0000"
+						});
+						fontMesh = new THREE.Mesh(text, m)
+						fontMesh.position.y = 100;
+						scene.add(fontMesh);
+					});
+				}
+
+				// 创建LED电子屏幕
+				function addLEDScreen() {
+					var canvas = document.createElement("canvas");
+					canvas.width = 512;
+					canvas.height = 64;
+					var c = canvas.getContext('2d');
+					c.fillStyle = "#aaaaff";
+					c.fillRect(0, 0, 512, 64);
+					// 文字
+					c.beginPath();
+					c.translate(256, 32);
+					c.fillStyle = "#FF0000"; //文本填充颜色
+					c.font = "bold 28px 宋体"; //字体样式设置
+					c.textBaseline = "middle"; //文本与fillText定义的纵坐标
+					c.textAlign = "center"; //文本居中(以fillText定义的横坐标)
+					c.fillText("天青色等烟雨，而我在等你！", 0, 0);
+
+					var cubeGeometry = new THREE.BoxGeometry(512, 64, 5);
+					canvasTexture = new THREE.CanvasTexture(canvas);
+					canvasTexture.wrapS = THREE.RepeatWrapping;
+					var material = new THREE.MeshPhongMaterial({
+						map: canvasTexture, // 设置纹理贴图
+					});
+					var cube = new THREE.Mesh(cubeGeometry, material);
+					cube.rotation.y += Math.PI; //-逆时针旋转,+顺时针
+					scene.add(cube);
+				}
+
+				var clock = new THREE.Clock(); //声明一个时钟对象
+				function renderScene() {
+					orbit.update();
+
+					if (fontMesh) {
+						fontMesh.rotation.y -= 0.004;
+					}
+					if(canvasTexture) {
+						canvasTexture.offset.x += 0.005;
+					}
+					// 使用requestAnimationFrame函数进行渲染
+					requestAnimationFrame(renderScene);
+					renderer.render(scene, camera);
+				}
+
+				// 渲染的场景
+				renderer.render(scene, camera);
+			}
+			window.onload = init;
+
+			// 随着窗体的变化修改场景
+			function onResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+			// 监听窗体调整大小事件
+			window.addEventListener('resize', onResize, false);
+		</script>
+	</body>
+</html>
