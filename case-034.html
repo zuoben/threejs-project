@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Threejs引入字体，实现3D字体，广告标语，Canvas画布作为纹理贴图实现滚动字幕</title>
+		<title>Threejs引入字体，实现3D文字，Canvas画布作为纹理贴图实现滚动字幕</title>
 		<script type="text/javascript" src="libs/three.js"></script>
 		<script type="text/javascript" src="libs/OrbitControls.js"></script>
 		<script type="text/javascript" src="libs/ColladaLoader.js"></script>
@@ -56,7 +56,7 @@
 				function add3DFont() {
 					new THREE.FontLoader().load('font/FZYaoTi_Regular.json', function(font) {
 						//加入立体文字
-						var text = new THREE.TextGeometry("天青色等烟雨，而我在等你！", {
+						var text = new THREE.TextGeometry("左本的博客，Three.js3D文字", {
 							// 设定文字字体
 							font: font,
 							//尺寸
@@ -92,7 +92,7 @@
 					c.font = "bold 28px 宋体"; //字体样式设置
 					c.textBaseline = "middle"; //文本与fillText定义的纵坐标
 					c.textAlign = "center"; //文本居中(以fillText定义的横坐标)
-					c.fillText("天青色等烟雨，而我在等你！", 0, 0);
+					c.fillText("左本的博客，Three.js3D文字", 0, 0);
 
 					var cubeGeometry = new THREE.BoxGeometry(512, 64, 5);
 					canvasTexture = new THREE.CanvasTexture(canvas);
@@ -112,7 +112,7 @@
 					if (fontMesh) {
 						fontMesh.rotation.y -= 0.004;
 					}
-					if(canvasTexture) {
+					if (canvasTexture) {
 						canvasTexture.offset.x += 0.005;
 					}
 					// 使用requestAnimationFrame函数进行渲染
