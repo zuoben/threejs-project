@@ -7,6 +7,7 @@
 		<script type="text/javascript" src="libs/ColladaLoader.js"></script>
 		<script type="text/javascript" src="libs/dat.gui.js"></script>
 		<script type="text/javascript" charset="UTF-8" src="libs/Tween.min.js"></script>
+		<script type="text/javascript" src="libs/jquery-1.11.2.min.js"></script>
 		<style>
 			body {
 				margin: 0;
@@ -19,26 +20,37 @@
 		<script type="text/javascript">
 			var camera;
 			var renderer;
+			// 地图缩放比例
+			var shapeScaleSize = 1;
+			// 地图正面颜色
+			var faceColor = '#F8F8FF';
+			// 地图侧边颜色
+			var sideColor = '#D3D3D3'
+			var shapeGeometryObj = {};
+			var shapeGeometry = {};
+			// 地图正面颜色
+			var faceColor = '#F8F8FF';
+			// 地图侧边颜色
+			var sideColor = '#D3D3D3';
+			var options = {
+				depth: 0.3, // 定义图形拉伸的深度，默认100
+				steps: 0, // 拉伸面方向分为多少级，默认为1
+				bevelEnabled: true, // 表示是否有斜角，默认为true
+				bevelThickness: 0, // 斜角的深度，默认为6
+				bevelSize: 0, // 表示斜角的高度，高度会叠加到正常高度
+				bebelSegments: 0, // 斜角的分段数，分段数越高越平滑，默认为1
+				curveSegments: 0 // 拉伸体沿深度方向分为多少段，默认为1
+			}
 
 			function init() {
-				var urls = [
-					'assets/bgImage/skyBox6/posx.jpg',
-					'assets/bgImage/skyBox6/negx.jpg',
-					'assets/bgImage/skyBox6/posy.jpg',
-					'assets/bgImage/skyBox6/negy.jpg',
-					'assets/bgImage/skyBox6/posz.jpg',
-					'assets/bgImage/skyBox6/negz.jpg'
-				];
 				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
 				var scene = new THREE.Scene();
-				var cubeLoader = new THREE.CubeTextureLoader();
-				scene.background = cubeLoader.load(urls);
 				scene.opacity = 0;
 
 				// 创建一个摄像机，它定义了我们正在看的地方
 				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100000);
 				// 将摄像机对准场景的中心
-				camera.position.z = 5;
+				camera.position.z = 800;
 				camera.lookAt(scene.position);
 				var orbit = new THREE.OrbitControls(camera);
 
@@ -47,16 +59,186 @@
 					antialias: true,
 					logarithmicDepthBuffer: true,
 				});
+				renderer.setClearColor(new THREE.Color("#0e0934"));
 				renderer.setSize(window.innerWidth, window.innerHeight);
 
 				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
 				scene.add(ambientLight);
-				
+
 				// 将呈现器的输出添加到HTML元素
-				document.getElementById("dom").appendChild(renderer.domElement);
+				var dom = document.getElementById("dom");
+				dom.appendChild(renderer.domElement);
 
 				// 启动动画
 				renderScene();
+				irregularGeometry();
+				getMapData();
+
+				function irregularGeometry() {
+					let splinepts = [];
+					splinepts.push(new THREE.Vector2(170, 100));
+					splinepts.push(new THREE.Vector2(150, 150));
+					splinepts.push(new THREE.Vector2(80, 170));
+					splinepts.push(new THREE.Vector2(50, 100));
+					splinepts.push(new THREE.Vector2(90, 120));
+
+					let splineShape = new THREE.Shape(splinepts);
+					let geometry = new THREE.ShapeGeometry(splineShape);
+					let mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial({
+						side: THREE.DoubleSide,
+						color: 0xafc0ca
+					}));
+					scene.add(mesh);
+
+					// 根据集合点，创建一条平滑的二维曲线
+					let curve = new THREE.SplineCurve([
+						new THREE.Vector2(-20, 80),
+						new THREE.Vector2(-20, 150),
+						new THREE.Vector2(-100, 150),
+						new THREE.Vector2(-100, 80),
+					]);
+					// 样条曲线均匀分割100分，返回51个顶点坐标
+					let points = curve.getPoints(10);
+					let randomShape = new THREE.Shape(points);
+					let randomMesh = new THREE.Mesh(new THREE.ShapeGeometry(randomShape), new THREE.MeshPhongMaterial({
+						side: THREE.DoubleSide,
+						color: 0xafc0ca
+					}));
+					scene.add(randomMesh);
+
+					// 返回多边形均匀分布点
+					let spacedPoints = randomShape.getSpacedPoints(50);
+					// 返回多边形顶点
+					// let spacedPoints = randomShape.getPoints();
+					let geometrySpacedPoints = new THREE.BufferGeometry().setFromPoints(spacedPoints);
+					let particles = new THREE.Points(geometrySpacedPoints, new THREE.PointsMaterial({
+						color: "#ff5500",
+						size: 4
+					}));
+					particles.position.z = 25;
+					scene.add(particles);
+
+					var x = 120,
+						y = -90;
+					let heartShape = new THREE.Shape();
+					heartShape.moveTo(x + 25, y + 25)
+					heartShape.bezierCurveTo(x + 25, y + 25, x + 20, y, x, y)
+					heartShape.bezierCurveTo(x - 30, y, x - 30, y + 35, x - 30, y + 35)
+					heartShape.bezierCurveTo(x - 30, y + 55, x - 10, y + 77, x + 25, y + 95)
+					heartShape.bezierCurveTo(x + 60, y + 77, x + 80, y + 55, x + 80, y + 35)
+					heartShape.bezierCurveTo(x + 80, y + 35, x + 80, y, x + 50, y)
+					heartShape.bezierCurveTo(x + 35, y, x + 25, y + 25, x + 25, y + 25);
+					let heartMesh = new THREE.Mesh(new THREE.ShapeGeometry(heartShape), new THREE.MeshPhongMaterial({
+						side: THREE.DoubleSide,
+						color: 0xafc0ca
+					}));
+					scene.add(heartMesh);
+
+					let circleRadius = 30;
+					let circleShape = new THREE.Shape();
+					circleShape.moveTo(0, circleRadius)
+					circleShape.quadraticCurveTo(circleRadius, circleRadius, circleRadius, 0)
+					circleShape.quadraticCurveTo(circleRadius, -circleRadius, 0, -circleRadius)
+					circleShape.quadraticCurveTo(-circleRadius, -circleRadius, -circleRadius, 0)
+					circleShape.quadraticCurveTo(-circleRadius, circleRadius, 0, circleRadius);
+
+					let arcShape = new THREE.Shape();
+					arcShape.absarc(-50, -30, 40, 0, Math.PI * 2, false);
+					let holePath = new THREE.Path();
+					holePath.absarc(-50, -30, 10, 0, Math.PI * 2, true);
+
+					arcShape.holes.push(holePath);
+					let arcMesh = new THREE.Mesh(new THREE.ShapeGeometry(circleShape), new THREE.MeshPhongMaterial({
+						side: THREE.DoubleSide,
+						color: 0xafc0ca
+					}));
+					scene.add(arcMesh);
+				}
+
+				// 将shape转换为ExtrudeGeometry
+				function transition3d(shapeObj, identify) {
+					var geometry = new THREE.ExtrudeGeometry(shapeObj, options);
+					var material1 = new THREE.MeshBasicMaterial({
+						color: faceColor,
+						transparent: true,
+						opacity: 0.5
+					});
+					var material2 = new THREE.MeshBasicMaterial({
+						color: sideColor,
+						transparent: true,
+						opacity: 1
+					});
+					// 绘制地图
+					shapeGeometryObj['shapeGeometry' + identify] = new THREE.Mesh(geometry, [material1, material2]);
+					// 将地图加入场景
+					scene.add(shapeGeometryObj['shapeGeometry' + identify])
+				}
+
+				// 计算绘制地图参数函数
+				function drawShapeOptionFun() {
+					// 绘制中国地图
+					shapeGeometry.features.forEach(function(worldItem, worldIndex) {
+						var length = worldItem.geometry.coordinates.length;
+						var multipleBool = length > 1 ? true : false;
+						//这里指的是原点缩定位的位置
+						var averageX = 120.64383939800007;
+						var averageY = 30.12268928300005;
+						worldItem.geometry.coordinates.forEach(function(worldChildItem, wordItemIndex) {
+							if (multipleBool) {
+								// 值界可以使用的经纬度信息
+								if (worldChildItem.length && worldChildItem[0].length == 2) {
+									transition3d(drawShape(worldChildItem, averageX, averageY), '' + worldIndex +
+										wordItemIndex);
+								}
+								// 需要转换才可以使用的经纬度信息
+								if (worldChildItem.length && worldChildItem[0].length > 2) {
+									worldChildItem.forEach(function(countryItem, countryIndex) {
+										transition3d(drawShape(countryItem, averageX, averageY), '' +
+											worldIndex + wordItemIndex + countryIndex);
+									})
+								}
+							} else {
+								var countryPos = null;
+								if (worldChildItem.length > 1) {
+									countryPos = worldChildItem;
+								} else {
+									countryPos = worldChildItem[0];
+								}
+								if (countryPos) {
+									transition3d(drawShape(countryPos, averageX, averageY), '' + worldIndex +
+										wordItemIndex);
+								}
+							}
+						})
+					})
+				}
+
+				// 绘制地图函数
+				function drawShape(pos, averageX, averageY) {
+					var shape = new THREE.Shape();
+					// 计算平均每格占比
+					var average = 20;
+					shape.moveTo((pos[0][0] - averageX) * average / shapeScaleSize, (pos[0][1] - averageY) * average /
+						shapeScaleSize);
+					pos.forEach(function(item) {
+						shape.lineTo((item[0] - averageX) * average / shapeScaleSize, (item[1] - averageY) * average /
+							shapeScaleSize);
+					})
+					return shape;
+				}
+
+				// 获取中国经纬度信息函数
+				function getMapData() {
+					$.ajax({
+						type: "GET", //提交方式
+						url: "./data/shanxi.json",
+						async: false,
+						success: function(response) {
+							shapeGeometry = response;
+							drawShapeOptionFun();
+						}
+					})
+				}
 
 				// 拾取对象
 				function pickupObjects(event) {
@@ -80,7 +262,6 @@
 					var intersects1 = raycaster.intersectObjects(scene.children, true);
 					if (intersects1.length > 0) {
 						console.log(intersects1)
-						// intersects1[0].object.material.color.set("#ff0000");
 					}
 				}
 				document.addEventListener('click', pickupObjects, false); //监听单击拾取对象初始化球体

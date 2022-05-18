@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Threejs实现</title>
+		<script type="text/javascript" src="libs/three.js"></script>
+		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<script type="text/javascript" src="libs/ColladaLoader.js"></script>
+		<script type="text/javascript" src="libs/dat.gui.js"></script>
+		<script type="text/javascript" charset="UTF-8" src="libs/Tween.min.js"></script>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="dom"></div>
+		<script type="text/javascript">
+			var camera;
+			var renderer;
+
+			function init() {
+				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
+				var scene = new THREE.Scene();
+				scene.opacity = 0;
+
+				// 创建一个摄像机，它定义了我们正在看的地方
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100000);
+				// 将摄像机对准场景的中心
+				camera.position.z = 5;
+				camera.lookAt(scene.position);
+				var orbit = new THREE.OrbitControls(camera);
+
+				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
+				renderer = new THREE.WebGLRenderer({
+					antialias: true,
+					logarithmicDepthBuffer: true,
+				});
+				renderer.setClearColor(new THREE.Color("#0e0934"));
+				renderer.setSize(window.innerWidth, window.innerHeight);
+
+				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
+				scene.add(ambientLight);
+				
+				// 将呈现器的输出添加到HTML元素
+				document.getElementById("dom").appendChild(renderer.domElement);
+
+				// 启动动画
+				renderScene();
+
+				// 拾取对象
+				function pickupObjects(event) {
+					// 点击屏幕创建一个向量
+					var raycaster = new THREE.Raycaster();
+					var vector = new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window
+						.innerHeight) * 2 + 1);
+					var fxl = new THREE.Vector3(0, 1, 0);
+					var groundplane = new THREE.Plane(fxl, 0);
+					raycaster.setFromCamera(vector, camera);
+					var ray = raycaster.ray;
+					let intersects = ray.intersectPlane(groundplane);
+					// console.log(intersects)
+
+
+					// 点击屏幕创建一个向量
+					var vector1 = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window
+						.innerHeight) * 2 + 1, 0.5);
+					vector1 = vector1.unproject(camera); // 将屏幕的坐标转换成三维场景中的坐标
+					var raycaster = new THREE.Raycaster(camera.position, vector1.sub(camera.position).normalize());
+					var intersects1 = raycaster.intersectObjects(scene.children, true);
+					if (intersects1.length > 0) {
+						console.log(intersects1)
+						// intersects1[0].object.material.color.set("#ff0000");
+					}
+				}
+				document.addEventListener('click', pickupObjects, false); //监听单击拾取对象初始化球体
+
+				var clock = new THREE.Clock(); //声明一个时钟对象
+				function renderScene() {
+					orbit.update();
+					// 使用requestAnimationFrame函数进行渲染
+					requestAnimationFrame(renderScene);
+					renderer.render(scene, camera);
+				}
+
+				// 渲染的场景
+				renderer.render(scene, camera);
+			}
+			window.onload = init;
+
+			// 随着窗体的变化修改场景
+			function onResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+			// 监听窗体调整大小事件
+			window.addEventListener('resize', onResize, false);
+		</script>
+	</body>
+</html>
