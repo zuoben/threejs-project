@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./libs/three.min.js"></script>
+    <script src="./libs/OrbitControls.js"></script>
+    <script src="./libs/FBXLoader.js"></script>
+    <script src="./libs/inflate.min.js"></script>
+    <script src="./libs/stats.min.js"></script>
+    <title>效果</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="container">
+
+    </div>
+    <script>
+        let container, stats;
+        let camera, scene, renderer, controls;
+        let time = { value: 0 };
+        init();
+        animate();
+        effect();
+        function init() {
+
+            container = document.getElementById('container');
+
+            camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 1, 15000);
+            camera.position.set(1550, 850, 4290);
+
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x101010);
+
+            renderer = new THREE.WebGLRenderer();
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            const light = new THREE.HemisphereLight(0xffffff, 0x909090, 0.8);
+            scene.add(light);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            scene.add(directionalLight);
+
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.minDistance = 1;
+            controls.maxDistance = 10000;
+            controls.target.set(0, 1, 0);
+            controls.update();
+
+            stats = new Stats();
+            container.appendChild(stats.dom);
+
+            window.addEventListener('resize', onWindowResize, false);
+
+        }
+
+        function effect() {
+            loadFbx("./model/shanghai.fbx", function (obj) {
+                scene.add(obj);
+                obj.traverse(function (child) {
+                    // 处理材质
+    if (child.material) {
+        if (Array.isArray(child.material)) {
+            child.material.forEach((elem) => {
+                handleBeofreMaterial(elem);
+            });
+        } else {
+            handleBeofreMaterial(child.material);
+        }
+    }
+                })
+            })
+        }
+
+        function handleBeofreMaterial(material) {
+            material.transparent = true;
+            material.depthWrite = false;
+            material.side = 2;
+            material.blending = 2;
+            material.color = new THREE.Color("#444");
+            material.opacity = 0.5;
+
+            material.onBeforeCompile = function (shader) {
+                shader.uniforms.time = time;
+                shader.uniforms.u_speed = { value: 10 }; // 扩散速度
+                shader.uniforms.u_radius = { value: 50 }; // 扩散半径
+                shader.uniforms.u_width = { value: 10 }; // 圆环半径
+                shader.uniforms.hightColor = { value: new THREE.Color("#ff0000") }; // 扩散颜色
+                let fragmentShader = shader.fragmentShader + "";
+                let vertexShader = shader.vertexShader + "";
+                const fragment = `
+                    float lerp (float x,float y,float t ) {
+                        return ( 1.0 - t ) * x + t * y;
+                    }
+                    float distanceTo(vec2 src, vec2 dst) {
+                        float dx = src.x - dst.x;
+                        float dy = src.y - dst.y;
+                        float dv = dx * dx + dy * dy;
+                        return sqrt(dv);
+                    }
+                    uniform vec3 hightColor;
+                    uniform float u_speed;
+                    uniform float u_radius;
+                    uniform float u_width;
+                    uniform float time;
+                    varying vec3 v_position;
+                    void main() {`;
+                const fragmentColor = `
+                    float u_time = u_speed * time;
+                    vec2 curr = vec2(v_position.x, v_position.z);
+                    float vLength = distanceTo(vec2(0.0, 0.0), curr);
+                    
+                    float len = mod(u_time, u_radius);
+
+                    float vOpacity = diffuseColor.a - 0.1;
+                    vec3 vColor = outgoingLight; 
+                    if (len < vLength && len > vLength - u_width) {
+                        float i = (len - (vLength - u_width)) / u_width;
+                        float d = sin(i * PI);
+                        float r = lerp(outgoingLight.r, hightColor.r, d);
+                        float g = lerp(outgoingLight.g, hightColor.g, d);
+                        float b = lerp(outgoingLight.b, hightColor.b, d);
+                        vColor = vec3(r, g, b);
+                        vOpacity = d * 0.1 + vOpacity;
+                    }
+
+                    gl_FragColor = vec4( vColor, vOpacity);
+                        `;
+                shader.fragmentShader = fragmentShader.replace("void main() {", fragment)
+                shader.fragmentShader = shader.fragmentShader.replace("gl_FragColor = vec4( outgoingLight, diffuseColor.a );", fragmentColor);
+                const vertex = `
+                    varying vec3 v_position;
+                    void main() {
+                        v_position = position;
+                    `;
+                shader.vertexShader = vertexShader.replace("void main() {", vertex);
+            }
+        }
+
+
+        function loadFbx(url, callback) {
+            const loader = new THREE.FBXLoader();
+            loader.load(url, function (obj) {
+                callback(obj);
+            });
+        }
+
+        function onWindowResize() {
+
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+        }
+        //
+
+        function animate() {
+
+            requestAnimationFrame(animate);
+
+            render();
+            controls.update();
+            stats.update();
+
+        }
+        function render() {
+            renderer.render(scene, camera);
+
+            time.value += 0.015;
+        }
+    </script>
+</body>
+
+</html>
