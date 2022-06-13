@@ -3,35 +3,20 @@
 #### 介绍
 threejs学习案例
 
-#### 软件架构
-软件架构说明
+#### 备注
+多个场景#，室内漫游，雷达扫描，视频纹理，热点，碰撞
+
+物联网3D可视化：养殖、农业，其他...
+
+3D展厅：大会场视频直播，bilibili或者公司直播那种形式
+
+智慧城市：展示某个区域城市地图，显示热点位置，点击热点显示数据或者监控信息，根据定位数据显示物体位置，显示特效扫描飞线...
+
+智慧园区：显示楼层，点击楼层进行交互显示
+
+商品展示：汽车、手机或者其他商品，预览，变色，信息...  参考郭隆邦案例
+
+智慧工厂：我的那个工厂案例优化修改
 
 
-#### 安装教程
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 使用说明
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
-
-#### 参与贡献
-
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
-
-
-#### 特技
-
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)

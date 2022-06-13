@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Threejs实现</title>
+		<script type="text/javascript" src="libs/three.js"></script>
+		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<script type="text/javascript" src="libs/ColladaLoader.js"></script>
+		<script type="text/javascript" src="libs/dat.gui.js"></script>
+		<script type="text/javascript" charset="UTF-8" src="libs/Tween.min.js"></script>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="dom"></div>
+		<script type="text/javascript">
+			var camera;
+			var renderer;
+
+			function init() {
+				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
+				var scene = new THREE.Scene();
+				scene.background = new THREE.Color(0xe0e0e0);
+				scene.fog = new THREE.Fog(0xe0e0e0, 20, 100);
+
+				// 创建一个摄像机，它定义了我们正在看的地方
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100000);
+				// 将摄像机对准场景的中心
+				camera.position.set(-5, 3, 10);
+				var orbit = new THREE.OrbitControls(camera);
+
+				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
+				renderer = new THREE.WebGLRenderer({
+					antialias: true,
+					logarithmicDepthBuffer: true,
+				});
+				renderer.setSize(window.innerWidth, window.innerHeight);
+
+
+				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
+				scene.add(ambientLight);
+
+				// 将呈现器的输出添加到HTML元素
+				document.getElementById("dom").appendChild(renderer.domElement);
+
+				// 启动动画
+				renderScene();
+
+				const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444);
+				hemiLight.position.set(0, 20, 0);
+				scene.add(hemiLight);
+
+				const dirLight = new THREE.DirectionalLight(0xffffff);
+				dirLight.position.set(0, 20, 10);
+				scene.add(dirLight);
+
+				const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2000, 2000), new THREE.MeshPhongMaterial({
+					color: 0x999999,
+					depthWrite: false
+				}));
+				mesh.rotation.x = -Math.PI / 2;
+				// scene.add(mesh);
+
+				const grid = new THREE.GridHelper(200, 40, 0x000000, 0x000000);
+				grid.material.opacity = 0.2;
+				grid.material.transparent = true;
+				// scene.add(grid);
+
+				var clock = new THREE.Clock(); //声明一个时钟对象
+				function renderScene() {
+					orbit.update();
+					// 使用requestAnimationFrame函数进行渲染
+					requestAnimationFrame(renderScene);
+					renderer.render(scene, camera);
+				}
+
+				// 渲染的场景
+				renderer.render(scene, camera);
+			}
+			window.onload = init;
+
+			// 随着窗体的变化修改场景
+			function onResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+			// 监听窗体调整大小事件
+			window.addEventListener('resize', onResize, false);
+		</script>
+	</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Threejs实现室内漫游</title>
+		<script type="text/javascript" src="libs/three.js"></script>
+		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<script type="text/javascript" src="libs/ColladaLoader.js"></script>
+		<script type="text/javascript" src="libs/dat.gui.js"></script>
+		<script type="text/javascript" charset="UTF-8" src="libs/Tween.min.js"></script>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="dom"></div>
+		<script type="text/javascript">
+			var camera;
+			var renderer;
+			var intersects;
+			var orbit;
+			var clock = new THREE.Clock(); //声明一个时钟对象
+
+			function init() {
+				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
+				var cubeLoader = new THREE.CubeTextureLoader();
+				var scene = new THREE.Scene();
+				scene.opacity = 0;
+				var urls = [
+					'assets/bgImage/skyBox6/posx.jpg',
+					'assets/bgImage/skyBox6/negx.jpg',
+					'assets/bgImage/skyBox6/posy.jpg',
+					'assets/bgImage/skyBox6/negy.jpg',
+					'assets/bgImage/skyBox6/posz.jpg',
+					'assets/bgImage/skyBox6/negz.jpg'
+				]
+				scene.background = cubeLoader.load(urls);
+
+				// 创建一个摄像机，它定义了我们正在看的地方
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 10000);
+				// 将摄像机对准场景的中心
+				// camera.position.z = 500;
+				// camera.position.y = 100;
+				// camera.lookAt(scene.position);
+				camera.position.set(0.0001, 20, 0.0001) //差值使相机向前看。
+				orbit = new THREE.OrbitControls(camera);
+				orbit.target.set(0, 20, 0)
+
+				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
+				renderer = new THREE.WebGLRenderer({
+					antialias: true,
+					logarithmicDepthBuffer: true,
+				});
+				renderer.setClearColor(new THREE.Color("#0e0934"));
+				renderer.setSize(window.innerWidth, window.innerHeight);
+
+				// var ambientLight = new THREE.AmbientLight("#ffffff", 1);
+				// scene.add(ambientLight);
+
+				// 将呈现器的输出添加到HTML元素
+				document.getElementById("dom").appendChild(renderer.domElement);
+
+				// 启动动画
+				renderScene();
+
+				/** add circle for mousemove on the plane */
+				const circle = new THREE.Mesh(new THREE.CircleGeometry(5, 50), new THREE.MeshBasicMaterial({
+					color: 'green',
+					transparent: true,
+					opacity: 0.2,
+					side: THREE.DoubleSide
+				}))
+				circle.visible = false
+				circle.rotateX(-0.5 * Math.PI)
+				circle.name = 'circle'
+				scene.add(circle)
+				
+				
+				const texture = new THREE.CubeTextureLoader()
+					.setPath('assets/bgImage/skyBox6/')
+					.load([
+						'posx.jpg', //右(-1,0,0)
+						'negx.jpg', //左(1,0,0)
+						'posy.jpg', //上(0,1,0)
+						'negy.jpg', //下(0,-1,0)
+						'posz.jpg', //前(0,0,1)
+						'negz.jpg' //后(0,0,-1)
+					]);
+				texture.format = THREE.RGBFormat;
+				texture.mapping = THREE.CubeReflectionMapping;
+				
+				const shader = THREE.ShaderLib["cube"];
+				shader.uniforms["tCube"].value = texture; //老版本
+				const material = new THREE.ShaderMaterial({
+					fragmentShader: shader.fragmentShader,
+					vertexShader: shader.vertexShader,
+					uniforms: shader.uniforms,
+					depthWrite: false,
+					side: THREE.DoubleSide
+				});
+				material.envMap = texture; //新版本
+				let skyBox2 = new THREE.Mesh(new THREE.BoxGeometry(5000, 5000, 5000), material);
+				skyBox2.position.set(0, 50, 0)
+				scene.add(skyBox2);
+
+				// const home = new THREE.Mesh(new THREE.BoxBufferGeometry(1000, 100, 1000), [
+				// 	new THREE.MeshStandardMaterial({
+				// 		color: 'red',
+				// 		side: THREE.BackSide
+				// 	}),
+				// 	new THREE.MeshStandardMaterial({
+				// 		color: 'red',
+				// 		side: THREE.BackSide
+				// 	}),
+				// 	new THREE.MeshStandardMaterial({
+				// 		color: 'red',
+				// 		side: THREE.BackSide
+				// 	}),
+				// 	new THREE.MeshStandardMaterial({
+				// 		color: 'red',
+				// 		side: THREE.BackSide
+				// 	}),
+				// 	new THREE.MeshStandardMaterial({
+				// 		color: 'red',
+				// 		side: THREE.BackSide
+				// 	}),
+				// 	new THREE.MeshStandardMaterial({
+				// 		color: 'red',
+				// 		side: THREE.BackSide
+				// 	})
+				// ])
+				// home.position.set(0, 50, 0)
+				// scene.add(home)
+
+				//add light
+				const directionalLight = new THREE.DirectionalLight('#fff')
+				directionalLight.position.set(30, 30, 30).normalize()
+				scene.add(directionalLight)
+				directionalLight.castShadow = true
+				const ambientLight = new THREE.AmbientLight('#fff', 0.3) // obj 唯一 id
+				scene.add(ambientLight)
+				const pointLight = new THREE.PointLight('yellow', 2)
+				pointLight.position.set(0, 30, 0)
+				pointLight.castShadow = true
+				scene.add(pointLight)
+
+				function onDocumentMouseMove(event) {
+					var raycaster = new THREE.Raycaster();
+					var vector = new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window
+						.innerHeight) * 2 + 1);
+					var fxl = new THREE.Vector3(0, 1, 0);
+					var groundplane = new THREE.Plane(fxl, 0);
+					raycaster.setFromCamera(vector, camera);
+					var ray = raycaster.ray;
+					intersects = ray.intersectPlane(groundplane);
+					if (intersects) {
+						circle.position.copy(intersects)
+						circle.position.y = 1.2
+						circle.visible = true
+						intersects.y = camera.position.y
+					}
+				}
+
+				function onDocumentMouseOut() {
+					circle.visible = false
+				}
+
+				function onDocumentMouseDown(event) {
+					const curPosition = camera.position;
+					const controlsTar = orbit.target;
+					const v = camera.position.clone().sub(orbit.target.clone()) //差
+					if (intersects) {
+						new TWEEN.Tween({
+								x1: curPosition.x, // 相机当前位置x
+								y1: curPosition.y, // 相机当前位置y
+								z1: curPosition.z, // 相机当前位置z
+								x2: controlsTar.x, // 控制当前的中心点x
+								y2: controlsTar.y, // 控制当前的中心点y
+								z2: controlsTar.z, // 控制当前的中心点z
+							})
+							.to({
+								x1: intersects.x, // 新的相机位置x
+								y1: intersects.y, // 新的相机位置y
+								z1: intersects.z, // 新的相机位置z
+								x2: intersects.x, // 新的控制中心点位置x
+								y2: intersects.y, // 新的控制中心点位置x
+								z2: intersects.z, // 新的控制中心点位置x
+							}, 1000)
+							.easing(TWEEN.Easing.Linear.None)
+							.onUpdate(function() {
+								// orbit.enabled = false;
+								camera.position.set(this.x1, this.y1, this.z1)
+								console.log(this.x2, this.y2, this.z2)
+								console.log(this.x2 - v.x, this.y2 - v.y, this.z2 - v.z)
+								orbit.target.set(this.x2 - v.x, this.y2 - v.y, this.z2 - v.z)
+								// orbit.target.set(this.x2, this.y2, this.z2)
+							})
+							.onComplete(function() {
+								// orbit.enabled = true;
+							})
+							.start();
+
+					}
+				}
+
+				document.addEventListener('mousemove', onDocumentMouseMove, false);
+				document.addEventListener('mouseout', onDocumentMouseOut, false);
+				document.addEventListener('click', onDocumentMouseDown, false);
+
+				function renderScene() {
+					TWEEN.update();
+					orbit.update(clock.getDelta());
+					// 使用requestAnimationFrame函数进行渲染
+					requestAnimationFrame(renderScene);
+					renderer.render(scene, camera);
+				}
+
+				// 渲染的场景
+				renderer.render(scene, camera);
+			}
+			window.onload = init;
+
+			// 随着窗体的变化修改场景
+			function onResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+			// 监听窗体调整大小事件
+			window.addEventListener('resize', onResize, false);
+		</script>
+	</body>
+</html>

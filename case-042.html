@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Threejs实现汽车3D展示</title>
+		<meta charset="utf-8">
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="container"></div>
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "./libs/jsm/three.module.js"
+				}
+			}
+		</script>
+		<script type="module">
+			import * as THREE from 'three';
+
+			import {
+				OrbitControls
+			} from './libs/jsm/OrbitControls.js';
+
+			import {
+				GLTFLoader
+			} from './libs/jsm/GLTFLoader.js';
+
+			import {
+				RGBELoader
+			} from './libs/jsm/RGBELoader.js';
+
+			// import {
+			// 	EffectComposer
+			// } from './libs/jsm/EffectComposer.js';
+			// import {
+			// 	RenderPass
+			// } from './libs/jsm/RenderPass.js';
+			// import {
+			// 	ShaderPass
+			// } from './libs/jsm/ShaderPass.js';
+			// import {
+			// 	OutlinePass
+			// } from './libs/jsm/OutlinePass.js';
+			// import {
+			// 	FXAAShader
+			// } from './libs/jsm/shaders/FXAAShader.js';
+
+			let camera, scene, renderer;
+
+			let grid;
+			let controls;
+			// let composer, effectFXAA, outlinePass;
+
+			const wheels = [];
+
+			function init() {
+
+				const container = document.getElementById('container');
+
+				renderer = new THREE.WebGLRenderer({
+					antialias: true
+				});
+				renderer.setPixelRatio(window.devicePixelRatio);
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				renderer.setAnimationLoop(render);
+				renderer.outputEncoding = THREE.sRGBEncoding;
+				renderer.toneMapping = THREE.ACESFilmicToneMapping;
+				renderer.toneMappingExposure = 0.85;
+				container.appendChild(renderer.domElement);
+
+				window.addEventListener('resize', onWindowResize);
+
+				camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+				camera.position.set(4.25, 1.4, -4.5);
+
+				controls = new OrbitControls(camera, container);
+				controls.enableDamping = true;
+				controls.maxDistance = 9;
+				controls.target.set(0, 0.5, 0);
+				controls.update();
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color(0x333333);
+				scene.environment = new RGBELoader().load('assets/textures/equirectangular/venice_sunset_1k.hdr');
+				scene.environment.mapping = THREE.EquirectangularReflectionMapping;
+				scene.fog = new THREE.Fog(0x333333, 10, 15);
+
+				grid = new THREE.GridHelper(20, 40, 0xffffff, 0xffffff);
+				grid.material.opacity = 0.2;
+				grid.material.depthWrite = false;
+				grid.material.transparent = true;
+				scene.add(grid);
+
+				// materials
+				const bodyMaterial = new THREE.MeshPhysicalMaterial({
+					color: 0xff0000,
+					metalness: 1.0,
+					roughness: 0.5,
+					clearcoat: 1.0,
+					clearcoatRoughness: 0.03,
+					sheen: 0.5
+				});
+
+				const detailsMaterial = new THREE.MeshStandardMaterial({
+					color: 0xffffff,
+					metalness: 1.0,
+					roughness: 0.5
+				});
+
+				const glassMaterial = new THREE.MeshPhysicalMaterial({
+					color: 0xffffff,
+					metalness: 0.25,
+					roughness: 0,
+					transmission: 1.0
+				});
+
+				const map = new THREE.TextureLoader().load("assets/textures/hotspot.png");
+				const material = new THREE.SpriteMaterial({
+					map: map
+				});
+
+				const sprite = new THREE.Sprite(material);
+				sprite.scale.set(0.1, 0.1, 0.1);
+				sprite.position.set(1, 0.8, 0.2);
+				// scene.add(sprite);
+				var sprite2 = sprite.clone()
+				sprite2.position.set(-1, 0.8, 0.2);
+				// scene.add(sprite2);
+
+				var sphereGeometry = new THREE.SphereGeometry(0.02, 50, 50);
+				var sphereMaterial = new THREE.MeshBasicMaterial({
+					color: "#ffffff"
+				});
+				var sphere1 = new THREE.Mesh(sphereGeometry, sphereMaterial);
+				sphere1.position.set(1, 0.8, 0.2);
+				scene.add(sphere1);
+				var sphere2 = sphere1.clone()
+				sphere2.position.set(-1, 0.8, 0.2);
+				scene.add(sphere2);
+
+				// composer = new EffectComposer(renderer);
+
+				// const renderPass = new RenderPass(scene, camera);
+				// composer.addPass(renderPass);
+
+				// outlinePass = new OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), scene, camera);
+				// outlinePass.edgeStrength = 5; // 边框
+				// outlinePass.edgeGlow =1; // 发光
+				// outlinePass.edgeThickness = 1; // 发光厚度
+				// outlinePass.pulsePeriod = 3; // 脉冲
+				// outlinePass.visibleEdgeColor.set("#ffffff");
+				// outlinePass.hiddenEdgeColor.set("#ffffff");
+
+				// outlinePass.selectedObjects = [sphere1, sphere2];
+				// composer.addPass(outlinePass);
+
+				// effectFXAA = new ShaderPass(FXAAShader);
+				// effectFXAA.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
+				// composer.addPass(effectFXAA);
+
+				// const bodyColorInput = document.getElementById('body-color');
+				// bodyColorInput.addEventListener('input', function() {
+				// 	bodyMaterial.color.set(this.value);
+				// });
+
+				// const detailsColorInput = document.getElementById('details-color');
+				// detailsColorInput.addEventListener('input', function() {
+				// 	detailsMaterial.color.set(this.value);
+				// });
+
+				// const glassColorInput = document.getElementById('glass-color');
+				// glassColorInput.addEventListener('input', function() {
+				// 	glassMaterial.color.set(this.value);
+				// });
+
+				const shadow = new THREE.TextureLoader().load('assets/models/ferrari_ao.png');
+
+				const loader = new GLTFLoader();
+
+				loader.load('assets/models/car.glb', function(gltf) {
+					const carModel = gltf.scene.children[0];
+
+					carModel.getObjectByName('body').material = bodyMaterial;
+
+					carModel.getObjectByName('rim_fl').material = detailsMaterial;
+					carModel.getObjectByName('rim_fr').material = detailsMaterial;
+					carModel.getObjectByName('rim_rr').material = detailsMaterial;
+					carModel.getObjectByName('rim_rl').material = detailsMaterial;
+					carModel.getObjectByName('trim').material = detailsMaterial;
+
+					// carModel.getObjectByName('body').rotation.x = -Math.PI / 2;
+
+					carModel.getObjectByName('glass').material = glassMaterial;
+
+					wheels.push(
+						carModel.getObjectByName('wheel_fl'),
+						carModel.getObjectByName('wheel_fr'),
+						carModel.getObjectByName('wheel_rl'),
+						carModel.getObjectByName('wheel_rr')
+					);
+
+					// shadow
+					const mesh = new THREE.Mesh(
+						new THREE.PlaneGeometry(0.655 * 4, 1.3 * 4),
+						new THREE.MeshBasicMaterial({
+							map: shadow,
+							blending: THREE.MultiplyBlending,
+							toneMapped: false,
+							transparent: true
+						})
+					);
+					mesh.rotation.x = -Math.PI / 2;
+					mesh.renderOrder = 2;
+					carModel.add(mesh);
+					scene.add(carModel);
+				});
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize(window.innerWidth, window.innerHeight);
+
+			}
+
+			function render() {
+
+				controls.update();
+
+				// composer.render();
+					renderer.render(scene, camera);
+
+				const time = -performance.now() / 1000;
+
+				for (let i = 0; i < wheels.length; i++) {
+
+					wheels[i].rotation.x = time * Math.PI * 2;
+
+				}
+
+				grid.position.z = -(time) % 1;
+			}
+
+			init();
+
+
+			// 拾取对象
+			function pickupObjects(event) {
+				// 点击屏幕创建一个向量
+				var raycaster = new THREE.Raycaster();
+				var vector = new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window
+					.innerHeight) * 2 + 1);
+				raycaster.setFromCamera(vector, camera);
+				let intersects = raycaster.intersectObjects(scene.children);
+				// console.log(intersects)
+			}
+			document.addEventListener('click', pickupObjects, false); //监听单击拾取对象初始化球体
+		</script>
+
+	</body>
+</html>

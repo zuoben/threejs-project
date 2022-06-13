@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Threejs实现球形等距圆柱投影，全景分离图片贴图</title>
+		<script type="text/javascript" src="libs/three.js"></script>
+		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<script type="text/javascript" src="libs/ColladaLoader.js"></script>
+		<script type="text/javascript" src="libs/dat.gui.js"></script>
+		<script type="text/javascript" charset="UTF-8" src="libs/Tween.min.js"></script>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="dom"></div>
+		<script type="text/javascript">
+			var camera;
+			var renderer;
+			var clock = new THREE.Clock(); //声明一个时钟对象
+
+			function init() {
+				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
+				var scene = new THREE.Scene();
+				scene.opacity = 0;
+
+				// 创建一个摄像机，它定义了我们正在看的地方
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100000);
+				// 将摄像机对准场景的中心
+				camera.position.z = 500;
+				camera.lookAt(scene.position);
+				var orbit = new THREE.OrbitControls(camera);
+
+				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
+				renderer = new THREE.WebGLRenderer({
+					antialias: true,
+					logarithmicDepthBuffer: true,
+				});
+				// renderer.setClearColor(new THREE.Color("#0e0934"));
+				renderer.setSize(window.innerWidth, window.innerHeight);
+
+				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
+				scene.add(ambientLight);
+
+				// 将呈现器的输出添加到HTML元素
+				document.getElementById("dom").appendChild(renderer.domElement);
+
+				var textureLoader = new THREE.TextureLoader();
+				var alternativeMap = textureLoader.load("assets/bgImage/senlin.jpg")
+				alternativeMap.mapping = THREE.EquirectangularReflectionMapping;
+				alternativeMap.magFilter = THREE.LinearFilter;
+				alternativeMap.minFilter = THREE.LinearMipMapLinearFilter;
+
+				var equirectShader = THREE.ShaderLib["equirect"];
+				var equireclMaterial = new THREE.ShaderMaterial({
+					fragmentShader: equirectShader.fragmentShader,
+					vertexShader: equirectShader.vertexShader,
+					uniforms: equirectShader.uniforms,
+					depthWrite: false,
+					side: THREE.BackSide
+				});
+				equireclMaterial.uniforms["tEquirect"].value = alternativeMap;
+				var skybox = new THREE.Mesh(new THREE.BoxGeometry(1000, 1000, 1000), equireclMaterial);
+				// scene.add(skybox);
+
+				var cubeLoader = new THREE.CubeTextureLoader();
+				var urls = [
+					'assets/bgImage/skyBox6/posx.jpg',
+					'assets/bgImage/skyBox6/negx.jpg',
+					'assets/bgImage/skyBox6/posy.jpg',
+					'assets/bgImage/skyBox6/negy.jpg',
+					'assets/bgImage/skyBox6/posz.jpg',
+					'assets/bgImage/skyBox6/negz.jpg'
+				]
+				var cubeMap = cubeLoader.load(urls)
+				var sphereMaterial = new THREE.MeshStandardMaterial({
+					envMap: cubeMap,
+					metalness: 1,
+					roughness: 0,
+					side: THREE.BackSide
+				})
+
+				var skybox1 = new THREE.Mesh(new THREE.BoxGeometry(1000, 1000, 1000), sphereMaterial);
+				// scene.add(skybox1);
+
+				const texture = new THREE.CubeTextureLoader()
+					.setPath('assets/bgImage/skyBox6/')
+					.load([
+						'posx.jpg', //右(-1,0,0)
+						'negx.jpg', //左(1,0,0)
+						'posy.jpg', //上(0,1,0)
+						'negy.jpg', //下(0,-1,0)
+						'posz.jpg', //前(0,0,1)
+						'negz.jpg' //后(0,0,-1)
+					]);
+				texture.format = THREE.RGBFormat;
+				texture.mapping = THREE.CubeReflectionMapping;
+
+				const shader = THREE.ShaderLib["cube"];
+				shader.uniforms["tCube"].value = texture; //老版本
+				const material = new THREE.ShaderMaterial({
+					fragmentShader: shader.fragmentShader,
+					vertexShader: shader.vertexShader,
+					uniforms: shader.uniforms,
+					depthWrite: false,
+					side: THREE.DoubleSide
+				});
+				material.envMap = texture; //新版本
+				let skyBox2 = new THREE.Mesh(new THREE.BoxGeometry(5000, 5000, 5000), material);
+				scene.add(skyBox2);
+
+				// 启动动画
+				renderScene();
+
+				// 拾取对象
+				function pickupObjects(event) {
+					// 点击屏幕创建一个向量
+					var raycaster = new THREE.Raycaster();
+					var vector = new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window
+						.innerHeight) * 2 + 1);
+					var fxl = new THREE.Vector3(0, 1, 0);
+					var groundplane = new THREE.Plane(fxl, 0);
+					raycaster.setFromCamera(vector, camera);
+					var ray = raycaster.ray;
+					let intersects = ray.intersectPlane(groundplane);
+					// console.log(intersects)
+
+				}
+				document.addEventListener('click', pickupObjects, false); //监听单击拾取对象初始化球体
+
+				function renderScene() {
+					orbit.update(clock.getDelta());
+					// 使用requestAnimationFrame函数进行渲染
+					requestAnimationFrame(renderScene);
+					renderer.render(scene, camera);
+				}
+
+				// 渲染的场景
+				renderer.render(scene, camera);
+			}
+			window.onload = init;
+
+			// 随着窗体的变化修改场景
+			function onResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+			// 监听窗体调整大小事件
+			window.addEventListener('resize', onResize, false);
+		</script>
+	</body>
+</html>

@@ -37,7 +37,7 @@
 					antialias: true,
 					logarithmicDepthBuffer: true,
 				});
-				renderer.setClearColor(new THREE.Color("#0e0934"));
+				// renderer.setClearColor(new THREE.Color("#0e0934"));
 				renderer.setSize(window.innerWidth, window.innerHeight);
 
 				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
@@ -48,6 +48,18 @@
 
 				// 启动动画
 				renderScene();
+
+				const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2000, 2000), new THREE.MeshPhongMaterial({
+					color: 0x999999,
+					depthWrite: false
+				}));
+				mesh.rotation.x = -Math.PI / 2;
+				scene.add(mesh);
+
+				const grid = new THREE.GridHelper(200, 40, 0x000000, 0x000000);
+				grid.material.opacity = 0.2;
+				grid.material.transparent = true;
+				scene.add(grid);
 
 				// 拾取对象
 				function pickupObjects(event) {

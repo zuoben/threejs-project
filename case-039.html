@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Threejs实现实现局部纹理刷新</title>
+		<script type="text/javascript" src="libs/three.js"></script>
+		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<script type="text/javascript" src="libs/ColladaLoader.js"></script>
+		<script type="text/javascript" src="libs/dat.gui.js"></script>
+		<script type="text/javascript" charset="UTF-8" src="libs/Tween.min.js"></script>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="dom"></div>
+		<!-- 顶点着色器的目的是将几何体的每个顶点放置在2D渲染空间上。换句话说，顶点着色器将3D顶点坐标转换为2D画布坐标。 -->
+		<script id="vertex-shader" type="x-shader/x-vertex">
+			varying vec2 vUv;
+			void main() {
+				vUv = vec2( uv.x, uv.y );
+				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+			}
+		</script>
+
+		<!-- 片元着色器的代码将应用于几何体的每个可见片元(像素)。片元着色器运行在顶点着色器之后。 -->
+		<script id="fragment-shader" type="x-shader/x-fragment">
+			uniform float mixRatio;
+			uniform sampler2D tDiffuse1;
+			uniform sampler2D tDiffuse2;
+			uniform sampler2D tMixTexture;
+			uniform bool useTexture;
+			uniform float threshold;
+			varying vec2 vUv;
+			void main() {
+				vec4 texel1 = texture2D( tDiffuse1, vUv );
+				vec4 texel2 = texture2D( tDiffuse2, vUv );
+				if (useTexture==true) {
+					vec4 transitionTexel = texture2D( tMixTexture, vUv );
+					float r = mixRatio * (1.0 + threshold * 2.0) - threshold;
+					float mixf=clamp((transitionTexel.r - r)*(1.0/threshold), 0.0, 1.0);
+					gl_FragColor = mix( texel1, texel2, mixf );
+				} else {
+					gl_FragColor = mix( texel2, texel1, mixRatio );
+				}
+			}
+		</script>
+		<script type="text/javascript">
+			const el = document.getElementById("dom");
+			var camera;
+			var renderer;
+			const clock = new THREE.Clock(); //声明一个时钟对象
+
+			const textures = []
+			const loader = new THREE.TextureLoader()
+			for (let i = 0; i < 6; i++) {
+				textures[i] = loader.load('assets/bgImage/transition/transition' + (i + 1) + '.png')
+			}
+			const textures1 = loader.load("assets/bgImage/fangbg.jpg")
+			const textures2 = loader.load("assets/bgImage/work.jpg")
+
+			const transitionParams = {
+				useTexture: true, //为 false 默认采用渐变式
+				transition: 0,
+				transitionSpeed: 0.01,
+				texture: textures[0],
+				animate: false,
+			}
+			const uniforms = {
+				tDiffuse1: {
+					value: null
+				},
+				tDiffuse2: {
+					value: null
+				},
+				mixRatio: {
+					value: 0.0
+				},
+				threshold: {
+					value: 0.1
+				},
+				useTexture: {
+					value: true
+				},
+				tMixTexture: {
+					value: textures[0]
+				}
+			}
+
+			function init() {
+				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
+				var scene = new THREE.Scene();
+
+				// 创建一个摄像机，它定义了我们正在看的地方
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100000);
+				// camera = new THREE.OrthographicCamera(el.offsetWidth / -2, el.offsetWidth / 2, el.offsetHeight / 2, el.offsetHeight / -2, -10, 10)
+				camera.position.z = 3000;
+
+				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
+				renderer = new THREE.WebGLRenderer({
+					antialias: true,
+					logarithmicDepthBuffer: true,
+				});
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				renderer.setClearColor(new THREE.Color("#0e0934"));
+
+				var textureLoader = new THREE.TextureLoader();
+				// scene.background = textureLoader.load("assets/bgImage/fangbg.jpg");
+
+				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
+				scene.add(ambientLight);
+
+				const renderTargetParameters = {
+					minFilter: THREE.LinearFilter,
+					magFilter: THREE.LinearFilter,
+					format: THREE.RGBFormat,
+					stencilBuffer: false
+				};
+				var fbo = new THREE.WebGLRenderTarget(el.offsetWidth, el.offsetHeight, renderTargetParameters)
+				// renderer.setRenderTarget(fbo)
+				var orbit = new THREE.OrbitControls(camera, renderer.domElement);
+				// 如果使用animate方法时，将此函数删除
+				//controls.addEventListener( 'change', render );
+				// 使动画循环使用时阻尼或自转 意思是否有惯性
+				orbit.enableDamping = true;
+				//动态阻尼系数 就是鼠标拖拽旋转灵敏度
+				//controls.dampingFactor = 0.25;
+				//是否可以缩放
+				orbit.enableZoom = true;
+				//是否自动旋转
+				// orbit.autoRotate = true;
+				orbit.autoRotateSpeed = 0.3;
+				//设置相机距离原点的最远距离
+				orbit.minDistance = 1;
+				//设置相机距离原点的最远距离
+				// controls.maxDistance = 1000;
+				//是否开启右键拖拽
+				orbit.enablePan = true
+
+				el.appendChild(renderer.domElement);
+
+				var meshMaterial = createMaterial("vertex-shader",
+					"fragment-shader");
+				const quadgeometry = new THREE.PlaneBufferGeometry(el.offsetWidth, el.offsetHeight)
+				var quad = new THREE.Mesh(quadgeometry, meshMaterial)
+				scene.add(quad)
+
+				// 使用GUI调试库
+				var controls = new function() {
+					var num = 1;
+					this.场景切换 = function() {
+						switchover();
+					}
+				}
+
+				var gui = new dat.GUI();
+				// 设置两个变量的取值范围
+				gui.add(controls, '场景切换');
+console.log(textures1)
+				function switchover() {
+					transitionParams.texture = textures[parseInt(Math.random() * 6)]
+					uniforms.tDiffuse1.value = textures1
+					uniforms.tDiffuse2.value = textures2
+					uniforms.mixRatio.value = 0.0
+					uniforms.threshold.value = 0.1
+					uniforms.useTexture.value = transitionParams.useTexture
+					uniforms.tMixTexture.value = transitionParams.texture
+
+					transitionParams.animate = true
+					transitionParams.transition = 0
+				}
+
+				// 启动动画
+				renderScene();
+
+				function createMaterial(vertexShader, fragmentShader) {
+					var vertShader = document.getElementById(vertexShader).innerHTML;
+					var fragShader = document.getElementById(fragmentShader).innerHTML;
+
+					// .vertexShader：它会在几何体的每一个顶点上执行。可以用这个着色器通过改变顶点的位置来对几何体进行变换。
+					// ·fragmentShader：它会在几何体的每一个片段上执行。在VertexShader里，我们会返回这个特定片段应该显示的颜色。
+					var meshMaterial = new THREE.ShaderMaterial({
+						uniforms: uniforms,
+						vertexShader: vertShader,
+						fragmentShader: fragShader,
+						transparent: true
+					});
+					return meshMaterial;
+				}
+
+				function renderScene() {
+					orbit.update(clock.getDelta());
+					// 使用requestAnimationFrame函数进行渲染
+					requestAnimationFrame(renderScene);
+
+					if (transitionParams.transition === 0) {
+						// renderer.setRenderTarget(null)
+						renderer.render(scene, camera)
+					} else if (transitionParams.transition >= 1) {
+						// renderer.setRenderTarget(null)
+						renderer.render(scene, camera)
+						transitionParams.animate = false // 停止
+					} else {
+						console.log(transitionParams.transition)
+						// T.sceneA.render(delta, true)
+						// T.sceneB.render(delta, true)
+						// renderer.setRenderTarget(fbo)
+						renderer.clear()
+						renderer.render(scene, camera)
+					}
+
+					if (transitionParams.animate && transitionParams.transition <= 1) {
+						transitionParams.transition = transitionParams.transition + transitionParams.transitionSpeed
+						uniforms.mixRatio.value = transitionParams.transition
+					}
+				}
+			}
+			window.onload = init;
+
+			// 随着窗体的变化修改场景
+			function onResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+			// 监听窗体调整大小事件
+			window.addEventListener('resize', onResize, false);
+		</script>
+	</body>
+</html>
