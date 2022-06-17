@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Threejs实现汽车3D展示/开关门/变色/运动/视角切换/波动热点/汽车模型</title>
+		<meta charset="utf-8">
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+
+			.status {
+				width: 20px;
+				height: 20px;
+				position: relative;
+			}
+
+			.solid {
+				width: 100%;
+				height: 100%;
+				position: absolute;
+				z-index: 999;
+				left: 0;
+				top: 0;
+				background: #fff;
+				border-radius: 100%;
+			}
+
+			.status .animate1,
+			.status .animate2 {
+				background: #fff;
+				width: 20px;
+				height: 20px;
+				border-radius: 100%;
+				position: absolute;
+				left: 0;
+				top: 0;
+				z-index: 1;
+			}
+
+			@keyframes circle {
+				0% {
+					-webkit-transform: scale(1);
+					transform: scale(1);
+					opacity: 1;
+				}
+
+				100% {
+					-webkit-transform: scale(1.8);
+					transform: scale(1.8);
+					opacity: 0.1;
+				}
+			}
+
+			.status .animate1 {
+				-webkit-animation: circle 2s 0s ease-out infinite running;
+				animation: circle 2s 0s ease-out infinite running;
+			}
+
+			.status .animate2 {
+				-webkit-animation: circle 2s 1s ease-out infinite running;
+				animation: circle 2s 1s ease-out infinite running;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="container"></div>
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "./libs/jsm/three.module.js"
+				}
+			}
+		</script>
+		<script type="module">
+			import * as THREE from 'three';
+
+			import {
+				OrbitControls
+			} from './libs/jsm/OrbitControls.js';
+
+			import {
+				GLTFLoader
+			} from './libs/jsm/GLTFLoader.js';
+
+			import {
+				RGBELoader
+			} from './libs/jsm/RGBELoader.js';
+
+			import {
+				TWEEN
+			} from './libs/jsm/tween.module.min.js';
+
+			import {
+				GUI
+			} from './libs/jsm/lil-gui.module.min.js';
+
+			import {
+				CSS2DRenderer,
+				CSS2DObject
+			} from './libs/jsm/CSS2DRenderer.js';
+
+			let camera, scene, renderer, stats, gui;
+
+			let labelRenderer;
+
+			let grid;
+			let controls;
+			let carModel;
+
+			const wheels = [];
+			const doors = [];
+			let bodyMaterial, detailsMaterial, glassMaterial;
+
+			function init() {
+
+				const container = document.getElementById('container');
+
+				renderer = new THREE.WebGLRenderer({
+					antialias: true
+				});
+				renderer.setPixelRatio(window.devicePixelRatio);
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				renderer.setAnimationLoop(render);
+				renderer.outputEncoding = THREE.sRGBEncoding;
+				renderer.toneMapping = THREE.ACESFilmicToneMapping;
+				container.appendChild(renderer.domElement);
+				
+				labelRenderer = new CSS2DRenderer();
+				labelRenderer.setSize(window.innerWidth, window.innerHeight);
+				labelRenderer.domElement.style.position = 'absolute';
+				labelRenderer.domElement.style.top = '0px';
+				document.body.appendChild(labelRenderer.domElement);
+
+				window.addEventListener('resize', onWindowResize);
+
+				camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 10000);
+				camera.position.set(4.25, 1.4, -4.5);
+
+				controls = new OrbitControls(camera, labelRenderer.domElement);
+				controls.enableDamping = true;
+				controls.maxDistance = 9;
+				controls.target.set(0, 0.5, 0);
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color(0x333333);
+				scene.environment = new RGBELoader().load('assets/textures/equirectangular/venice_sunset_1k.hdr');
+				scene.environment.mapping = THREE.EquirectangularReflectionMapping;
+				scene.fog = new THREE.Fog(0x333333, 10, 15);
+
+				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
+				scene.add(ambientLight);
+
+				grid = new THREE.GridHelper(20, 40, 0xffffff, 0xffffff);
+				grid.material.opacity = 0.2;
+				grid.material.depthWrite = false;
+				grid.material.transparent = true;
+				scene.add(grid);
+
+				// materials
+				bodyMaterial = new THREE.MeshPhysicalMaterial({
+					color: "#6e2121",
+					metalness: 1.0,
+					roughness: 0.5,
+					clearcoat: 1.0,
+					clearcoatRoughness: 0.03,
+					sheen: 0.5
+				});
+
+				detailsMaterial = new THREE.MeshStandardMaterial({
+					color: "#6c6c6c",
+					metalness: 1.0,
+					roughness: 0.5
+				});
+
+				glassMaterial = new THREE.MeshPhysicalMaterial({
+					color: "#793e3e",
+					metalness: 0.25,
+					roughness: 0,
+					transmission: 1.0
+				});
+				
+				const waves = document.createElement('div');
+				waves.className = 'status';
+				const solid = document.createElement('div');
+				solid.className = 'solid';
+				const animate1 = document.createElement('div');
+				animate1.className = 'animate1';
+				const animate2 = document.createElement('div');
+				animate2.className = 'animate2';
+				waves.appendChild(solid);
+				waves.appendChild(animate1);
+				waves.appendChild(animate2);
+				
+				const wavesLabel_right = new CSS2DObject(waves);
+				wavesLabel_right.position.set(0.7, 0.7, -1.2);
+				const wavesLabel_left = wavesLabel_right.clone();
+				wavesLabel_left.position.set(-0.7, 0.7, -1.2);
+				scene.add(wavesLabel_right);
+				scene.add(wavesLabel_left);
+
+				const loader = new GLTFLoader();
+
+				loader.load('assets/models/benchi.glb', function(gltf) {
+					carModel = gltf.scene;
+
+					let bodyModel1 = carModel.getObjectByName('磨砂框架');
+					let bodyModel2 = carModel.getObjectByName('车门');
+					// console.log(carModel)
+					// 车身框架
+					bodyModel1.traverse(function(value) {
+						value.material = bodyMaterial;
+					})
+					// 车门包括细节
+					bodyModel2.traverse(function(value) {
+						// console.log(value.name)
+						if (value.name.indexOf("_tex") > 0 || value.name.indexOf("_gum") > 0 || value.name
+							.indexOf("_chr") > 0) {
+							value.material = detailsMaterial;
+						} else
+						if (value.name.indexOf("_skl") > 0) {
+							value.material = glassMaterial;
+						} else {
+							value.material = bodyMaterial;
+							if (value.name == "DLP" || value.name == "DLZ" || value.name == "DPP" || value
+								.name == "DPZ") {
+								doors.push(value);
+							}
+						}
+					})
+
+					let glassModel = carModel.getObjectByName('车身');
+					glassModel.traverse(function(value) {
+						if (value.name.indexOf("_skl") > 0) {
+							// 挡风玻璃
+							value.material = glassMaterial;
+						} else {
+							value.material = detailsMaterial;
+						}
+					})
+
+					let wheelModel = carModel.getObjectByName('车轮');
+					wheelModel.traverse(function(value) {
+						if (value.material) {
+							value.material.roughness = 1;
+						}
+					})
+					wheels.push(...wheelModel.children);
+					carModel.scale.set(0.03, 0.03, 0.03)
+					carModel.position.set(0, 0.25, 0)
+					scene.add(carModel);
+				});
+				createGUI();
+			}
+
+			function setupTweenCamera(source, target) {
+				const carTween = new TWEEN.Tween(source).to(target, 3000).easing(TWEEN.Easing.Quadratic.Out);
+				carTween.onUpdate(function(that) {
+					camera.position.set(that.cx, that.cy, that.cz);
+					controls.target.set(that.ox, that.oy, that.oz);
+				});
+				carTween.start();
+			}
+
+			function setupTweenDoor(source, target, mesh) {
+				const carTween = new TWEEN.Tween(source).to(target, 1000).easing(TWEEN.Easing.Quadratic.Out);
+				carTween.onUpdate(function(that) {
+					mesh.rotation.z = that.z;
+				});
+				carTween.start();
+			}
+
+			function createGUI() {
+				const states = ['红色', '蓝色', '黄色'];
+				const emotes = ['打开车门', '关闭车门', '车内视角', '车外视角'];
+
+				const params = {
+					打开车门: carOpen,
+					关闭车门: carClose,
+					车内视角: carIn,
+					车外视角: carOut,
+				};
+				const bc = {
+					车身颜色: '#6e2121',
+					opacity: 1,
+				}
+				const gc = {
+					玻璃颜色: '#aaaaaa',
+					opacity: 1,
+				}
+				const dc = {
+					细节颜色: '#6c6c6c',
+					opacity: 1,
+				}
+				const gui = new GUI();
+				gui.addColor(bc, '车身颜色').onChange(function() {
+					bodyMaterial.color.set(bc.车身颜色);
+				});
+				gui.addColor(dc, '细节颜色').onChange(function() {
+					detailsMaterial.color.set(dc.细节颜色);
+				});
+				gui.addColor(gc, '玻璃颜色').onChange(function() {
+					glassMaterial.color.set(gc.玻璃颜色);
+				});
+
+				gui.add(params, emotes[0]);
+				gui.add(params, emotes[1]);
+				gui.add(params, emotes[2]);
+				gui.add(params, emotes[3]);
+			}
+
+			function carOpen() {
+				for (let i = 0; i < doors.length; i++) {
+					if (doors[i].name == "DLP" || doors[i].name == "DLZ") {
+						setupTweenDoor({z: 0}, {z: Math.PI * 0.4}, doors[i])
+					}
+					if (doors[i].name == "DPP" || doors[i].name == "DPZ") {
+						setupTweenDoor({z: 0}, {z: Math.PI * -0.4}, doors[i])
+					}
+				}
+			}
+
+			function carClose(scalar) {
+				for (let i = 0; i < doors.length; i++) {
+					if (doors[i].name == "DLP" || doors[i].name == "DLZ") {
+						setupTweenDoor({z: Math.PI * 0.4}, {z: 0}, doors[i])
+					}
+					if (doors[i].name == "DPP" || doors[i].name == "DPZ") {
+						setupTweenDoor({z: Math.PI * -0.4}, {z: 0}, doors[i])
+					}
+				}
+			}
+
+			function carIn() {
+				setupTweenCamera({cx:4.25, cy:1.4, cz:-4.5, ox:0, oy:0.5, oz:0}, {cx:-0.27, cy:0.83, cz:-0.9, ox:0, oy:0.5, oz:-3});
+			}
+
+			function carOut() {
+				setupTweenCamera({cx:-0.27, cy:0.83, cz:-0.9, ox:0, oy:0.5, oz:-3}, {cx:4.25, cy:1.4, cz:-4.5, ox:0, oy:0.5, oz:0});
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize(window.innerWidth, window.innerHeight);
+
+				labelRenderer.setSize(window.innerWidth, window.innerHeight);
+
+			}
+
+			function render() {
+				TWEEN.update();
+
+				controls.update();
+				
+				renderer.render(scene, camera);
+				labelRenderer.render(scene, camera);
+
+				const time = -performance.now() / 1000;
+
+				for (let i = 0; i < wheels.length; i++) {
+
+					wheels[i].rotation.x = time * Math.PI * 2;
+
+				}
+
+				grid.position.z = -(time) % 1;
+			}
+
+			init();
+
+
+			// 拾取对象
+			function pickupObjects(event) {
+				// 点击屏幕创建一个向量
+				var raycaster = new THREE.Raycaster();
+				var vector = new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window
+					.innerHeight) * 2 + 1);
+				raycaster.setFromCamera(vector, camera);
+				let intersects = raycaster.intersectObjects(scene.children);
+				// console.log(intersects)
+			}
+			document.addEventListener('click', pickupObjects, false); //监听单击拾取对象初始化球体
+		</script>
+
+	</body>
+</html>

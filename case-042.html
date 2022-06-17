@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>Threejs实现汽车3D展示</title>
+		<title>Threejs实现汽车3D展示，改变汽车颜色，汽车爆炸分解合体效果</title>
 		<meta charset="utf-8">
 		<style>
 			body {
@@ -34,29 +34,22 @@
 				RGBELoader
 			} from './libs/jsm/RGBELoader.js';
 
-			// import {
-			// 	EffectComposer
-			// } from './libs/jsm/EffectComposer.js';
-			// import {
-			// 	RenderPass
-			// } from './libs/jsm/RenderPass.js';
-			// import {
-			// 	ShaderPass
-			// } from './libs/jsm/ShaderPass.js';
-			// import {
-			// 	OutlinePass
-			// } from './libs/jsm/OutlinePass.js';
-			// import {
-			// 	FXAAShader
-			// } from './libs/jsm/shaders/FXAAShader.js';
+			import {
+				TWEEN
+			} from './libs/jsm/tween.module.min.js';
 
-			let camera, scene, renderer;
+			import {
+				GUI
+			} from './libs/jsm/lil-gui.module.min.js';
+
+			let camera, scene, renderer, stats, gui;
 
 			let grid;
 			let controls;
-			// let composer, effectFXAA, outlinePass;
+			let carModel;
 
 			const wheels = [];
+			let bodyMaterial, detailsMaterial, glassMaterial;
 
 			function init() {
 
@@ -75,12 +68,12 @@
 
 				window.addEventListener('resize', onWindowResize);
 
-				camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
+				camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 10000);
 				camera.position.set(4.25, 1.4, -4.5);
 
 				controls = new OrbitControls(camera, container);
 				controls.enableDamping = true;
-				controls.maxDistance = 9;
+				controls.maxDistance = 90;
 				controls.target.set(0, 0.5, 0);
 				controls.update();
 
@@ -97,7 +90,7 @@
 				scene.add(grid);
 
 				// materials
-				const bodyMaterial = new THREE.MeshPhysicalMaterial({
+				bodyMaterial = new THREE.MeshPhysicalMaterial({
 					color: 0xff0000,
 					metalness: 1.0,
 					roughness: 0.5,
@@ -106,13 +99,13 @@
 					sheen: 0.5
 				});
 
-				const detailsMaterial = new THREE.MeshStandardMaterial({
+				detailsMaterial = new THREE.MeshStandardMaterial({
 					color: 0xffffff,
 					metalness: 1.0,
 					roughness: 0.5
 				});
 
-				const glassMaterial = new THREE.MeshPhysicalMaterial({
+				glassMaterial = new THREE.MeshPhysicalMaterial({
 					color: 0xffffff,
 					metalness: 0.25,
 					roughness: 0,
@@ -138,52 +131,18 @@
 				});
 				var sphere1 = new THREE.Mesh(sphereGeometry, sphereMaterial);
 				sphere1.position.set(1, 0.8, 0.2);
-				scene.add(sphere1);
+				// scene.add(sphere1);
 				var sphere2 = sphere1.clone()
 				sphere2.position.set(-1, 0.8, 0.2);
-				scene.add(sphere2);
-
-				// composer = new EffectComposer(renderer);
-
-				// const renderPass = new RenderPass(scene, camera);
-				// composer.addPass(renderPass);
-
-				// outlinePass = new OutlinePass(new THREE.Vector2(window.innerWidth, window.innerHeight), scene, camera);
-				// outlinePass.edgeStrength = 5; // 边框
-				// outlinePass.edgeGlow =1; // 发光
-				// outlinePass.edgeThickness = 1; // 发光厚度
-				// outlinePass.pulsePeriod = 3; // 脉冲
-				// outlinePass.visibleEdgeColor.set("#ffffff");
-				// outlinePass.hiddenEdgeColor.set("#ffffff");
-
-				// outlinePass.selectedObjects = [sphere1, sphere2];
-				// composer.addPass(outlinePass);
-
-				// effectFXAA = new ShaderPass(FXAAShader);
-				// effectFXAA.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
-				// composer.addPass(effectFXAA);
-
-				// const bodyColorInput = document.getElementById('body-color');
-				// bodyColorInput.addEventListener('input', function() {
-				// 	bodyMaterial.color.set(this.value);
-				// });
-
-				// const detailsColorInput = document.getElementById('details-color');
-				// detailsColorInput.addEventListener('input', function() {
-				// 	detailsMaterial.color.set(this.value);
-				// });
-
-				// const glassColorInput = document.getElementById('glass-color');
-				// glassColorInput.addEventListener('input', function() {
-				// 	glassMaterial.color.set(this.value);
-				// });
+				// scene.add(sphere2);
 
 				const shadow = new THREE.TextureLoader().load('assets/models/ferrari_ao.png');
 
 				const loader = new GLTFLoader();
 
 				loader.load('assets/models/car.glb', function(gltf) {
-					const carModel = gltf.scene.children[0];
+					initExplodeModel(gltf.scene)
+					carModel = gltf.scene.children[0];
 
 					carModel.getObjectByName('body').material = bodyMaterial;
 
@@ -192,8 +151,6 @@
 					carModel.getObjectByName('rim_rr').material = detailsMaterial;
 					carModel.getObjectByName('rim_rl').material = detailsMaterial;
 					carModel.getObjectByName('trim').material = detailsMaterial;
-
-					// carModel.getObjectByName('body').rotation.x = -Math.PI / 2;
 
 					carModel.getObjectByName('glass').material = glassMaterial;
 
@@ -220,6 +177,108 @@
 					scene.add(carModel);
 				});
 
+				createGUI();
+
+			}
+
+			function createGUI() {
+				const states = ['红色', '蓝色', '黄色'];
+				const emotes = ['聚合分散', '重置'];
+
+				const params = {
+					聚合分散: 0,
+					重置: reset,
+				};
+				const bc = {
+					车身颜色: '#ffffff',
+					opacity: 1,
+				}
+				const gc = {
+					玻璃颜色: '#ffffff',
+					opacity: 1,
+				}
+				const dc = {
+					座椅颜色: '#ffffff',
+					opacity: 1,
+				}
+				const gui = new GUI();
+				gui.addColor(bc, '车身颜色').onChange(function() {
+					bodyMaterial.color.set(bc.车身颜色);
+				});
+				gui.addColor(dc, '座椅颜色').onChange(function() {
+					detailsMaterial.color.set(dc.座椅颜色);
+				});
+				gui.addColor(gc, '玻璃颜色').onChange(function() {
+					glassMaterial.color.set(gc.玻璃颜色);
+				});
+
+				gui.add(params, emotes[0], 1, 30).step(0.1).name(emotes[0]).onChange(function(value) {
+					applyScalar(value)
+				});
+				gui.add(params, emotes[1]);
+			}
+
+			function initExplodeModel(model) {
+				//模型包围盒
+				var modelBox3 = new THREE.Box3();
+				var meshBox3 = new THREE.Box3();
+
+				//获取模型的包围盒
+				modelBox3.setFromObject(model);
+
+				//计算模型的中心点坐标，这个为爆炸中心
+				var explodeCenter = modelBox3.getCenter(new THREE.Vector3());
+
+				model.traverse(function(value) {
+					if (value.isMark || value.isMarkChild || value.isLine || value.isSprite) return;
+					if (value.isMesh) {
+						meshBox3.setFromObject(value);
+
+						//获取每个mesh的中心点，爆炸方向为爆炸中心点指向mesh中心点
+						var meshCenter = meshBox3.getCenter(new THREE.Vector3());
+						//计算爆炸方向
+						value.userData.worldDir = new THREE.Vector3().subVectors(meshCenter, explodeCenter).normalize();
+						// 爆炸距离 mesh中心点到爆炸中心点的距离
+						value.userData.worldDistance = new THREE.Vector3().subVectors(meshCenter, explodeCenter);
+						// 原始坐标
+						value.userData.originPosition = value.getWorldPosition(new THREE.Vector3());
+						// mesh中心点
+						value.userData.meshCenter = meshCenter.clone();
+						value.userData.explodeCenter = explodeCenter.clone();
+
+					}
+				})
+				const helper = new THREE.Box3Helper(modelBox3, 0xffff00);
+				// scene.add(helper);
+			}
+
+			// 合并
+			function merge() {
+				console.log("合并")
+			}
+
+			// 分散
+			function applyScalar(scalar) {
+				let model = carModel.clone();
+				carModel.traverse(function(value) {
+					if (!value.isMesh || !value.userData.originPosition) return;
+
+					const distance = value.userData.worldDir
+						.clone()
+						.multiplyScalar(value.userData.worldDistance.length() * scalar);
+					const offset = new THREE.Vector3().subVectors(
+						value.userData.meshCenter,
+						value.userData.originPosition
+					);
+					const center = value.userData.explodeCenter;
+					const newPos = new THREE.Vector3().copy(center).add(distance).sub(offset);
+					const localPosition = value.parent?.worldToLocal(newPos.clone());
+					localPosition && value.position.copy(localPosition);
+				});
+			}
+
+			function reset() {
+				location.reload();
 			}
 
 			function onWindowResize() {
@@ -232,11 +291,11 @@
 			}
 
 			function render() {
+				// TWEEN.update();
 
 				controls.update();
 
-				// composer.render();
-					renderer.render(scene, camera);
+				renderer.render(scene, camera);
 
 				const time = -performance.now() / 1000;
 
