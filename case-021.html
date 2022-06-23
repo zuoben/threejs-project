@@ -19,18 +19,50 @@
 
 			function init() {
 
-				var urls = [
-					'assets/bgImage/skyBox3/posx1.jpg',
-					'assets/bgImage/skyBox3/negx1.jpg',
-					'assets/bgImage/skyBox3/posy1.jpg',
-					'assets/bgImage/skyBox3/negy1.jpg',
-					'assets/bgImage/skyBox3/posz1.jpg',
-					'assets/bgImage/skyBox3/negz1.jpg'
+				var urls6 = [
+					'assets/bgImage/skyBox6/posx.jpg',
+					'assets/bgImage/skyBox6/negx.jpg',
+					'assets/bgImage/skyBox6/posy.jpg',
+					'assets/bgImage/skyBox6/negy.jpg',
+					'assets/bgImage/skyBox6/posz.jpg',
+					'assets/bgImage/skyBox6/negz.jpg'
+				];
+				var urls4 = [
+					'assets/bgImage/skyBox4/posx.jpg',
+					'assets/bgImage/skyBox4/negx.jpg',
+					'assets/bgImage/skyBox4/posy.jpg',
+					'assets/bgImage/skyBox4/negy.jpg',
+					'assets/bgImage/skyBox4/posz.jpg',
+					'assets/bgImage/skyBox4/negz.jpg'
+				];
+				var urls3 = [
+					'assets/bgImage/skyBox3/posx.jpg',
+					'assets/bgImage/skyBox3/negx.jpg',
+					'assets/bgImage/skyBox3/posy.jpg',
+					'assets/bgImage/skyBox3/negy.jpg',
+					'assets/bgImage/skyBox3/posz.jpg',
+					'assets/bgImage/skyBox3/negz.jpg'
+				];
+				var urls2 = [
+					'assets/bgImage/skyBox2/posx.jpg',
+					'assets/bgImage/skyBox2/negx.jpg',
+					'assets/bgImage/skyBox2/posy.jpg',
+					'assets/bgImage/skyBox2/negy.jpg',
+					'assets/bgImage/skyBox2/posz.jpg',
+					'assets/bgImage/skyBox2/negz.jpg'
+				];
+				var urls1 = [
+					'assets/bgImage/skyBox1/negy.jpg', // 左
+					'assets/bgImage/skyBox1/posy.jpg', // 右
+					'assets/bgImage/skyBox1/negz.jpg', // 上
+					'assets/bgImage/skyBox1/posz.jpg', // 下
+					'assets/bgImage/skyBox1/negx.jpg', // 后
+					'assets/bgImage/skyBox1/posx.jpg' // 前
 				];
 				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
 				var scene = new THREE.Scene();
 				var cubeLoader = new THREE.CubeTextureLoader();
-				scene.background = cubeLoader.load(urls);
+				scene.background = cubeLoader.load(urls6);
 				scene.opacity = 0;
 
 				var cubeLoader = new THREE.CubeTextureLoader();

@@ -1,12 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
-		<title>Threejs实现</title>
-		<script type="text/javascript" src="libs/three.js"></script>
-		<script type="text/javascript" src="libs/OrbitControls.js"></script>
-		<script type="text/javascript" src="libs/ColladaLoader.js"></script>
-		<script type="text/javascript" src="libs/dat.gui.js"></script>
-		<script type="text/javascript" charset="UTF-8" src="libs/Tween.min.js"></script>
+		<title>Threejs实现场景中显示网页，嵌入iframe</title>
+		<meta charset="utf-8">
 		<style>
 			body {
 				margin: 0;
@@ -15,81 +11,473 @@
 		</style>
 	</head>
 	<body>
-		<div id="dom"></div>
-		<script type="text/javascript">
-			var camera;
-			var renderer;
-
-			function init() {
-				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
-				var scene = new THREE.Scene();
-				scene.background = new THREE.Color(0xe0e0e0);
-				scene.fog = new THREE.Fog(0xe0e0e0, 20, 100);
-
-				// 创建一个摄像机，它定义了我们正在看的地方
-				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100000);
-				// 将摄像机对准场景的中心
-				camera.position.set(-5, 3, 10);
-				var orbit = new THREE.OrbitControls(camera);
-
-				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
-				renderer = new THREE.WebGLRenderer({
-					antialias: true,
-					logarithmicDepthBuffer: true,
-				});
-				renderer.setSize(window.innerWidth, window.innerHeight);
-
-
-				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
-				scene.add(ambientLight);
-
-				// 将呈现器的输出添加到HTML元素
-				document.getElementById("dom").appendChild(renderer.domElement);
-
-				// 启动动画
-				renderScene();
-
-				const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444);
-				hemiLight.position.set(0, 20, 0);
-				scene.add(hemiLight);
-
-				const dirLight = new THREE.DirectionalLight(0xffffff);
-				dirLight.position.set(0, 20, 10);
-				scene.add(dirLight);
-
-				const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2000, 2000), new THREE.MeshPhongMaterial({
-					color: 0x999999,
-					depthWrite: false
-				}));
-				mesh.rotation.x = -Math.PI / 2;
-				// scene.add(mesh);
-
-				const grid = new THREE.GridHelper(200, 40, 0x000000, 0x000000);
-				grid.material.opacity = 0.2;
-				grid.material.transparent = true;
-				// scene.add(grid);
-
-				var clock = new THREE.Clock(); //声明一个时钟对象
-				function renderScene() {
-					orbit.update();
-					// 使用requestAnimationFrame函数进行渲染
-					requestAnimationFrame(renderScene);
-					renderer.render(scene, camera);
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "./libs/jsm/three.module.js"
 				}
-
-				// 渲染的场景
-				renderer.render(scene, camera);
 			}
-			window.onload = init;
+		</script>
+		<script type="module">
+			import * as THREE from 'three';
 
-			// 随着窗体的变化修改场景
-			function onResize() {
+			import {
+				OrbitControls
+			} from './libs/jsm/OrbitControls.js';
+
+			import {
+				GLTFLoader
+			} from './libs/jsm/GLTFLoader.js';
+
+			import {
+				TWEEN
+			} from './libs/jsm/tween.module.min.js';
+
+			import {
+				CSS3DRenderer,
+				CSS3DObject,
+				CSS3DSprite
+			} from './libs/jsm/CSS3DRenderer.js';
+
+			let camera, glScene, cssScene, glRenderer, cssRenderer, controls;
+
+			function createGlRenderer() {
+				var glRenderer = new THREE.WebGLRenderer({
+					alpha: true
+				});
+			
+				glRenderer.setClearColor(0xECF8FF);
+				glRenderer.setPixelRatio(window.devicePixelRatio);
+				glRenderer.setSize(window.innerWidth, window.innerHeight);
+			
+				glRenderer.domElement.style.position = 'absolute';
+				glRenderer.domElement.style.zIndex = 1;
+				glRenderer.domElement.style.top = 0;
+			
+				return glRenderer;
+			}
+			
+			function createCssRenderer() {
+				var cssRenderer = new CSS3DRenderer();
+				cssRenderer.setSize(window.innerWidth, window.innerHeight);
+				cssRenderer.domElement.style.position = 'absolute';
+				glRenderer.domElement.style.zIndex = 0;
+				cssRenderer.domElement.style.top = 0;
+				return cssRenderer;
+			}
+
+			function createPlane(w, h, position, rotation) {
+
+				var material = new THREE.MeshBasicMaterial({
+					color: 0x000000,
+					opacity: 0.0,
+					side: THREE.DoubleSide
+				});
+
+				var geometry = new THREE.PlaneGeometry(w, h);
+
+				var mesh = new THREE.Mesh(geometry, material);
+
+				mesh.position.x = position.x;
+				mesh.position.y = position.y;
+				mesh.position.z = position.z;
+
+				mesh.rotation.x = rotation.x;
+				mesh.rotation.y = rotation.y;
+				mesh.rotation.z = rotation.z;
+
+				return mesh;
+			}
+
+			function createCssObject(w, h, position, rotation, url) {
+				var iframe = document.createElement('iframe')
+				iframe.style.width = w + 'px';
+				iframe.style.height = h + 'px';
+				iframe.style.border = '0px';
+				iframe.src = 'https://zuoben.blog.csdn.net/';
+
+				var cssObject = new CSS3DObject(iframe);
+				cssObject.position.x = position.x;
+				cssObject.position.y = position.y;
+				cssObject.position.z = position.z;
+
+				cssObject.rotation.x = rotation.x;
+				cssObject.rotation.y = rotation.y;
+				cssObject.rotation.z = rotation.z;
+
+				return cssObject;
+			}
+
+			function create3dPage(w, h, position, rotation, url) {
+				var plane = createPlane(
+					w, h,
+					position,
+					rotation);
+				glScene.add(plane);
+
+				var cssObject = createCssObject(
+					w, h,
+					position,
+					rotation,
+					url);
+				cssScene.add(cssObject);
+			}
+
+			function createColoredMaterial() {
+				var material = new THREE.MeshBasicMaterial({
+					color: Math.floor(Math.random() * 16777215),
+					side: THREE.DoubleSide
+				});
+
+				return material;
+			}
+
+			function create3dGeometry() {
+				var mesh1 = new THREE.Mesh(
+					new THREE.CylinderGeometry(0, 200, 300, 20, 4),
+					createColoredMaterial());
+				mesh1.position.x = 0;
+				mesh1.position.y = -300;
+				mesh1.position.z = 400;
+				glScene.add(mesh1);
+
+				var mesh2 = new THREE.Mesh(
+					new THREE.BoxGeometry(200, 200, 200),
+					createColoredMaterial());
+
+				mesh2.position.x = -300;
+				mesh2.position.y = -300;
+				mesh2.position.z = 400;
+				glScene.add(mesh2);
+
+				var mesh3 = new THREE.Mesh(
+					new THREE.SphereGeometry(100, 128, 128),
+					createColoredMaterial());
+
+				mesh3.position.x = 500;
+				mesh3.position.y = -300;
+				mesh3.position.z = 400;
+				glScene.add(mesh3);
+			}
+
+			function initialize() {
+				camera = new THREE.PerspectiveCamera(
+					45,
+					window.innerWidth / window.innerHeight,
+					1,
+					10000);
+
+				camera.position.set(0, 100, 3000);
+
+				glRenderer = createGlRenderer();
+				cssRenderer = createCssRenderer();
+
+				controls = new OrbitControls(camera, glRenderer.domElement);
+
+				//document.body.appendChild(glRenderer.domElement);
+
+				document.body.appendChild(cssRenderer.domElement);
+				cssRenderer.domElement.appendChild(glRenderer.domElement);
+
+				glScene = new THREE.Scene();
+				cssScene = new THREE.Scene();
+
+				var ambientLight = new THREE.AmbientLight(0x555555);
+				glScene.add(ambientLight);
+
+				var directionalLight = new THREE.DirectionalLight(0xffffff);
+				directionalLight.position.set(-.5, .5, -1.5).normalize();
+				glScene.add(directionalLight);
+
+				create3dPage(
+					900, 1000,
+					new THREE.Vector3(0, 0, 0),
+					new THREE.Vector3(0, 0, 0),
+					'https://zuoben.blog.csdn.net/');
+
+				create3dGeometry();
+
+				update();
+			}
+
+			function update() {
+
+				controls.update();
+
+				glRenderer.render(glScene, camera);
+
+				cssRenderer.render(cssScene, camera);
+
+				requestAnimationFrame(update);
+			}
+
+			initialize();
+
+			// function init() {
+			// 	renderer = new THREE.WebGLRenderer({
+			// 		antialias: true,
+			// 		alpha: true
+			// 	});
+			// 	renderer.outputEncoding = THREE.sRGBEncoding;
+			// 	renderer.setPixelRatio(window.devicePixelRatio);
+			// 	renderer.domElement.style.position = 'absolute';
+			// 	renderer.domElement.style.zIndex = 1;
+			// 	renderer.domElement.style.top = 0;
+			// 	renderer.setSize(window.innerWidth, window.innerHeight);
+			// 	// document.body.appendChild(renderer.domElement);
+
+			// 	renderer2 = new CSS3DRenderer();
+			// 	renderer2.domElement.style.position = 'absolute';
+			// 	renderer2.domElement.style.zIndex = 0;
+			// 	renderer2.domElement.style.top = 0;
+			// 	renderer2.setSize(window.innerWidth, window.innerHeight);
+			// 	document.body.appendChild(renderer2.domElement);
+			// 	renderer2.domElement.appendChild(renderer.domElement);
+
+			// 	window.addEventListener('resize', onWindowResize);
+
+			// 	camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 10000);
+			// 	camera.position.set(-10, 5, -10);
+
+			// 	controls = new OrbitControls(camera, renderer2.domElement);
+			// 	controls.enableDamping = true;
+			// 	controls.maxDistance = 90;
+
+			// 	scene = new THREE.Scene();
+			// 	scene2 = new THREE.Scene();
+
+			// 	const loader = new GLTFLoader();
+			// 	loader.load('assets/models/gallery.glb', function(gltf) {
+			// 		gltf.scene.traverse(function(child) {
+			// 			switch (child.name) {
+			// 				case 'walls':
+			// 					initWalls(child)
+			// 					break
+			// 				case 'stairs':
+			// 					initStairs(child)
+			// 					break
+			// 			}
+
+			// 			//设置展画边框贴图
+			// 			if (child.name.includes('paint')) {
+			// 				initFrames(child)
+			// 			}
+			// 			//设置展画图片贴图
+			// 			if (child.name.includes('draw')) {
+			// 				initDraws(child)
+			// 			}
+			// 		})
+			// 		// scene.add(gltf.scene)
+			// 	});
+
+			// 	createLights();
+
+			// 	// createCssObject(20, 20,
+			// 	// 	new THREE.Vector3(0, 0, 0),
+			// 	// 	new THREE.Vector3(0, 0, 0),
+			// 	// 	'https://zuoben.blog.csdn.net/')
+				
+			// 	create3dPage(
+			// 		9, 10,
+			// 		new THREE.Vector3(0, 0, 0),
+			// 		new THREE.Vector3(0, 0, 0),
+			// 		'https://zuoben.blog.csdn.net/');
+					
+			// 		create3dGeometry();
+			// }
+			
+			// const material = new THREE.MeshBasicMaterial({
+			// 	color: 0x000000,
+			// 	side: THREE.DoubleSide
+			// });
+			
+			// function createPlane(w, h, position, rotation) {
+			
+			// 	var material = new THREE.MeshBasicMaterial({
+			// 		color: 0x000000,
+			// 		opacity: 0.0,
+			// 		side: THREE.DoubleSide
+			// 	});
+			
+			// 	var geometry = new THREE.PlaneGeometry(w, h);
+			
+			// 	var mesh = new THREE.Mesh(geometry, material);
+			
+			// 	mesh.position.x = position.x;
+			// 	mesh.position.y = position.y;
+			// 	mesh.position.z = position.z;
+			
+			// 	mesh.rotation.x = rotation.x;
+			// 	mesh.rotation.y = rotation.y;
+			// 	mesh.rotation.z = rotation.z;
+			// 	// mesh.scale.set(0.005, 0.005, 0.005);
+			
+			// 	return mesh;
+			// }
+			
+			// function createCssObject(w, h, position, rotation, url) {
+			// 	var iframe = document.createElement('iframe')
+			// 	iframe.src = url;
+			// 	iframe.style.width = w + 'px';
+			// 	iframe.style.height = h + 'px';
+			// 	iframe.style.border = '0px';
+			
+			// 	var cssObject = new CSS3DObject(iframe);
+			// 	cssObject.position.x = position.x;
+			// 	cssObject.position.y = position.y;
+			// 	cssObject.position.z = position.z;
+			
+			// 	cssObject.rotation.x = rotation.x;
+			// 	cssObject.rotation.y = rotation.y;
+			// 	cssObject.rotation.z = rotation.z;
+			// 	// cssObject.scale.set(0.005, 0.005, 0.005);
+			
+			// 	return cssObject;
+			// }
+			
+			// function create3dPage(w, h, position, rotation, url) {
+			// 	var plane = createPlane(
+			// 		w, h,
+			// 		position,
+			// 		rotation);
+			// 	// scene.add(plane);
+			
+			// 	var cssObject = createCssObject(
+			// 		w, h,
+			// 		position,
+			// 		rotation,
+			// 		url);
+			// 	scene2.add(cssObject);
+			// }
+			
+			// function create3dGeometry() {
+			// 	var mesh1 = new THREE.Mesh(
+			// 		new THREE.CylinderGeometry(0, 2, 3, 20, 4),
+			// 		createColoredMaterial());
+			// 	mesh1.position.x = 0;
+			// 	mesh1.position.y = 0;
+			// 	mesh1.position.z = 4;
+			// 	scene.add(mesh1);
+
+			// 	var mesh2 = new THREE.Mesh(
+			// 		new THREE.BoxGeometry(2, 2, 2),
+			// 		createColoredMaterial());
+
+			// 	mesh2.position.x = -3;
+			// 	mesh2.position.y = 0;
+			// 	mesh2.position.z = 4;
+			// 	scene.add(mesh2);
+
+			// 	var mesh3 = new THREE.Mesh(
+			// 		new THREE.SphereGeometry(1, 2, 1),
+			// 		createColoredMaterial());
+
+			// 	mesh3.position.x = 5;
+			// 	mesh3.position.y = 0;
+			// 	mesh3.position.z = 4;
+			// 	scene.add(mesh3);
+			// }
+
+			// function createColoredMaterial() {
+			// 	var material = new THREE.MeshBasicMaterial({
+			// 		color: Math.floor(Math.random() * 16777215),
+			// 		side: THREE.DoubleSide
+			// 	});
+
+			// 	return material;
+			// }
+
+			// // function createCssObject(w, h, position, rotation, url) {
+			// // 	const iframe = document.createElement('iframe');
+			// // 	iframe.style.width = '1920px';
+			// // 	iframe.style.height = '1080px';
+			// // 	iframe.style.border = '0px';
+			// // 	iframe.src = url;
+
+			// // 	const object = new CSS3DObject(iframe);
+			// // 	object.position.set(position.x, position.y, position.z);
+			// // 	object.rotation.set(rotation.x, rotation.y, rotation.z);
+			// // 	object.scale.set(0.005, 0.005, 0.005);
+			// // 	scene2.add(object);
+			// // }
+
+			// function createLights() {
+			// 	const light = new THREE.AmbientLight("#ffffff");
+			// 	scene.add(light);
+
+			// 	const light1 = new THREE.PointLight(0xe0ffff, 0.1, 20)
+			// 	light1.position.set(-2, 3, 2)
+			// 	scene.add(light1)
+
+			// 	const light2 = new THREE.PointLight(0xe0ffff, 0.1, 20)
+			// 	light2.position.set(0, 3, -6)
+			// 	scene.add(light2)
+
+			// 	const light3 = new THREE.PointLight(0xe0ffff, 0.1, 20)
+			// 	light3.position.set(-12, 3, 6)
+			// 	scene.add(light3)
+
+			// 	const light4 = new THREE.PointLight(0xe0ffff, 0.1, 20)
+			// 	light4.position.set(-12, 4, -4)
+			// 	scene.add(light4)
+
+			// 	const light5 = new THREE.PointLight(0xe0ffff, 0.1, 20)
+			// 	light5.position.set(12, 4, -8)
+			// 	scene.add(light5)
+
+			// 	const light6 = new THREE.PointLight(0xe0ffff, 0.1, 20)
+			// 	light6.position.set(12, 4, 0)
+			// 	scene.add(light6)
+
+			// 	const light7 = new THREE.PointLight(0xe0ffff, 0.1, 20)
+			// 	light7.position.set(12, 4, 8)
+			// 	scene.add(light7)
+			// }
+
+			// function initDraws(child) {}
+
+			// function initFrames(child) {
+			// 	child.material = new THREE.MeshBasicMaterial({
+			// 		color: 0x7f5816,
+			// 	})
+			// }
+
+			// function initStairs(child) {
+			// 	child.material = new THREE.MeshStandardMaterial({
+			// 		color: 0xd1cdb7,
+			// 	})
+			// 	child.material.roughness = 0.5
+			// 	child.material.metalness = 0.6
+			// }
+
+			// function initWalls(child) {
+			// 	child.material = new THREE.MeshStandardMaterial({
+			// 		color: 0xffffff,
+			// 	})
+			// 	child.material.roughness = 0.5
+			// 	child.material.metalness = 0.6
+			// }
+
+			function onWindowResize() {
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();
+
 				renderer.setSize(window.innerWidth, window.innerHeight);
+				renderer2.setSize(window.innerWidth, window.innerHeight);
 			}
-			// 监听窗体调整大小事件
-			window.addEventListener('resize', onResize, false);
+
+			// function render() {
+			// 	controls.update();
+
+			// 	renderer.render(scene, camera);
+			// 	renderer2.render(scene2, camera);
+				
+			// 	requestAnimationFrame(render);
+			// }
+
+			// init();
+			// render()
 		</script>
+
 	</body>
 </html>

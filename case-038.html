@@ -63,7 +63,7 @@
 				});
 				equireclMaterial.uniforms["tEquirect"].value = alternativeMap;
 				var skybox = new THREE.Mesh(new THREE.BoxGeometry(1000, 1000, 1000), equireclMaterial);
-				// scene.add(skybox);
+				scene.add(skybox);
 
 				var cubeLoader = new THREE.CubeTextureLoader();
 				var urls = [
@@ -109,7 +109,7 @@
 				});
 				material.envMap = texture; //新版本
 				let skyBox2 = new THREE.Mesh(new THREE.BoxGeometry(5000, 5000, 5000), material);
-				scene.add(skyBox2);
+				// scene.add(skyBox2);
 
 				// 启动动画
 				renderScene();

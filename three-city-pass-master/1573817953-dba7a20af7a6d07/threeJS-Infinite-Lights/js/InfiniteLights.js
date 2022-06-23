@@ -14,6 +14,7 @@ class App {
     this.renderer = new THREE.WebGLRenderer({
       antialias: false
     });
+	// this.renderer.setClearColor(new THREE.Color("#004700"));
     this.renderer.setSize(container.offsetWidth, container.offsetHeight, false);
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.composer = new POSTPROCESSING.EffectComposer(this.renderer);

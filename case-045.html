@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Threejs实现3D场景中添加html网页</title>
+		<style>
+			body {
+				background-color: #ffffff;
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+
+	<body>
+		<script src="libs/three.js"></script>
+		<script src="libs/CSS3DRenderer.js"></script>
+		<script src="libs/OrbitControls.js"></script>
+		<script type="text/javascript" src="libs/GLTFLoader.js"></script>
+
+		<script>
+			var controls, camera, glScene, cssScene, glRenderer, cssRenderer;
+
+			function createGlRenderer() {
+				var glRenderer = new THREE.WebGLRenderer({
+					antialias: true,
+					alpha: true
+				});
+
+				glRenderer.setClearColor(0xECF8FF);
+				glRenderer.setPixelRatio(window.devicePixelRatio);
+				glRenderer.setSize(window.innerWidth, window.innerHeight);
+
+				glRenderer.domElement.style.position = 'absolute';
+				glRenderer.domElement.style.zIndex = 1;
+				glRenderer.domElement.style.top = 0;
+
+				return glRenderer;
+			}
+
+			function createCssRenderer() {
+				var cssRenderer = new THREE.CSS3DRenderer();
+				cssRenderer.setSize(window.innerWidth, window.innerHeight);
+				cssRenderer.domElement.style.position = 'absolute';
+				glRenderer.domElement.style.zIndex = 0;
+				cssRenderer.domElement.style.top = 0;
+				return cssRenderer;
+			}
+
+			function createPlane(w, h, position, rotation) {
+
+				var material = new THREE.MeshBasicMaterial({
+					color: 0x000000,
+					opacity: 0.0,
+					side: THREE.DoubleSide
+				});
+
+				var geometry = new THREE.PlaneGeometry(w, h);
+
+				var mesh = new THREE.Mesh(geometry, material);
+
+				mesh.position.x = position.x;
+				mesh.position.y = position.y;
+				mesh.position.z = position.z;
+
+				mesh.rotation.x = rotation.x;
+				mesh.rotation.y = rotation.y;
+				mesh.rotation.z = rotation.z;
+
+				mesh.scale.set(0.003, 0.003, 0.003);
+				return mesh;
+			}
+
+			function createCssObject(w, h, position, rotation, url) {
+				var iframe = document.createElement('iframe')
+				iframe.src = url;
+				iframe.style.width = w + 'px';
+				iframe.style.height = h + 'px';
+				iframe.style.border = '0px';
+
+				var cssObject = new THREE.CSS3DObject(iframe);
+				cssObject.position.x = position.x;
+				cssObject.position.y = position.y;
+				cssObject.position.z = position.z;
+
+				cssObject.rotation.x = rotation.x;
+				cssObject.rotation.y = rotation.y;
+				cssObject.rotation.z = rotation.z;
+
+				cssObject.scale.set(0.003, 0.003, 0.003);
+				return cssObject;
+			}
+			
+			function initModel() {
+				var loader = new THREE.GLTFLoader();
+				loader.load('assets/models/gallery.glb', function(gltf) {
+					gltf.scene.traverse(function(child) {
+						switch (child.name) {
+							case 'walls':
+								initWalls(child)
+								break
+							case 'stairs':
+								initStairs(child)
+								break
+						}
+
+						//设置展画边框贴图
+						if (child.name.includes('paint')) {
+							initFrames(child)
+						}
+						//设置展画图片贴图
+						if (child.name.includes('draw')) {
+							initDraws(child)
+						}
+					})
+					glScene.add(gltf.scene)
+				});
+			}
+
+			function initDraws(child) {}
+
+			function initFrames(child) {
+				child.material = new THREE.MeshBasicMaterial({
+					color: 0x7f5816,
+				})
+			}
+
+			function initStairs(child) {
+				child.material = new THREE.MeshStandardMaterial({
+					color: 0xd1cdb7,
+				})
+				child.material.roughness = 0.5
+				child.material.metalness = 0.6
+			}
+
+			function initWalls(child) {
+				child.material = new THREE.MeshStandardMaterial({
+					color: 0xffffff,
+				})
+				child.material.roughness = 0.5
+				child.material.metalness = 0.6
+			}
+
+			function create3dPage(w, h, position, rotation, url) {
+				var plane = createPlane(
+					w, h,
+					position,
+					rotation);
+				glScene.add(plane);
+
+				var cssObject = createCssObject(
+					w, h,
+					position,
+					rotation,
+					url);
+				cssScene.add(cssObject);
+			}
+			
+			function createLights() {
+				const light = new THREE.AmbientLight("#ffffff");
+				glScene.add(light);
+			
+				const light1 = new THREE.PointLight(0xe0ffff, 0.1, 20)
+				light1.position.set(-2, 3, 2)
+				glScene.add(light1)
+			
+				const light2 = new THREE.PointLight(0xe0ffff, 0.1, 20)
+				light2.position.set(0, 3, -6)
+				glScene.add(light2)
+			
+				const light3 = new THREE.PointLight(0xe0ffff, 0.1, 20)
+				light3.position.set(-12, 3, 6)
+				glScene.add(light3)
+			
+				const light4 = new THREE.PointLight(0xe0ffff, 0.1, 20)
+				light4.position.set(-12, 4, -4)
+				glScene.add(light4)
+			
+				const light5 = new THREE.PointLight(0xe0ffff, 0.1, 20)
+				light5.position.set(12, 4, -8)
+				glScene.add(light5)
+			
+				const light6 = new THREE.PointLight(0xe0ffff, 0.1, 20)
+				light6.position.set(12, 4, 0)
+				glScene.add(light6)
+			
+				const light7 = new THREE.PointLight(0xe0ffff, 0.1, 20)
+				light7.position.set(12, 4, 8)
+				glScene.add(light7)
+			}
+
+			function initialize() {
+				camera = new THREE.PerspectiveCamera(
+					45,
+					window.innerWidth / window.innerHeight,
+					1,
+					10000);
+
+				camera.position.set(-10, 5, -10);
+
+				glRenderer = createGlRenderer();
+				cssRenderer = createCssRenderer();
+
+				controls = new THREE.OrbitControls(camera, glRenderer.domElement);
+
+				//document.body.appendChild(glRenderer.domElement);
+
+				document.body.appendChild(cssRenderer.domElement);
+				cssRenderer.domElement.appendChild(glRenderer.domElement);
+
+				glScene = new THREE.Scene();
+				cssScene = new THREE.Scene();
+
+				var ambientLight = new THREE.AmbientLight(0x555555);
+				glScene.add(ambientLight);
+
+				var directionalLight = new THREE.DirectionalLight(0xffffff);
+				directionalLight.position.set(-.5, .5, -1.5).normalize();
+				glScene.add(directionalLight);
+
+				create3dPage(
+					1920, 1080,
+					new THREE.Vector3(8, 3, 9.2),
+					new THREE.Vector3(0, Math.PI, 0),
+					'https://threejs.org/examples/physics_oimo_instancing.html');
+
+				initModel();
+				createLights();
+
+				update();
+			}
+
+			function update() {
+
+				controls.update();
+
+				glRenderer.render(glScene, camera);
+
+				cssRenderer.render(cssScene, camera);
+
+				requestAnimationFrame(update);
+			}
+
+			initialize();
+		</script>
+	</body>
+</html>
