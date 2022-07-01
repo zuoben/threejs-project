@@ -1,0 +1,33 @@
+*{
+    padding:0;
+    margin:0;
+}
+html,
+body,
+#app{
+    width:100%;
+    height:100%;
+    overflow: hidden;
+}
+body{
+    font-family: "zkkl"; 
+    background-color:#ffbd3e;
+}
+#app canvas{
+    display:block;
+    width: 18.75rem;
+    position: absolute;
+    left:50%;
+    top:50%;
+    transform: translate(-50%,-50%);
+}
+@font-face{ 
+    font-family: "zkkl"; 
+    src: url("../fonts/zkkl.ttf"); 
+} 
+
+@media screen and (max-height: 720px) {
+    #app canvas{
+        height:100%;
+    }
+}
