@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Threejs实现模拟河流，水面水流，水管水流，海面</title>
+		<meta charset="utf-8">
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "./libs/jsm/three.module.js"
+				}
+			}
+		</script>
+		<script type="module">
+			import * as THREE from 'three';
+
+			import {
+				OrbitControls
+			} from './libs/jsm/OrbitControls.js';
+
+			import {
+				Water
+			} from './libs/jsm/objects/Water.js';
+
+			let camera, scene, renderer, stats, gui;
+
+			let grid;
+			let controls, water, water1, control;
+
+			function init() {
+				var urls = [
+					'assets/bgImage/skyBox7/posx.jpg',
+					'assets/bgImage/skyBox7/negx.jpg',
+					'assets/bgImage/skyBox7/posy.jpg',
+					'assets/bgImage/skyBox7/negy.jpg',
+					'assets/bgImage/skyBox7/posz.jpg',
+					'assets/bgImage/skyBox7/negz.jpg'
+				];
+
+				renderer = new THREE.WebGLRenderer({
+					antialias: true,
+					alpha: true
+				});
+				renderer.outputEncoding = THREE.sRGBEncoding;
+				renderer.setPixelRatio(window.devicePixelRatio);
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				document.body.appendChild(renderer.domElement);
+
+				window.addEventListener('resize', onWindowResize);
+
+				camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 10000);
+				camera.position.set(150, 7, 350);
+
+				controls = new OrbitControls(camera, renderer.domElement);
+				// controls.enableDamping = true;
+				// controls.maxDistance = 90;
+
+				scene = new THREE.Scene();
+				var cubeLoader = new THREE.CubeTextureLoader();
+				scene.background = cubeLoader.load(urls);
+
+				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
+				scene.add(ambientLight);
+
+				// 创建一个平滑的二维样条曲线
+				const curve = new THREE.SplineCurve([
+					new THREE.Vector2(1520, 2850),
+					new THREE.Vector2(420, 180),
+					new THREE.Vector2(220, 280),
+					new THREE.Vector2(100, -380),
+					new THREE.Vector2(-500, 780),
+				]);
+				// 返回曲线上给定位置的点集合
+				const points = curve.getPoints(1000);
+				// const textureLoader = new THREE.TextureLoader();
+				// textureLoader.load('assets/textures/dirt.jpg', function(map) {
+				// 	map.wrapS = THREE.RepeatWrapping;
+				// 	map.wrapT = THREE.RepeatWrapping;
+				// 	map.repeat.set(0.01, 0.01);
+
+				// 	const groundMaterial = new THREE.MeshStandardMaterial({
+				// 		map: map,
+				// 	});
+
+				// 	let groundShape = new THREE.Shape(points);
+				// 	let groundGeometry = new THREE.ShapeGeometry(groundShape);
+				// 	const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+				// 	ground.rotation.x = -Math.PI / 2;
+				// 	ground.position.y = -100;
+				// 	ground.position.z = -10;
+				// 	scene.add(ground);
+				// });
+				// 点创建一条平滑的三维样条曲线
+				const curves = new THREE.CatmullRomCurve3([
+					new THREE.Vector3(100, 0, 100),
+					new THREE.Vector3(0, 0, 100),
+					new THREE.Vector3(0, -100, 100),
+				]);
+				// 创建管子几何体
+				const geometryTube1 = new THREE.TubeGeometry(curves, 200, 10, 50);
+				const geometryTube = new THREE.TubeGeometry(curves, 200, 9, 50);
+				// 创建材质
+				const materialTube = new THREE.MeshBasicMaterial({
+					color: "#00aa00", // 管子颜色
+					transparent: true, // 管子是否透明
+					side: THREE.DoubleSide,
+					opacity: 0.5, // 管子透明度
+				});
+				// 创建管子物体对象
+				const meshTube = new THREE.Mesh(geometryTube1, materialTube);
+				meshTube.position.x = -300;
+				meshTube.rotation.y = Math.PI;
+				// 添加到场景
+				scene.add(meshTube);
+
+				water = new Water(geometryTube, {
+					textureWidth: 112, // 水浑浊程度，密度
+					textureHeight: 112, // 水浑浊程度，密度
+					waterNormals: new THREE.TextureLoader().load('assets/textures/waternormals.jpg', function(texture) {
+						texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+					}),
+					waterColor: "#ffffff",
+				});
+				water.position.x = -300;
+				water.rotation.y = Math.PI;
+				scene.add(water);
+
+				let splineShape = new THREE.Shape(points);
+				let geometry = new THREE.ShapeGeometry(splineShape);
+				water1 = new Water(geometry, {
+					textureWidth: 1512, // 水浑浊程度，密度
+					textureHeight: 1512, // 水浑浊程度，密度
+					waterNormals: new THREE.TextureLoader().load('assets/textures/waternormals.jpg', function(texture) {
+						texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+					}),
+					waterColor: "#ffffff", // 水颜色
+				});
+				water1.position.y = -90;
+				water1.position.x = -200;
+				water1.rotation.x = Math.PI * -0.5;
+				scene.add(water1);
+			}
+
+			function onWindowResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+
+			function render() {
+				controls.update();
+				renderer.render(scene, camera);
+				water.material.uniforms['time'].value += 2.0 / 60.0;
+				water1.material.uniforms['time'].value += 1.0 / 60.0;
+				requestAnimationFrame(render);
+			}
+
+			init();
+			render()
+		</script>
+
+	</body>
+</html>

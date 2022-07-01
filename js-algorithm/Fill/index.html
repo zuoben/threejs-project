@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>FillArea</title>
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<script type="text/javascript" src="js/jquery-2.1.3.min.js"></script>
+	<script type="text/javascript" src="js/FlatSystem.js"></script>
+	<script type="text/javascript" src="js/Polygon.js"></script>
+	<script type="text/javascript" src="js/ClipLine.js"></script>
+	<script type="text/javascript" src="js/FillArea.js"></script>
+	
+</head>
+<body>
+	<div class="navbar">
+		<div class="algorithm">
+			<li class="title">区域填充算法</li>
+			<ul class="algorithm-item">
+				<li class="item"  value="1">四连通算法</li>
+				<li class="item" value="2">八连通算法</li>
+				<li class="item" value="3">扫描线填充算法</li>
+			</ul>
+		</div>
+		<div class="algorithm">
+			<li class="title" value="ClipLine">直线裁剪算法</li>
+			<ul class="algorithm-item">
+				<li class="item" value="1" style="font-size:10px;">Cohen-Sutherland算法</li>
+			</ul>
+		</div>
+		<div class="button" id="button" onclick="running()">
+			<div class="icon"></div>
+		</div>
+	</div>
+	<div class="client" id="client">
+		<canvas id="myCanvas" class="myCanvas" height="600" width="800"></canvas>
+	</div>
+	<div class="ui-mask" id="mask" onselectstart="return false" onclick="hideReadMe()"></div>
+	<div class="ui-read-me" id='read-me' onclick="hideReadMe()"></div>
+
+	<!-- <div class="button" id="button" onclick="running()">
+		<div class="icon"></div>
+	</div> -->
+</body>
+</html>

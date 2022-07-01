@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" id="viewport" content="width=device-width, initial-scale=1">
+		<title>DIY 拖拽放大缩小旋转</title>
+		<link rel="stylesheet" href="//at.alicdn.com/t/font_401108_8x0dzlzhpqveu3di.css?v=3">
+		<style>
+			* {
+				padding: 0;
+				margin: 0;
+			}
+
+			.diy {
+				padding: 10px;
+			}
+
+			.diy-obj {
+				margin: 20px;
+				width: 100px;
+				height: 100px;
+				opacity: 1;
+				outline: 1px dashed #ddd;
+				background-color: #fff;
+				position: relative;
+				/* 这里必须先定义移动css */
+				-webkit-transform: translate(0, 0) rotate(0deg) scale(1);
+			}
+
+			.diy-obj i {
+				width: 24px;
+				height: 24px;
+				text-align: center;
+				line-height: 24px;
+				border-radius: 50%;
+				color: #fff;
+				display: none;
+				position: absolute;
+				z-index: 2;
+			}
+
+			.diy-active i {
+				display: block;
+			}
+
+			.icon-close {
+				background-color: #ec5554;
+				left: -12px;
+				top: -12px;
+			}
+
+			.icon-qiehuan {
+				background-color: #30b26a;
+				right: -12px;
+				top: -12px;
+			}
+
+			.icon-fangda {
+				background-color: #00b8ee;
+				right: -12px;
+				bottom: -12px;
+			}
+
+			.diy-active {
+				outline: 1px dashed orangered;
+			}
+
+			.flip-over .diy-content {
+				-webkit-transform: rotateY(180deg);
+			}
+
+			.diy-content {
+				width: 100%;
+				height: 100%;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="diy">
+			<div>
+				<p>插件名：HTML5 CSS3 JS 放大缩小旋转翻转插件名称 diy.js 。</p>
+				<p>说明：要先点击元素，触发进入可操作状态才能进行拖拽旋转放大等操作，如果想直接操作该元素，那么直接添加 diy-active 类名到box即可。</p>
+			</div>
+			<div class="diy-obj">
+				<i class="iconfont icon-close" title="关闭"></i>
+				<i class="iconfont icon-qiehuan" title="翻转"></i>
+				<i class="iconfont icon-fangda" title="放大缩小旋转"></i>
+				<div class="diy-content"><img src="https://img-blog.csdnimg.cn/03ebccc5ef2149698e916b4aa8e67922.gif"
+						width="100%" height="100%"></div>
+			</div>
+		</div>
+		<script src="https://cdn.bootcss.com/jquery/2.0.0/jquery.min.js"></script>
+		<script src="diyGo.js"></script>
+		<script>
+			$(function() {
+				//插件调用
+				$('.diy-obj').diyGo({
+					maxSize: 3
+				})
+
+				//离开当前元素那么去除操作状态
+				$(window).on('click', function() {
+					$('.diy-obj').removeClass('diy-active')
+				})
+			})
+		</script>
+	</body>
+</html>
