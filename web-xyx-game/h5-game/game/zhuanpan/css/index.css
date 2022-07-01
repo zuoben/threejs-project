@@ -1,0 +1,259 @@
+@charset "utf-8";
+body {
+  background-color: #ff7040;
+}
+#wrap {
+  margin-top: -0.01333333rem;
+  height: 17.8rem;
+  background-image: url("../image/bg.png");
+}
+.caidai {
+  position: absolute;
+  width: 100%;
+  height: 13.65333333rem;
+  background-image: url("../image/caidai.png");
+}
+.header {
+  padding: 0.49333333rem;
+}
+.rule,
+.my {
+  position: relative;
+  z-index: 1;
+  width: 1.2rem;
+  height: 0.66666667rem;
+  border: 1px solid #d89720;
+  font-size: 0.32rem;
+  line-height: 0.65333333rem;
+  text-align: center;
+  color: #d89720;
+  border-radius: 0.06666667rem;
+}
+.my {
+  width: 1.6rem;
+}
+.title {
+  width: 8.52rem;
+  height: 4.21333333rem;
+  margin: auto;
+  background-image: url("../image/title.png");
+}
+/*轮盘*/
+.rotate {
+  position: relative;
+  width: 100%;
+  height: 8.93333333rem;
+}
+.lunpai {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 8.86666667rem;
+  height: 8.86666667rem;
+  margin-left: -4.42666667rem;
+  background-image: url("../image/circle.png");
+}
+.ring {
+  position: absolute;
+  left: 50%;
+  top: 0.34666667rem;
+  width: 8.22666667rem;
+  height: 8.22666667rem;
+  margin-left: -4.08rem;
+  background-image: url("../image/dark.png");
+}
+.rotate div.light {
+  background-image: url("../image/light.png");
+}
+#btn {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2.13333333rem;
+  height: 2.64rem;
+  margin: -1.32rem 0 0 -1.06666667rem;
+  background-image: url("../image/button.png");
+}
+/*奖品*/
+.prize {
+  overflow: hidden;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  margin: -3.86666667rem 0 0 -3.86666667rem;
+  width: 7.73333333rem;
+  height: 7.73333333rem;
+  border-radius: 50%;
+}
+.running {
+  -o-animation: init 90s linear infinite;
+  -ms-animation: init 90s linear infinite;
+  -moz-animation: init 90s linear infinite;
+  -webkit-animation: init 90s linear infinite;
+  animation: init 90s linear infinite;
+}
+@keyframes init {
+  100% {
+    -o-transform: rotate(360deg);
+    -ms-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+.prize li {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 3.86666667rem;
+  background: no-repeat center 35%;
+  font-size: 0.32rem;
+  font-weight: bold;
+  line-height: 0.8rem;
+  text-align: center;
+  color: #f44747;
+  -moz-transform-origin: center bottom;
+  -webkit-transform-origin: center bottom;
+  -o-transform-origin: center bottom;
+  -ms-transform-origin: center bottom;
+  transform-origin: center bottom;
+}
+.prize li:nth-child(1) {
+  background-image: url("../image/gift.png");
+  background-size: 0.92rem 0.97333333rem;
+  -o-transform: rotate(0deg);
+  -ms-transform: rotate(0deg);
+  -moz-transform: rotate(0deg);
+  -webkit-transform: rotate(0deg);
+  transform: rotate(0deg);
+}
+.prize li:nth-child(2) {
+  background-image: url("../image/50.png");
+  background-size: 0.72rem 0.88rem;
+  -o-transform: rotate(60deg);
+  -ms-transform: rotate(60deg);
+  -moz-transform: rotate(60deg);
+  -webkit-transform: rotate(60deg);
+  transform: rotate(60deg);
+}
+.prize li:nth-child(3) {
+  background-image: url("../image/20.png");
+  background-size: 0.72rem 0.88rem;
+  -o-transform: rotate(120deg);
+  -ms-transform: rotate(120deg);
+  -moz-transform: rotate(120deg);
+  -webkit-transform: rotate(120deg);
+  transform: rotate(120deg);
+}
+.prize li:nth-child(4) {
+  background-image: url("../image/gift.png");
+  background-size: 0.92rem 0.97333333rem;
+  -o-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
+  transform: rotate(180deg);
+}
+.prize li:nth-child(5) {
+  background-image: url("../image/100.png");
+  background-size: 0.72rem 0.88rem;
+  -o-transform: rotate(240deg);
+  -ms-transform: rotate(240deg);
+  -moz-transform: rotate(240deg);
+  -webkit-transform: rotate(240deg);
+  transform: rotate(240deg);
+}
+.prize li:nth-child(6) {
+  background-image: url("../image/face.png");
+  background-size: 1.02666667rem 1.02666667rem;
+  -o-transform: rotate(300deg);
+  -ms-transform: rotate(300deg);
+  -moz-transform: rotate(300deg);
+  -webkit-transform: rotate(300deg);
+  transform: rotate(300deg);
+}
+.prize li span {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  margin-left: -50%;
+  border-right: 2px solid #f44747;
+  -o-transform-origin: right bottom;
+  -ms-transform-origin: right bottom;
+  -moz-transform-origin: right bottom;
+  -webkit-transform-origin: right bottom;
+  transform-origin: right bottom;
+  -o-transform: rotate(30deg) skewY(30deg);
+  -ms-transform: rotate(30deg) skewY(30deg);
+  -moz-transform: rotate(30deg) skewY(30deg);
+  -webkit-transform: rotate(30deg) skewY(30deg);
+  transform: rotate(30deg) skewY(30deg);
+}
+.prize li p {
+  overflow: hidden;
+  position: relative;
+  margin: 0 auto;
+  width: 50%;
+  height: 60%;
+  padding-top: 0.26666667rem;
+  text-align: center;
+  line-height: 0.33333333rem;
+}
+/*次数*/
+.border {
+  width: 5.06666667rem;
+  height: 0.84rem;
+  margin: 0.13333333rem auto 0.33333333rem;
+  background-image: url("../image/border.png");
+  font-size: 0.32rem;
+  line-height: 0.84rem;
+  text-align: center;
+  color: #fff;
+}
+.scroll {
+  width: 7.33333333rem;
+  height: 2.33333333rem;
+  margin: auto;
+}
+.scroll p {
+  width: 4.76rem;
+  height: 0.29333333rem;
+  margin: auto;
+  background-image: url("../image/list.png");
+}
+.scroll div {
+  width: 100%;
+  height: 1.06666667rem;
+  margin-top: 0.26666667rem;
+  padding: 0.26666667rem 0;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 0.13333333rem;
+}
+.scroll ul {
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+.scroll ul li {
+  position: relative;
+  top: 0;
+  text-align: center;
+  font-size: 0.29333333rem;
+  line-height: 0.53333333rem;
+  color: #fff;
+  -o-transition: all 0.5s ease-in-out;
+  -ms-transition: all 0.5s ease-in-out;
+  -moz-transition: all 0.5s ease-in-out;
+  -webkit-transition: all 0.5s ease-in-out;
+  transition: all 0.5s ease-in-out;
+}
+/*规则背景*/
+#mask-rule .box-rule {
+  background-color: #fe5c51;
+}
+#mask-rule .box-rule .star {
+  background-image: url("../../common/image/rule/star2.png");
+}

@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>端午有礼 Pick你的粽</title>
+  <link rel="stylesheet" href="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/css/index.css?v9">
+  <script type="text/javascript" src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/js/flexible.js"></script>
+  <script type="text/javascript" src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/js/jquery.min.js"></script>
+  <script type="text/javascript" src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/js/index.js?2"></script>
+  <script src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/js/html2canvas.js"></script>
+  <script src="https://cdn.bootcss.com/layer/2.1/layer.js"></script>
+  <script src="https://res.wx.qq.com/open/js/jweixin-1.2.0.js" type="text/javascript" charset="utf-8"></script>
+  <script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <div class="activeCont">
+      <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/logo.png" alt="" width="100">
+      <div>
+        <div class="prize"></div>
+        <div class="regular"></div>
+      </div>
+    </div>
+    <div class="leef"></div>
+    <div class="icon5"></div>
+    <div class="btn-group">
+      <div class="pk"></div>
+      <div class="btn-double">
+        <span class="dycj" onclick="chai()"></span>
+        <span class="zdpm" onclick="window.location.href='rockList.html'"></span>
+      </div>
+    </div>
+    <div class="bottom"></div>
+  </div>
+  <div class="alert" style="display: none;" id="mydrawtianxie">
+    <div class="alert1">
+      <div class="close" onclick="closeThis();"></div>
+      <div class="clickBtns">
+        <div class="personal">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/grbtn.png" class="nocheck" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/grbtn-s.png" class="ac" alt="">
+        </div>
+        <div class="team" onclick="selectThis('team')">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/zdbtn.png" class="nocheck" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/zdbtn-s.png" class="ac" alt="">
+        </div>
+      </div>
+      <div class="content1">
+        <div class="personCont">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/icon2.png" class="icon2" alt=""
+            width="50">
+          <div class="title2">
+          </div>
+        </div>
+        <div class="teamCont">
+          <div class="title">
+          </div>
+          <div class="btn1" onclick="closeThis();$('#info').show()"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="alert" style="display: none;" id="mydrawxiugai">
+    <div class="icon6">
+      <div class="close" onclick="closeThis();"></div>
+      <div class="clickBtns">
+        <div class="personal">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/grbtn.png" class="nocheck" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/grbtn-s.png" class="ac" alt="">
+        </div>
+        <div class="team" onclick="selectThis('team')">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/zdbtn.png" class="nocheck" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/zdbtn-s.png" class="ac" alt="">
+        </div>
+      </div>
+      <div class="content1">
+        <div class="personCont">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/icon2.png" class="icon2" alt=""
+            width="50">
+          <div class="title2">
+          </div>
+        </div>
+        <div class="teamCont">
+          <div class="title">
+            <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/icon7.png" alt="" width="30">
+          </div>
+          <div class="myInfo">
+            <p>姓名：<span id="info_name"></span></p>
+            <p>手机号：<span id="info_phone"></span></p>
+            <p>地址：<span id="info_address"></span></p>
+          </div>
+          <div class="btn2" onclick="closeThis();$('#info').show()"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="alert" style="display: none;" id="mydraw">
+    <div class="alert1">
+      <div class="close" onclick="closeThis();"></div>
+      <div class="clickBtns">
+        <div class="personal" onclick="selectThis('person')">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/grbtn.png" class="nocheck" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/grbtn-s.png" class="ac" alt="">
+        </div>
+        <div class="team" onclick="selectThis('team')">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/zdbtn.png" class="nocheck" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/zdbtn-s.png" class="ac" alt="">
+        </div>
+      </div>
+      <div class="content1">
+        <div class="personCont">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/icon2.png" class="icon2" alt=""
+            width="50">
+          <div class="title2">
+          </div>
+        </div>
+        <div class="teamCont">
+          <p style="margin-bottom:unset;">战队正在火热PK中</p>
+          <p style="margin-bottom:unset;">结束后公布中奖信息</p>
+          <div class="btn1" onclick="closeThis();$('#info').show()"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="alert" style="display: none;" id="info">
+    <div class="alert2">
+      <div class="close1" onclick="closeThis();"></div>
+      <div class="content2">
+        <div class="form-item">
+          <span>姓名</span>
+          <input type="text" id="name">
+        </div>
+        <div class="form-item">
+          <span>手机号</span>
+          <input type="text" id="phone">
+        </div>
+        <div class="form-item">
+          <span>地址</span>
+          <input type="text" id="address">
+        </div>
+        <p>注：请仔细核对信息，避免收货失败</p>
+      </div>
+      <div class="btn3" onclick="subInfo()"></div>
+    </div>
+  </div>
+  <div class="alert" style="display: none" id="zhongjiang">
+    <div class="alert3">
+      <div class="content3">
+        <p>恭喜您</p>
+        <p>获得 <span id="money">8.8元端午祝福红包</span></p>
+        <p>(*^▽^*)</p>
+      </div>
+    </div>
+    <div class="slider">
+      <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/left.png" onclick="swipeLeft();"
+        class="leftImg" alt="">
+      <div class="swiper">
+        <div class="swiper-content">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize1.png" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize2.png?v1" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize3.png" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize4.png" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize5.png?v1" alt="">
+        </div>
+      </div>
+      <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/right.png" onclick="swipeRight();"
+        class="rightImg" alt="">
+    </div>
+    <div class="close2" onclick="closeThis();"></div>
+  </div>
+  <div class="alert" style="display: none" id="nozige">
+    <div class="alert3">
+      <div class="content3">
+        <p>很抱歉</p>
+        <p>您还未获得抽奖资格！</p>
+        <p>o(┬﹏┬)o </p>
+      </div>
+    </div>
+    <div class="slider">
+      <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/left.png" onclick="swipeLeft();"
+        class="leftImg" alt="">
+      <div class="swiper">
+        <div class="swiper-content">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize1.png" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize2.png?v1" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize3.png" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize4.png" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize5.png?v1" alt="">
+        </div>
+      </div>
+      <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/right.png" onclick="swipeRight();"
+        class="rightImg" alt="">
+    </div>
+    <div class="close2" onclick="closeThis();"></div>
+  </div>
+  <div class="alert" style="display: none;" id="liuzou">
+    <div class="alert3">
+      <div class="content3">
+        <p>很遗憾</p>
+        <p><span>红包溜走了</span></p>
+        <p>o(┬﹏┬)o </p>
+      </div>
+    </div>
+    <div class="slider">
+      <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/left.png" onclick="swipeLeft();"
+        class="leftImg" alt="">
+      <div class="swiper">
+        <div class="swiper-content">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize1.png" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize2.png?v1" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize3.png" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize4.png" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize5.png?v1" alt="">
+        </div>
+      </div>
+      <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/right.png" onclick="swipeRight();"
+        class="rightImg" alt="">
+    </div>
+    <div class="close2" onclick="closeThis();"></div>
+  </div>
+  <div class="alert" style="display: none" id="yiling">
+    <div class="alert3">
+      <div class="content3">
+        <p>您已经领过红包了哦</p>
+        <p>快去邀请好友加入战队吧</p>
+        <p> (#^.^#)</p>
+      </div>
+    </div>
+    <div class="slider">
+      <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/left.png" onclick="swipeLeft();"
+        class="leftImg" alt="">
+      <div class="swiper">
+        <div class="swiper-content">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize1.png" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize2.png?v1" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize3.png" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize4.png" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize5.png?v1" alt="">
+        </div>
+      </div>
+      <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/right.png" onclick="swipeRight();"
+        class="rightImg" alt="">
+    </div>
+    <div class="close2" onclick="closeThis();"></div>
+  </div>
+  <div class="alert" style="display: none" id="rule">
+    <div class="alert4">
+      <div class="content4">
+        <div>
+          1.活动时间为2021年6月11日-6月16日；<br>
+          2.活动对象为“九江银行”微信公众号用户，仅限江西省、广州、合肥地区用户参与；<br>
+          3.用户进入活动链接后，选“开始PK”按钮即可选择加入甜咸粽子战队进行PK；<br>
+          4.用户点击“端午抽奖”即可抽取（0.66元、1.66元、6.66元、66.66元、166.66元）随机金额祝福红包1个，非100%中奖；点击“战队排名”可查看所在战队人气值及个人人气值；<br>
+          5.用户可转发海报邀好友加入自己所在战队，为战队增加人气值，活动结束后将为获胜战队人气值最高的前100名用户派发终极奖励！终极奖品为：<br>
+          <label style="color: red;font-weight: 400;">第1名：美的家用三门电冰箱 1台</label><br>
+          <label style="color: red;font-weight: 400;">第2~5名：科沃斯扫地机器人 4台</label><br>
+          <label style="color: red;font-weight: 400;">第6~15名：东菱磨豆咖啡机 10台</label><br>
+          <label style="color: red;font-weight: 400;">第16~30名：美的电热饭盒 15台</label><br>
+          <label style="color: red;font-weight: 400;">第31~60名：迪士尼智能温显保温杯 30台</label><br>
+          <label style="color: red;font-weight: 400;">第61~100名：8.8元微信红包</label><br>
+          6.每个微信ID仅有一次抽红包机会，且仅可为好友增加人气值1次，重复无效；<br>
+          7.红包以“服务通知”的形式实时发放至用户微信号中，返回微信列表即可领取；如因个人账号问题遭微信拦截或24小时之内未领取导致领取失败，则视为自动弃奖，后期不再补发；<br>
+          8.获得终极排名实物奖励的用户，请及时填写正确的个人信息，填写截止时间为6月23日，未及时填写信息则视为弃奖；活动方将在活动结束后1个月之内寄出奖品，如因个人信息有误导致奖品发放失败，也视为自动弃奖，后期不再补发；<br>
+          9.活动期间有通过不当行为参与活动的用户，活动方有权取消其参与资格；<br>
+          10.本活动在法律许可的范围内，九江银行保留调整、暂停和终止本活动的权利。<br>
+        </div>
+      </div>
+    </div>
+    <div class="close2" onclick="closeThis();"></div>
+  </div>
+  <div class="alert" style="display: none" id="tiandata">
+    <div class="alert5">
+      <div class="close1" onclick="closeThis();"></div>
+      <div class="alertNum" id="tiannum">1000!</div>
+      <div class="btn4" onclick="closeThis();openQrcode()"></div>
+    </div>
+  </div>
+  <div class="alert" style="display: none" id="xiandata">
+    <div class="alert6">
+      <div class="close1" onclick="closeThis();"></div>
+      <div class="alertNum" id="xiannum">1000!</div>
+      <div class="btn5" onclick="closeThis();openQrcode1()"></div>
+    </div>
+  </div>
+  <div class="alert tzhb" style="display: none">
+    <img id="realImg" src="" alt="">
+    <div class="alert7" id="saveQrcode">
+      <img class="alert7Bg" src="http://wx0dbf291dee395ffb.developers.lingj.net/images/alert7.png" alt="">
+      <div class="share1">
+        <div class="shareInfo">
+          <div>
+            <div class="leftPart">
+              <img class="headimgurl" src="" alt="">
+              <span class="nick">表情哈哈</span>
+            </div>
+            <img class="words" src="http://wx0dbf291dee395ffb.developers.lingj.net/images/words1.png?v2" alt="">
+          </div>
+          <div class="qrcode">
+            <img class="eqrcode" src="http://wx0dbf291dee395ffb.developers.lingj.net/images/qrcode2.png" alt="">
+            <p>扫码助我一臂之力</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tips">长按保存或分享给好友</div>
+    <div class="close2" onclick="closeThis();"></div>
+  </div>
+  <div class="alert xzhb" style="display: none">
+    <img id="realImg1" src="" alt="">
+    <div class="alert7" id="saveQrcode1">
+      <img class="alert7Bg" src="http://wx0dbf291dee395ffb.developers.lingj.net/images/alert8.png" alt="">
+      <div class="share2">
+        <div class="shareInfo">
+          <div>
+            <div class="leftPart">
+              <img class="headimgurl" src="" alt="">
+              <span class="nick">哈哈</span>
+            </div>
+            <img class="words" src="http://wx0dbf291dee395ffb.developers.lingj.net/images/words2.png?v2" alt="">
+          </div>
+          <div class="qrcode">
+            <img class="eqrcode" src="http://wx0dbf291dee395ffb.developers.lingj.net/images/qrcode2.png" alt="">
+            <p>扫码助我一臂之力</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="tips">长按保存或分享给好友</div>
+    <div class="close2" onclick="closeThis();"></div>
+  </div>
+  <div class="alert" style="display: none" id="xuanzhandui">
+    <div class="cuAlert">
+      <div class="close3" onclick="closeThis();"></div>
+      <div class="content5">
+        <p>选择你喜欢的口味战队</p>
+        <div>
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/alert9.png" alt=""
+            onclick="xuanzhandui(1)">
+        </div>
+        <div>
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/alert10.png" alt=""
+            onclick="xuanzhandui(2)">
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="alert" style="display: none" id="jinzhi">
+    <div class="alert3">
+      <div class="content3">
+        <p>很抱歉</p>
+        <p>仅江西省，广州市，合肥市用户参与</p>
+        <p>o(┬﹏┬)o </p>
+      </div>
+    </div>
+    <div class="slider">
+      <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/left.png" onclick="swipeLeft();"
+        class="leftImg" alt="">
+      <div class="swiper">
+        <div class="swiper-content">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize1.png" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize2.png?v1" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize3.png" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize4.png" alt="">
+          <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/prize5.png?v1" alt="">
+        </div>
+      </div>
+      <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/right.png" onclick="swipeRight();"
+        class="rightImg" alt="">
+    </div>
+  </div>
+  <div class="alert ydAlert" style="display: none;">
+    <img src="https://yituwstatic.oss-cn-beijing.aliyuncs.com/jjyh/images/ydbtn.png?v1" alt="" onclick="closeThis()">
+  </div>
+</body>
+
+</html>
+<script type="text/javascript">
+  var acopenid; var islogin = 0; var redpack = 0; var clan = 0; var money = 0; var drawname = ''; var phone = '';
+  $(function () {
+    layer.open({ type: 3 });
+    acopenid = getQueryVariable('openid');
+    if (acopenid != '') {
+      $.get("http://wx0dbf291dee395ffb.developers.lingj.net/api/acopen?acopenid=" + acopenid, function (data, status) { })
+    }
+    $.get("http://wx0dbf291dee395ffb.developers.lingj.net/api/jssdk?url=" + encodeURIComponent(window.location.href), function (data, status) {
+      wx.config({
+        debug: false, appId: data.data.appid, timestamp: data.data.timestamp, nonceStr: data.data.nonceStr, signature: data.data.signature, jsApiList: ['hideAllNonBaseMenuItem'
+        ]
+      }); wx.ready(function () { wx.hideAllNonBaseMenuItem(); });
+    });
+    $.get("http://wx0dbf291dee395ffb.developers.lingj.net/api/getd?debug=1", function (data, status) {
+      layer.closeAll();
+      if (data.code == 99) {
+        $('#jinzhi').show()
+      }
+      if (data.code == 401) {
+        // window.location.href = '/api/login'; 
+        return;
+      }
+      if (data.code == 0) {
+        islogin = 1; redpack = data.data.uinfo.redpack
+        clan = data.data.uinfo.clan
+        money = data.data.uinfo.money
+        $('#tiannum').html(data.data.count1 + '！');
+        $('#xiannum').html(data.data.count2 + '！');
+        $('.nick').html(data.data.uinfo.nickname);
+        $('#info_name').html(data.data.uinfo.name);
+        $('#info_phone').html(data.data.uinfo.phone);
+        $('#info_address').html(data.data.uinfo.address);
+        $('#name').val(data.data.uinfo.name);
+        $('#phone').val(data.data.uinfo.phone);
+        $('#address').val(data.data.uinfo.address);
+        drawname = data.data.uinfo.drawname;
+        $('.title').html(drawname);
+        phone = data.data.uinfo.phone;
+        if (drawname == '') {
+          layer.msg('活动已结束，感谢参与', { icon: 1, shade: 0.5, time: 0 });
+          return;
+        }
+        else {
+          my();
+        }
+        $('.personal .nocheck').show();
+        $('.personal img.ac').hide();
+        $('.team img.ac').show();
+        $('.team img.nocheck').hide();
+        $('.personCont').hide();
+        $('.teamCont').show();
+      }
+    });
+  })
+  $('.pk').click(function () {
+    layer.msg('活动已结束，感谢参与', { icon: 2, shade: 0.5 });
+  });
+  $('.regular').click(function () {
+    $('#rule').show()
+  });
+  $('.prize').click(function () {
+    my()
+  });
+  function xuanzhandui(z) {
+    $.get("http://wx0dbf291dee395ffb.developers.lingj.net/api/join?clan=" + z, function (data, status) {
+      if (data.code == 401) { window.location.href = '/api/login'; return; }
+      if (data.code == 0) {
+        $('.alert').hide(); clan = z
+        if (clan == 1) {
+          $('#tiandata').show()
+        }
+        else if (clan == 2) {
+          $('#xiandata').show()
+        }
+      }
+    });
+  }
+  function chai() { layer.msg('活动已结束，感谢参与', { icon: 2, shade: 0.5 }); }
+  function doChai(ticket, randstr) { }
+  function my() {
+    if (redpack == 1) {
+      $('.title2').html(money + '元红包')
+    }
+    else {
+      $('.title2').html('未获得祝福红包')
+    }
+    if (drawname != '') {
+      if (phone == '') { $('#mydrawtianxie').show(); }
+      if (phone != '') { $('#mydrawxiugai').show(); }
+    }
+    else {
+      $('#mydraw').show()
+    }
+  }
+  function subInfo() {
+    var name = $('#name').val(); if (name == '') { layer.msg('请填写姓名', { icon: 2, shade: 0.5, time: 1500 }); return; }
+    var pho = $('#phone').val(); var myreg = /^[1][3,4,5,7,8,9][0-9]{9}$/; if (!myreg.test(pho)) { layer.msg('手机格式不正确', { icon: 2, shade: 0.5, time: 1500 }); return; }
+    var address = $('#address').val(); if (address == '') { layer.msg('请填写地址', { icon: 2, shade: 0.5, time: 1500 }); return; }
+    layer.open({ type: 3 }); $.get("/api/draw-info?name=" + name + "&phone=" + pho + "&address=" + address, function (data, status) {
+      layer.closeAll(); if (data.code == 401) { window.location.href = '/api/login'; return; }
+      $('.alert').hide(); layer.msg('提交成功', { icon: 1, shade: 0.5, time: 1500 }); phone = pho; $('#info_name').html(name); $('#info_phone').html(pho); $('#info_address').html(address); return;
+    });
+  }
+  function getQueryVariable(variable) {
+    var query = window.location.search.substring(1); var vars = query.split("&"); for (var i = 0; i < vars.length; i++) {
+      var pair = vars[i].split("="); if (pair[0] == variable) { return pair[1]; }
+    }
+    return '';
+  }
+  function setCookie(cname, cvalue, exdays) { var d = new Date(); d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000)); var expires = "expires=" + d.toUTCString(); document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/"; }
+  function getCookie(cname) {
+    var name = cname + "="; var decodedCookie = decodeURIComponent(document.cookie); var ca = decodedCookie.split(';'); for (var i = 0; i < ca.length; i++) {
+      var c = ca[i]; while (c.charAt(0) == ' ') { c = c.substring(1); }
+      if (c.indexOf(name) == 0) { return c.substring(name.length, c.length); }
+    }
+    return "";
+  }
+  function checkCookieYindaoPop() {
+    var fisrt = getCookie("fisrt"); if (fisrt == "") { setCookie("fisrt", 1, 20); $('.ydAlert').show(); }
+  }
+</script>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8" />
+		<title>打地鼠</title>
+		<meta name="Keywords" content="">
+		<meta name="description" content="">
+		<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1, user-scalable=no">
+		<meta name="format-detection" content="telephone=no, email=no" />
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<meta name="renderer" content="webkit" />
+		<meta name="force-rendering" content="webkit" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+		<meta name="msapplication-tap-highlight" content="no">
+		<meta name="full-screen" content="yes" />
+		<meta name="x5-fullscreen" content="true" />
+		<meta name="360-fullscreen" content="true" />
+		<meta name="screen-orientation" content="" />
+		<meta name="x5-orientation" content="">
+		<meta name="x5-page-mode" content="app">
+		<link rel="stylesheet" type="text/css" href="css/mui.min.css" />
+		<link rel="stylesheet" type="text/css" href="css/mk-style.css" />
+		<link rel="stylesheet" type="text/css" href="css/mk-loader.css" />
+		<link rel="stylesheet" type="text/css" href="css/lottery.css" />
+		<style type="text/css">
+			#game-container canvas {
+				position: relative !important;
+				vertical-align: middle;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="mk-wait">
+			<div data-loader="circle"></div>
+		</div>
+		<div id="mk-main">
+			<div id="game-container" ref="container"></div>
+		</div>
+
+		<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/mk.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/hilo-standalone.min.js"></script>
+
+		<script src="js/gopher/main.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/gopher/asset.js" type="text/javascript" charset="utf-8"></script>
+
+		<!-- <script src="js/vue.min.js" type="text/javascript" charset="utf-8"></script>
+		<script src="js/bscroll.min.js" type="text/javascript" charset="utf-8"></script> -->
+
+		<script type="text/javascript">
+			;(function() {
+				mk.init();
+
+				console.log(game);
+
+				game.init();
+
+				game.play();
+				
+				//game.replay();
+
+				game.on(game.EventType.END, function() {
+					console.log("游戏结束")
+				});
+
+				game.on(game.EventType.HIT, function(e) {
+					console.log(e.detail)
+				});
+
+//            	var time = 5;
+//				var timer = setInterval(function(){
+//					if(time<=0){
+//						game.stop();
+//					}
+//					-- time;
+//				},1000)
+
+			})();
+		</script>
+	</body>
+
+</html>

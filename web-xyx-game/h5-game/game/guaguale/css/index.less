@@ -1,0 +1,179 @@
+@charset "utf-8";
+@rem:75rem;
+
+body{
+    background: #ff605d;
+}
+#wrap{
+    margin-top: -1/@rem;
+    background-image: url("../image/bg.png");
+}
+
+/*三个不同的动画效果*/
+.caidai1, .caidai2, .caidai3 {
+    opacity: 1;
+    position: absolute;
+    left: 40/@rem;
+    top: 240/@rem;
+    width: 77/@rem;
+    height: 74/@rem;
+    background-image: url("../image/hongbao1.png");
+    -o-animation: caidai1 1s ease-in-out infinite;
+    -ms-animation: caidai1 1s ease-in-out infinite;
+    -moz-animation: caidai1 1s ease-in-out infinite;
+    -webkit-animation: caidai1 1s ease-in-out infinite;
+    animation: caidai1 1s ease-in-out infinite;
+}
+
+@keyframes caidai1 {
+    100% {
+        opacity: 0;
+        left: 140/@rem;
+        top: 340/@rem;
+    }
+}
+
+.caidai2 {
+    left: 600/@rem;
+    top: 140/@rem;
+    width: 95/@rem;
+    height: 80/@rem;
+    background-image: url("../image/hongbao2.png");
+    -o-animation: caidai2 1s ease-in-out infinite;
+    -ms-animation: caidai2 1s ease-in-out infinite;
+    -moz-animation: caidai2 1s ease-in-out infinite;
+    -webkit-animation: caidai2 1s ease-in-out infinite;
+    animation: caidai2 1s ease-in-out infinite;
+}
+
+@keyframes caidai2 {
+    100% {
+        opacity: 0;
+        left: 500/@rem;
+        top: 240/@rem;
+    }
+}
+
+.caidai3 {
+    left: 0;
+    top: 860/@rem;
+    width: 98/@rem;
+    height: 88/@rem;
+    background-image: url("../image/gold.png");
+    -o-animation: caidai3 .5s ease-in-out infinite alternate;
+    -ms-animation: caidai3 .5s ease-in-out infinite alternate;
+    -moz-animation: caidai3 .5s ease-in-out infinite alternate;
+    -webkit-animation: caidai3 .5s ease-in-out infinite alternate;
+    animation: caidai3 .5s ease-in-out infinite alternate;
+}
+
+@keyframes caidai3 {
+    100% {
+        top: 900/@rem;
+    }
+}
+
+/*主体*/
+.box {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 790/@rem;
+}
+
+.rule, .my {
+    position: absolute;
+    width: 165/@rem;
+    height: 50/@rem;
+    background-color: #e04b34;
+    text-align: center;
+    line-height: 50/@rem;
+    font-size: 22/@rem;
+    font-weight: bold;
+    color: #fff3f0;
+    border-radius: 20/@rem;
+}
+
+.rule {
+    left: 125/@rem;
+}
+
+.my {
+    right: 125/@rem;
+}
+
+/*刮刮乐图层*/
+.panel{
+    position: absolute;
+    left: 50%;
+    top: 135/@rem;
+    z-index: 1;
+    margin-left: -300/@rem;
+    width: 600/@rem;
+    height: 350/@rem;
+    background-image: url("../image/panel.png");
+}
+
+#canvas{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: -154/@rem 0 0 -281/@rem;
+}
+
+#canvas-mask{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 1;
+    width: 562/@rem;
+    height: 308/@rem;
+    margin: -154/@rem 0 0 -281/@rem;
+}
+
+#canvas-mask #btn{
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: -25/@rem 0 0 -96/@rem;
+    width: 192/@rem;
+    height: 50/@rem;
+    background-image: url("../image/start.png");
+}
+
+#canvas-mask p{
+    margin-top: 228/@rem;
+    height: 22/@rem;
+    text-align: center;
+    line-height: 22/@rem;
+    font-size: 22/@rem;
+    color: #fff;
+}
+
+/*奖品展示*/
+.awards{
+    bottom: 24/@rem;
+    margin-left: -350/@rem;
+    width: 700/@rem;
+    height: 175/@rem;
+    background-color: #ee3c3a;
+    border-radius: 20/@rem;
+}
+
+.awards .swiper-slide{
+    margin: 20/@rem 30/@rem 0;
+}
+
+/*规则背景色*/
+#mask-rule .box-rule{
+    background-color: #fe5c51;
+}
+
+#mask-rule .box-rule .star{
+    background-image: url("../../common/image/rule/star2.png");
+}
+
+
+
+

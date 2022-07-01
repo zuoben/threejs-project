@@ -1,0 +1,282 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+		<meta charset="utf-8">
+		<title>大转盘</title>
+		<style type="text/css">
+			*{margin:0;padding:0;}
+			.canvas_box{
+				position:absolute;top:0;bottom:0;left:0;right:0;margin:auto;
+				overflow: hidden;
+			}
+			.canvas_box .can{
+				position:absolute;
+				left: 50%;
+				top: 50%;
+			}
+			#canvas_bg{
+				position:absolute;top:0;bottom:0;left:0;right:0;margin:auto;
+			}
+			.canvas_ani{
+				animation: loading 90s linear 0s infinite;
+			}
+			@keyframes loading{
+				0%{
+					transform: rotate(0deg);
+				}
+				50%{
+					transform: rotate(180deg);
+				}
+				100%{
+					transform: rotate(360deg);
+				}
+			}
+			img{display:none;}
+			#pointer{
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				display: block;
+				width: 32px;
+				height: 50px;
+				margin: -56px 0 0 -16px;
+			}
+			#pointer_but{
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				display: block;
+				width: 60px;
+				height: 60px;
+				margin: -30px 0 0 -30px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="canvas_box">
+			<div class="can">
+				<canvas id="canvas_bg"></canvas>
+				<canvas id="canvas_main" class="canvas_ani"></canvas>
+			</div>
+			<img src="images/img12.png" id='pointer' />
+			<img src="images/img13.png" id='pointer_but' />
+		</div>
+		<img src="images/h_03.png" id='img1' />
+		<img src="images/h_05.png" id='img2' />
+		<img src="images/h_07.png" id='img3' />
+		<img src="images/h_10.png" id='img4' />
+		
+		<script src="https://www.jq22.com/jquery/jquery-1.10.2.js"></script>
+		<script src="https://www.jq22.com/demo/canvasdazhuanpan202103310051/js/jQueryRotate.js" type="text/javascript" charset="utf-8"></script>
+		<script type="text/javascript">
+			window.onload = function(){
+				
+				//设置外框大小
+				var wid = parseInt($('body').width()*0.9);
+				$('.canvas_box').width(wid).height(wid)
+				wid = wid*4
+				$('.can').width(wid).height(wid)
+				var angleVal = 0;
+				var cavvasAni = setInterval(function(){
+					angleVal++
+					if(angleVal == 360){
+						angleVal=0
+					}
+				},3000)
+				
+				//奖品参数
+				var prizeNum = 4; //中奖奖品下标
+				var prizeVal = [
+					{
+						img:'img1', //对应图片
+						text:'5元,立减金', //奖品名称 , 换行
+						wid:wid*0.1, //图片宽度
+						hei:wid*0.1, //图片高度
+					},
+					{
+						img:'img2',
+						text:'10元,立减金',
+						wid:wid*0.1,
+						hei:wid*0.1,
+					},
+					{
+						img:'img3',
+						text:'1元,立减金',
+						wid:wid*0.1,
+						hei:wid*0.1,
+					},
+					{
+						img:'img4',
+						text:'2元,立减金',
+						wid:wid*0.1,
+						hei:wid*0.1,
+					},
+					{
+						img:'img4',
+						text:'谢谢参与',
+						wid:wid*0.1,
+						hei:wid*0.1,
+					},
+					{
+						img:'img1',
+						text:'20元,立减金',
+						wid:wid*0.1,
+						hei:wid*0.1,
+					},
+					{
+						img:'img2',
+						text:'30元,立减金',
+						wid:wid*0.1,
+						hei:wid*0.1,
+					},
+					{
+						img:'img3',
+						text:'100元,立减金',
+						wid:wid*0.1,
+						hei:wid*0.1,
+					}
+				]
+				
+				//开始抽奖
+				var rotateType = true
+				$("#pointer_but").on('click',function(){
+					if(rotateType == false){return false}
+					$('#canvas_main').removeClass('canvas_ani')
+					rotateType = false
+					$('#canvas_main').rotate({
+						duration:3000,               //转动时间
+						angle: angleVal,                    //起始角度
+						animateTo:1800-prizeNum*360/prizeVal.length,      //结束的角度
+						easing: $.easing.easeOutSine,//动画效果，需加载jquery.easing.min.js
+						callback: function(){
+							alert(prizeVal[prizeNum].text);//简单的弹出获奖信息
+							rotateType = true
+						}
+					});
+				})
+				
+				//转盘参数
+				var canvasArr = {
+					'width':wid, //转盘宽度
+					'height':wid, //转盘高度
+					'bgcolor':'#5a9cff', //背景颜色
+					'border':wid*0.06, //转盘边框
+					'lightnum':24, //背景灯个数
+					'lightwid':wid*0.036 //背景灯大小
+				}
+				
+				//画转盘
+				class htTurntable{
+					constructor() {
+						this.canvasbg = document.getElementsByTagName('canvas')[0];
+						this.contextbg = this.canvasbg.getContext('2d'); 
+						this.canvas = document.getElementsByTagName('canvas')[1];
+						this.context = this.canvas.getContext('2d');
+					}
+					init(){
+						this.canvasbg.width = canvasArr.width
+						this.canvasbg.height = canvasArr.height
+						this.canvas.width = canvasArr.width
+						this.canvas.height = canvasArr.height
+						this.bgfun()
+						this.bglight()
+						this.prize()
+						this.iconfun()
+						this.bglight('#FFFFFF','#ffcf4d')
+						this.bglightani() //背景灯动态
+						$('.can').css('transform', 'scale(0.25)');
+						$('.can').css('margin-left',-wid/2)
+						$('.can').css('margin-top',-wid/2)
+					}
+					//背景
+					bgfun(){
+						this.contextbg.beginPath()
+						let clg = this.contextbg.createLinearGradient(0,0,0,canvasArr.height);
+						clg.addColorStop(0,'#fed149')
+						clg.addColorStop(1,'#ff7d05')
+						this.contextbg.fillStyle = clg;
+						//this.contextbg.fillStyle = canvasArr.bgcolor
+						this.contextbg.arc(canvasArr.width/2,canvasArr.height/2,canvasArr.width/2,0,Math.PI*2);
+						this.contextbg.closePath();
+						this.contextbg.fill();
+						
+						this.contextbg.beginPath()
+						this.contextbg.fillStyle = '#FFFFFF'
+						this.contextbg.arc(canvasArr.width/2,canvasArr.height/2,canvasArr.width/2 - canvasArr.border,0,Math.PI*2);
+						this.contextbg.closePath();
+						this.contextbg.fill();
+					}
+					//周边背景灯
+					bglight(cor1,cor2){
+						for(let i=0;i<canvasArr.lightnum;i++){
+							if(i%2 == 0){
+								this.contextbg.fillStyle=cor1;
+							}else{
+								this.contextbg.fillStyle=cor2;
+							}
+							this.contextbg.beginPath()
+							this.contextbg.arc(canvasArr.width/2+(canvasArr.width/2 - canvasArr.border/2)*Math.cos(360/canvasArr.lightnum*i*Math.PI/180),canvasArr.width/2+(canvasArr.width/2 - canvasArr.border/2)*Math.sin(360/canvasArr.lightnum*i*Math.PI/180),canvasArr.lightwid/2,0,Math.PI*2);
+							this.contextbg.closePath();
+							this.contextbg.fill();
+						}
+					}
+					//周边背景灯动态
+					bglightani(){
+						let that = this;
+						let i=0;
+						setInterval(function(){
+							i++;
+							if(i%2 == 0){
+								that.bglight('#FFFFFF','#ffcf4d')
+							} else {
+								that.bglight('#ffcf4d','#FFFFFF')
+							}
+						},600)
+					}
+					//扇形
+					prize(){
+						for(let i=0;i<prizeVal.length;i++){
+							this.context.beginPath()
+							if(i%2 == 0){
+								this.context.fillStyle="#fff8f4";
+							}else{
+								this.context.fillStyle="#ffe4d6";
+							}
+							this.context.moveTo(canvasArr.width/2,canvasArr.height/2);
+							this.context.arc(canvasArr.width/2,canvasArr.height/2,canvasArr.width/2 - canvasArr.border,2*Math.PI/prizeVal.length*i-0.5*Math.PI-Math.PI/prizeVal.length,2*Math.PI/prizeVal.length*(i+1)-0.5*Math.PI-Math.PI/prizeVal.length);
+							this.context.closePath();
+							this.context.fill();
+						}
+					}
+					//画图icon文字
+					iconfun(){
+						let step = 2*Math.PI/prizeVal.length
+						for(let i=0;i<prizeVal.length;i++){
+							//icon
+							this.context.save()
+							this.context.translate(canvasArr.width/2,canvasArr.height/2);
+							this.context.rotate(step*(i))
+							let img = new Image;
+							img.src = $('#'+prizeVal[i].img).attr('src');
+							this.context.drawImage(img,-prizeVal[i].wid/2,-canvasArr.height/2.4,prizeVal[i].wid,prizeVal[i].hei);
+							//文字
+							let textval = prizeVal[i].text.split(',')
+							for(let j=0;j<textval.length;j++){
+								this.context.beginPath()
+								this.context.font = "bold 48px Microsoft YaHei";
+								this.context.textAlign = "center";
+								this.context.fillStyle="#722207";
+								this.context.fillText(textval[j], 0, -canvasArr.height/3.9+64*j);
+							}
+							this.context.restore()
+						}
+					}
+				}
+				new htTurntable().init()
+			}
+			
+		</script>
+	</body>
+</html>

@@ -1,0 +1,146 @@
+@charset "utf-8";
+body,
+section,
+div,
+p,
+ul,
+ol,
+li,
+dl,
+dt,
+dd,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+pre,
+form,
+input,
+select,
+button,
+textarea,
+table,
+a,
+span {
+  background: no-repeat center / contain;
+  font: 100 12px "PingFang-SC-Regular", "Microsoft Yahei", sans-serif;
+  cursor: default;
+}
+body {
+  background-color: #373c66;
+}
+a {
+  display: block;
+}
+#wrap {
+  position: relative;
+  padding-top: 6.4rem;
+  width: 100%;
+  height: 40.26666667rem;
+  background-image: url("../image/bg.png");
+}
+#wrap h2.title {
+  margin: 0.8rem auto;
+  width: 3.17333333rem;
+  height: 0.77333333rem;
+}
+/*活动*/
+h2.tit1 {
+  background-image: url("../image/title-active.png");
+}
+.active ul {
+  display: flex;
+  margin: auto;
+  padding: 0.73333333rem 0.2rem;
+  width: 8.26666667rem;
+  height: 1.73333333rem;
+  background-image: url("../image/stripe-box.png");
+}
+.active ul li {
+  flex: 1;
+}
+.active ul li img {
+  display: block;
+  margin: 0 auto 0.33333333rem;
+  width: 1.06666667rem;
+  height: 1.06666667rem;
+}
+.active ul li p {
+  text-align: center;
+  font-size: 0.34666667rem;
+  color: #fff;
+}
+/*游戏*/
+h2.tit2 {
+  background-image: url("../image/title-game.png");
+}
+.game ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  height: 7.2rem;
+}
+.game ul li {
+  margin-bottom: 0.8rem;
+  width: 4rem;
+}
+.game ul li img {
+  width: 100%;
+  height: 2.4rem;
+}
+.game ul li p {
+  width: 100%;
+  height: 0.8rem;
+  background-color: #fff;
+  text-align: center;
+  font-size: 0.34666667rem;
+  line-height: 0.8rem;
+  font-weight: normal;
+  color: #333;
+  border-radius: 0 0 0.13333333rem 0.13333333rem;
+}
+/*福利*/
+h2.tit3 {
+  background-image: url("../image/title-welfare.png");
+}
+.gift ul {
+  display: flex;
+  flex-direction: column;
+  margin: auto;
+  width: 8.66666667rem;
+}
+.gift ul li {
+  flex: 1;
+  margin-bottom: 0.8rem;
+}
+.gift ul li img {
+  width: 100%;
+  height: 3.73333333rem;
+}
+.gift ul li div {
+  padding: 0 0.26666667rem;
+  height: 1.06666667rem;
+  background-color: #fff;
+  border-radius: 0 0 0.13333333rem 0.13333333rem;
+}
+.gift ul li div p {
+  float: left;
+  font-size: 0.34666667rem;
+  line-height: 1.06666667rem;
+  font-weight: normal;
+  color: #333;
+}
+.gift ul li div span {
+  float: right;
+  margin-top: 0.24rem;
+  width: 1.6rem;
+  height: 0.61333333rem;
+  background-color: #ff340c;
+  text-align: center;
+  font-size: 0.29333333rem;
+  line-height: 0.61333333rem;
+  color: #fff;
+  border-radius: 0.05333333rem;
+}

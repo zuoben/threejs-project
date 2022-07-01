@@ -1,0 +1,284 @@
+@charset "utf-8";
+@rem:75rem;
+
+body{
+    background-color: #f9d65e;
+}
+
+#wrap {
+    margin-top: -1/@rem;
+    background-image: url("../image/bg.png");
+}
+
+.rule,.my{
+    position: absolute;
+    top: 30/@rem;
+    z-index: 1;
+    width: 100/@rem;
+    height: 110/@rem;
+    background-image: url("../image/rule.png");
+}
+
+.rule{
+    left: 0;
+}
+
+.my{
+    right: 0;
+    background-image: url("../image/my.png");
+}
+
+/*游戏区域*/
+.main{
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.main span.balloon{
+    position: absolute;
+    z-index: 1;
+    -o-transform-origin: center bottom;
+    -ms-transform-origin: center bottom;
+    -moz-transform-origin: center bottom;
+    -webkit-transform-origin: center bottom;
+    transform-origin: center bottom;
+}
+
+/*气球*/
+.main .balloon:nth-child(1){
+    left: 35/@rem;
+    top: 305/@rem;
+    width: 96/@rem;
+    height: 204/@rem;
+    background-image: url("../image/balloon1.png");
+}
+
+.main .balloon:nth-child(2){
+    left: 225/@rem;
+    top: 380/@rem;
+    width: 109/@rem;
+    height: 237/@rem;
+    background-image: url("../image/balloon2.png");
+}
+
+.main .balloon:nth-child(3){
+    right: 230/@rem;
+    top: 300/@rem;
+    width: 106/@rem;
+    height: 189/@rem;
+    background-image: url("../image/balloon3.png");
+}
+
+.main .balloon:nth-child(4){
+    right: 40/@rem;
+    top: 310/@rem;
+    width: 131/@rem;
+    height: 203/@rem;
+    background-image: url("../image/balloon4.png");
+}
+
+.main .balloon:nth-child(5){
+    left: 35/@rem;
+    top: 585/@rem;
+    width: 128/@rem;
+    height: 241/@rem;
+    background-image: url("../image/balloon5.png");
+}
+
+.main .balloon:nth-child(6){
+    left: 345/@rem;
+    top: 545/@rem;
+    width: 139/@rem;
+    height: 247/@rem;
+    background-image: url("../image/balloon6.png");
+}
+
+.main .balloon:nth-child(7){
+    right: 60/@rem;
+    top: 565/@rem;
+    width: 133/@rem;
+    height: 254/@rem;
+    background-image: url("../image/balloon7.png");
+}
+
+.main .shake-l{
+    -o-transform: rotate(10deg);
+    -ms-transform: rotate(10deg);
+    -moz-transform: rotate(10deg);
+    -webkit-transform: rotate(10deg);
+    transform: rotate(10deg);
+    -o-animation: shake-l 5s ease-in-out infinite alternate;
+    -ms-animation: shake-l 5s ease-in-out infinite alternate;
+    -moz-animation: shake-l 5s ease-in-out infinite alternate;
+    -webkit-animation: shake-l 5s ease-in-out infinite alternate;
+    animation: shake-l 5s ease-in-out infinite alternate;
+}
+
+.main .shake-r{
+    -o-transform: rotate(-10deg);
+    -ms-transform: rotate(-10deg);
+    -moz-transform: rotate(-10deg);
+    -webkit-transform: rotate(-10deg);
+    transform: rotate(-10deg);
+    -o-animation: shake-r 5s ease-in-out infinite alternate;
+    -ms-animation: shake-r 5s ease-in-out infinite alternate;
+    -moz-animation: shake-r 5s ease-in-out infinite alternate;
+    -webkit-animation: shake-r 5s ease-in-out infinite alternate;
+    animation: shake-r 5s ease-in-out infinite alternate;
+}
+
+@keyframes shake-l{
+    100%{
+        -o-transform: rotate(-10deg);
+        -ms-transform: rotate(-10deg);
+        -moz-transform: rotate(-10deg);
+        -webkit-transform: rotate(-10deg);
+        transform: rotate(-10deg);
+    }
+}
+
+@keyframes shake-r{
+    100%{
+        -o-transform: rotate(10deg);
+        -ms-transform: rotate(10deg);
+        -moz-transform: rotate(10deg);
+        -webkit-transform: rotate(10deg);
+        transform: rotate(10deg);
+    }
+}
+
+.main .fly{
+    -o-animation: fly .5s ease-in;
+    -ms-animation: fly .5s ease-in;
+    -moz-animation: fly .5s ease-in;
+    -webkit-animation: fly .5s ease-in;
+    animation: fly .5s ease-in;
+}
+
+@keyframes fly{
+    100%{
+        top:-500/@rem;
+    }
+}
+
+.main p{
+    position: absolute;
+    left: 50%;
+    bottom: 350/@rem;
+    margin-left: -118/@rem;
+    width: 300/@rem;
+    height: 40/@rem;
+    background-color: #ffa9a6;
+    text-align: center;
+    line-height: 40/@rem;
+    font-size: 24/@rem;
+    color: #fff;
+    border-radius: 20/@rem;
+}
+
+.coin{
+    position: absolute;
+    right: 15/@rem;
+    bottom: 200/@rem;
+    width: 96/@rem;
+    height: 99/@rem;
+    background-image: url("../image/coin.png");
+}
+
+/*套环*/
+.arrow{
+    position: absolute;
+    left: 50%;
+    top: 75%;
+    margin-left: -106/@rem;
+    width: 213/@rem;
+    height: 142/@rem;
+    background-image: url("../image/arrow.png");
+    -o-animation: up 1s infinite;
+    -ms-animation: up 1s infinite;
+    -moz-animation: up 1s infinite;
+    -webkit-animation: up 1s infinite;
+    animation: up 1s infinite;
+}
+
+@keyframes up{
+    100%{
+        top: 72%;
+        -o-transform: scale(1.2);
+        -ms-transform: scale(1.2);
+        -moz-transform: scale(1.2);
+        -webkit-transform: scale(1.2);
+        transform: scale(1.2);
+    }
+}
+
+/*上下套环*/
+.top,.bottom{
+    position: absolute;
+    left: 225/@rem;
+    z-index: 1;
+    width: 300/@rem;
+    height: 65/@rem;
+}
+
+.top{
+    top: 950/@rem;
+    background-image: url("../image/top.png");
+    -o-transform-origin: center bottom;
+    -ms-transform-origin: center bottom;
+    -moz-transform-origin: center bottom;
+    -webkit-transform-origin: center bottom;
+    transform-origin: center bottom;
+}
+
+.bottom{
+    top: 1015/@rem;
+    background-image: url("../image/btm.png");
+    -o-transform-origin: center top;
+    -ms-transform-origin: center top;
+    -moz-transform-origin: center top;
+    -webkit-transform-origin: center top;
+    transform-origin: center top;
+}
+
+.shakeing{
+    animation: ring-shakeing .8s linear alternate;
+}
+
+@keyframes ring-shakeing{
+    20%,60%{
+        -o-transform: rotate(-30deg);
+        -ms-transform: rotate(-30deg);
+        -moz-transform: rotate(-30deg);
+        -webkit-transform: rotate(-30deg);
+        transform: rotate(-30deg);
+    }
+    40%,80%{
+        -o-transform: rotate(30deg);
+        -ms-transform: rotate(30deg);
+        -moz-transform: rotate(30deg);
+        -webkit-transform: rotate(30deg);
+        transform: rotate(30deg);
+    }
+    100%{
+        -o-transform: rotate(0deg);
+        -ms-transform: rotate(0deg);
+        -moz-transform: rotate(0deg);
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+}
+
+/*规则弹窗背景色*/
+#mask-rule .box-rule{
+    background-color: #f7b50b;
+}
+
+#mask-rule .box-rule .star{
+    background-image: url("../../common/image/rule/star1.png");
+}
+
+
+
+

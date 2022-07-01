@@ -1,0 +1,189 @@
+@charset "utf-8";
+@rem:75rem;
+
+body{
+    background: #50009f;
+}
+#wrap {
+    background-image: url("../image/bg.png");
+}
+
+.rule, .my {
+    margin-top: 36/@rem;
+    width: 82/@rem;
+    height: 56/@rem;
+    background-color: #ff9d1b;
+    text-align: center;
+    line-height: 56/@rem;
+    font-size: 24/@rem;
+    color: #fff;
+}
+
+.rule {
+    border-top-right-radius: 10/@rem;
+    border-bottom-right-radius: 10/@rem;
+}
+
+.my {
+    background-color: #fe5362;
+    border-top-left-radius: 10/@rem;
+    border-bottom-left-radius: 10/@rem;
+}
+
+/*主体*/
+.main {
+    position: absolute;
+    left: 0;
+    bottom: 0;    
+    width: 100%;
+    height: 820/@rem;
+}
+
+.main h2 {
+    margin: 15/@rem auto 0;
+    width: 300/@rem;
+    height: 52/@rem;
+    background-color: #fee405;
+    text-align: center;
+    line-height: 52/@rem;
+    font-size: 20/@rem;
+    font-weight: normal;
+    color: #bc5700;
+    border-radius: 26/@rem;
+}
+
+/*游戏区域*/
+.box {
+    position: relative;
+    width: 100%;
+    height: 540/@rem;
+}
+
+.box li {
+    position: absolute;
+    left: 512/@rem;
+    top: 268/@rem;
+    width: 205/@rem;
+    height: 268/@rem;
+    background-image: url("../image/card1.png");
+    -o-transition: .3s;
+    -ms-transition: .3s;
+    -moz-transition: .3s;
+    -webkit-transition: .3s;
+    transition: .3s;
+}
+
+/*卡牌摆动动画*/
+.box li.active {
+    background-image: url("../image/card2.png");
+    -o-animation: shaking .5s ease-in-out;
+    -ms-animation: shaking .5s ease-in-out;
+    -moz-animation: shaking .5s ease-in-out;
+    -webkit-animation: shaking .5s ease-in-out;
+    animation: shaking .5s ease-in-out;
+}
+
+@keyframes shaking{
+    0%,100%{
+        -o-transform: rotateY(0deg);
+        -ms-transform: rotateY(0deg);
+        -moz-transform: rotateY(0deg);
+        -webkit-transform: rotateY(0deg);
+        transform: rotateY(0deg);
+    }
+    33%{
+        -o-transform: rotateY(-20deg);
+        -ms-transform: rotateY(-20deg);
+        -moz-transform: rotateY(-20deg);
+        -webkit-transform: rotateY(-20deg);
+        transform: rotateY(-20deg);
+    }
+    66%{
+        -o-transform: rotateY(20deg);
+        -ms-transform: rotateY(20deg);
+        -moz-transform: rotateY(20deg);
+        -webkit-transform: rotateY(20deg);
+        transform: rotateY(20deg);
+    }
+}
+
+/*卡牌翻开动画*/
+.box li.open-card {
+    left: 273/@rem !important;
+    top: 0 !important;
+    z-index: 10;
+    -o-transform: scale(1.5);
+    -ms-transform: scale(1.5);
+    -moz-transform: scale(1.5);
+    -webkit-transform: scale(1.5);
+    transform: scale(1.5);
+    -o-animation: openCard .5s .5s linear forwards;
+    -ms-animation: openCard .5s .5s linear forwards;
+    -moz-animation: openCard .5s .5s linear forwards;
+    -webkit-animation: openCard .5s .5s linear forwards;
+    animation: openCard .5s .5s linear forwards;
+}
+
+@keyframes openCard{
+    10%,30%,50%{
+        -o-transform: scale(1.5) translateX(-10px);
+        -ms-transform: scale(1.5) translateX(-10px);
+        -moz-transform: scale(1.5) translateX(-10px);
+        -webkit-transform: scale(1.5) translateX-(10px);
+        transform: scale(1.5) translateX(-10px);
+    }
+    20%,40%,60%{
+        -o-transform: scale(1.5) translateX(10px);
+        -ms-transform: scale(1.5) translateX(10px);
+        -moz-transform: scale(1.5) translateX(10px);
+        -webkit-transform: scale(1.5) translateX(10px);
+        transform: scale(1.5) translateX(10px);
+    }
+    100%{
+        -o-transform: scale(1.5) translateX(90deg);
+        -ms-transform: scale(1.5) translateX(90deg);
+        -moz-transform: scale(1.5) translateX(90deg);
+        -webkit-transform: scale(1.5) translateX(90deg);
+        transform: scale(1.5) rotateY(90deg);
+    }
+}
+
+/*图案*/
+.box li img {
+    display: block;
+    margin: 35/@rem auto;
+    width: 130/@rem;
+    height: 190/@rem;
+}
+
+/*翻牌遮罩*/
+#mask-card{
+    display: none;
+    position: fixed;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, .85)
+}
+
+/*奖品展示*/
+.awards {
+    position: static;
+    margin: 30/@rem auto;
+    width: 630/@rem;
+    height: 145/@rem;
+    background-color: #cb59fe;
+    box-shadow: 0 20/@rem 20/@rem rgba(135, 25, 187, .7) inset;
+    border-radius: 16/@rem;
+}
+
+/*规则弹窗背景色*/
+#mask-rule .box-rule{
+    background-color: #fe5c51;
+}
+
+#mask-rule .box-rule .star{
+    background-image: url("../../common/image/rule/star2.png");
+}
+
+

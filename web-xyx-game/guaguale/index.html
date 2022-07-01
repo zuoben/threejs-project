@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+		<meta content="yes" name="apple-mobile-web-app-capable">
+		<meta content="black" name="apple-mobile-web-app-status-bar-style">
+		<meta content="telephone=no" name="format-detection">
+		<meta content="email=no" name="format-detection">
+		<meta name="full-screen" content="yes">
+		<meta name="browsermode" content="application">
+		<meta name="full-screen" content="yes">
+		<meta name="browsermode" content="application">
+		<meta name="x5-orientation" content="portrait">
+		<title>刮刮乐</title>
+		<link rel="stylesheet" href="./index.css">
+	</head>
+
+	<style>
+		html,
+		body {
+			margin: 0;
+			padding: 0;
+			height: 100%;
+			width: 100%;
+			min-width: 1920px;
+			overflow-y: hidden;
+			background-image: url(ggbj.jpg);
+		}
+		
+		#app {
+			position: relative;
+			top: 50%; /*偏移*/
+			transform: translateY(-50%);
+		}
+		
+		.title {
+			color: #ffe519;
+			padding-top: 20%;
+		}
+	
+		.outBox {
+			height: 500px;
+			background-color: #ab0000;
+			text-align: center;
+			position: relative;
+		}
+
+		#scratch {
+			position: relative;
+			top: 45%;
+			width: 200px;
+			height: 70px;
+			background: #AB945E;
+			z-index: 100;
+			margin: auto;
+		}
+
+		#card {
+			width: 100%;
+			height: 100%;
+			font-size: 28px;
+			line-height: 70px;
+			color: #ff0000;
+			text-align: center;
+		}
+
+		.guaguaImg {
+			position: absolute;
+			top: 0;
+			left: 0;
+			z-index: 10;
+			width: 100%;
+			height: 100%;
+		}
+	</style>
+
+
+	<body>
+		<div id="app" v-show="visible">
+			<el-row type="flex" justify="space-around">
+			  <el-col :span="4" v-for="(index) in 5">
+				 <div class="outBox">
+					<h1 class="title">惊喜刮刮乐</h1>
+					<div id="scratch">
+						<div id="card">{{prizeList[index]}}</div>
+						<img class="guaguaImg" :id="ki(index)" src="./guagua.jpg">
+					</div>
+				  </div>
+			  </el-col>
+			</el-row>
+		</div>
+
+		<script src="./vue.js"></script>
+		<script src="./index.js"></script>
+		<script src="./jquery-2.1.0.min.js"></script>
+		<script src="./jquery.eraser.js"></script>
+		<script>
+			new Vue({
+			  el: '#app',
+			  data: function() {
+				return { 
+					visible: false,
+					prizeList: ["谢谢参与", "谢谢参与", "谢谢参与", "带薪退休", "谢谢参与", "谢谢参与"]
+				}
+			  },
+			  mounted() {
+				for(var i = 1; i < 6; i++) {
+					this.initCard(i);
+				}
+			  },
+			  created() {
+				this.visible = true;
+			  },
+			  methods: {
+				  ki: function (i) {
+					  return "guaguaImg" + i
+				  },
+				  initCard(index) {
+					$("#guaguaImg" + index).eraser({
+						"size": 15,
+						completeRatio: .4, //擦到百分之多少清屏
+						completeFunction: function() {
+							$("#guaguaImg" + index).eraser('clear');
+						}
+					});
+				  }
+			  }
+			})
+		</script>
+	</body>
+</html>

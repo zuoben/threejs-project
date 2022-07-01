@@ -1,0 +1,335 @@
+body,
+ul,
+ol,
+li,
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+form,
+fieldset,
+table,
+td,
+img,
+div {
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+body {
+	color: #333;
+	font-size: 12px;
+	font-family: "Microsoft YaHei"
+}
+
+ul,
+ol {
+	list-style-type: none;
+}
+
+select,
+input,
+img,
+select {
+	vertical-align: middle;
+}
+
+input {
+	font-size: 12px;
+}
+
+a {
+	text-decoration: none;
+	color: #000;
+}
+
+a:hover {
+	color: #c00;
+	text-decoration: none;
+}
+
+.clear {
+	clear: both;
+}
+
+/* 大转盘样式 */
+.banner {
+	display: block;
+	width: 100%;
+	background: #000000;
+	position: fixed;
+	bottom: 0;
+	border-radius: 25px 25px 0 0;
+	padding: 8px 0 20px 0;
+}
+
+.banner .turnplate {
+	display: block;
+	width: 72vw;
+	position: relative;
+	margin: 0 auto;
+	padding: 5vw;
+	background-image: url(../images/bg_turntable.png);
+	background-size: 100% 100%;
+
+}
+
+.banner .turnplate canvas.item {
+	width: 100%;
+}
+
+.banner .turnplate img.pointer {
+	position: absolute;
+	width: 34%;
+	height: 34%;
+	left: 33%;
+	top: 34%;
+}
+
+.banner .turnplate img.goldPointer {
+	position: absolute;
+	width: 34%;
+	height: 34%;
+	left: 33%;
+	top: 34%;
+}
+
+/* tab切换 */
+.tabClick {
+	overflow: hidden;
+	width: 50vw;
+}
+
+.tabClick li {
+	height: 40px;
+	line-height: 40px;
+	width: 50%;
+	float: left;
+	text-align: center
+}
+
+.tabClick li.active {
+	color: #099;
+	transition: 0.1s;
+	font-weight: bold
+}
+
+.tabCon {
+	overflow: hidden
+}
+
+.tabBox {
+	position: relative
+}
+
+.tabList {
+	word-break: break-all;
+	width: 100%;
+	float: left;
+	line-height: 100px;
+	text-align: center;
+	color: #D3D3D3;
+	font-size: 36px;
+	font-family: "Arial Black"
+}
+
+.lineBorder {
+	height: 2px;
+	overflow: hidden;
+	width: 50vw;
+}
+
+.lineDiv {
+	background: #099;
+	height: 2px;
+	width: 50%;
+}
+
+/* tab切换 */
+.bgbox {
+	/* width: 500px; */
+	color: #FFFFFF;
+	margin: 0 auto;
+}
+
+.tab-top {
+	/* width: 500px; */
+	margin: auto;
+}
+
+.tab-top li {
+	width: 24%;
+	line-height: 32px;
+	/* border: 1px solid #ccc; */
+	float: left;
+	text-align: center;
+	font-size: 14px;
+}
+
+.tabbox .boxlist {
+	display: none;
+	margin-top: 10px;
+
+}
+
+.clearfix {
+	clear: both;
+}
+
+.active {
+	color: #FFE729;
+}
+
+.line {
+	width: 20px;
+	height: 2px;
+	background: #FFE729;
+	margin: 0 auto;
+	border-radius: 1px;
+	display: none;
+}
+
+.lineactive {
+	display: block;
+}
+
+.mybag {
+	display: flex;
+	align-items: center;
+	font-size: 14px;
+	margin-top: 6px;
+	margin-right: 20px;
+}
+
+.mybag img {
+	width: 20px;
+	margin-right: 5px;
+}
+
+/* 单选 */
+#radio-box {
+	width: 92vw;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin: 10px auto;
+
+}
+
+.radio-item {
+	width: 28vw;
+	height: 8vw;
+	background-image: url(../images/bg_uncheck.png);
+	background-repeat: no-repeat;
+	background-size: 100% 100%;
+	display: flex;
+	align-items: center;
+	color: #FFFFFF;
+	justify-content: center;
+}
+
+.radio-item img {
+	width: 5vw;
+	margin-right: 2vw;
+}
+
+.tip {
+	color: #808080;
+	text-align: center;
+	font-size: 12px;
+	line-height: 2;
+}
+
+.bg1 {
+	background-image: url(../images/bg1_checked.png);
+}
+
+.bg2 {
+	background-image: url(../images/bg2_checked.png);
+}
+
+.bg3 {
+	background-image: url(../images/bg3_checked.png);
+}
+
+/* 中奖结果 */
+.result-box {
+	background: url(../images/bg_getgift.png) no-repeat;
+	background-size: 100% 100%;
+	width: 100vw;
+	height: 56vh;
+	position: fixed;
+	bottom: 0;
+}
+
+.exit {
+	position: absolute;
+	right: 20px;
+	top: 20px;
+	width: 20px;
+}
+
+.result-title {
+	font-size: 24px;
+	color: #FFFFFF;
+	text-align: center;
+	line-height: 1.6;
+	margin-top: 18px;
+}
+
+.result-subheading {
+	font-size: 14px;
+	color: #8C8C8C;
+	text-align: center;
+}
+
+.gift-box {
+	width: 92vw;
+	margin: 0 auto;
+	display: flex;
+	/* justify-content: space-between; */
+	flex-wrap:wrap;
+	margin-top: 20px;
+}
+
+.gift-item {
+	background: url(../images/bg_gift_yellow.png) no-repeat;
+	background-size: 100% 100%;
+	width: 23%;
+	height: 28vw;
+	position: relative;
+	margin: 3px;
+}
+
+.gift-img {
+	width: 48px;
+	position: absolute;
+	top: 15px;
+	left: 4vw;
+}
+
+.gift-num {
+	width: 22px;
+	height: 22px;
+	line-height: 22px;
+	text-align: center;
+	border-radius: 30px;
+	background: #FFFFFF;
+	color: #FF7E20;
+	position: absolute;
+	top: 11vw;
+	left: 12vw;
+	font-size: 12px;
+}
+
+.gift-text {
+	position: absolute;
+	bottom: 22px;
+	color: #FFFFFF;
+	text-align: center;
+	width: 100%;
+}

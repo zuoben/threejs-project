@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>我的奖品</title>
+    <link rel="stylesheet" href="common/iconfont/iconfont.css">
+    <link rel="stylesheet" href="common/css/common.css">
+    <link rel="stylesheet" href="common/css/my.css">
+    <!-- 移动端适配 -->
+    <script>
+        //maven替换地址
+        var basePath = "%wconfig_basePath%/";
+
+        if(basePath.indexOf("wconfig_basePath") > 0){
+            //设置本机访问地址
+            basePath = "#";
+        }
+
+        var html = document.querySelector('html');
+        changeRem();
+        window.addEventListener('resize', changeRem);
+
+        function changeRem() {
+            var width = html.getBoundingClientRect().width;
+            //console.log( width );
+            html.style.fontSize = width / 10 + 'px';
+        }
+    </script>
+<body>
+<div id="wrap">
+    <header>
+        <div class="title clearfix">
+            客服：
+            <div class="clearfix">
+                <p>
+                    <i class="iconfont icon-qq"></i>
+                    987654321
+                </p>
+                <p>
+                    <i class="iconfont icon-msnui-telephone"></i>
+                    123456789
+                </p>
+            </div>
+        </div>
+    </header>
+    <ul class="main"></ul>
+</div>
+
+<script src="common/js/jquery.min.js"></script>
+<script>
+    var $list = $(".main");//获得的奖品
+
+    $.ajaxSettings.async = false;
+    $.getJSON(basePath + "api/browse/browseWd", "", function(data){
+
+        $.each(data,function(k,v){
+            var $dom = $("<li>" +
+                "<a href='" + v.adUrl + "'>" +
+                "<img src='" + v.adImgUrl + "'>" +
+                "<div>" +
+                "<p>恭喜您获得了<span id='text'>" + v.adTitle + "</span></p>" +
+                "<p>有效期：  <span>长期有效</span></p>" +
+                "<i class='iconfont icon-youjiantou-01'></i>" +
+                "</div>" +
+                "</a>" +
+                +"</li>");
+            $list.append($dom);
+        })
+    });
+
+    var $list = $(".main");//获得的奖品
+    //循环data数组，显示已领取的奖品
+    for (var i = 0, length = data.length; i < length; i++) {
+        var $dom = $("<li>" +
+            "<a href='" + data[i].adUrl + "'>" +
+            "<img src='" + data[i].adImgUrl + "'>" +
+            "<div>" +
+            "<p>恭喜您获得了<span id='text'>" + data[i].adTitle + "</span></p>" +
+            "<p>有效期：  <span>长期有效</span></p>" +
+            "<i class='iconfont icon-youjiantou-01'></i>" +
+            "</div>" +
+            "</a>" +
+            +"</li>");
+        $list.append($dom);
+    }
+</script>
+</body>
+</html>

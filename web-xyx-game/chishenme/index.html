@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>吃什么？</title>
+	</head>
+	<meta name="renderer" content="webkit">
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="format-detection" content="telephone=no" />
+	<style type="text/css">
+		html,
+		body {
+			margin: 0;
+			padding: 0;
+			background-image: url(./bg.jpg);
+			text-align: center;
+			height: 100%;
+			overflow: hidden;
+		}
+
+		.container {
+			margin-right: auto;
+			margin-left: auto;
+			width: auto;
+		}
+
+		@media all and (orientation : portrait) {
+			.container {
+				position: relative;
+				top: 40%;
+				transform: translateY(-40%);
+			}
+
+			.title {
+				font-size: 4rem;
+			}
+
+			.label {
+				font-size: 2rem;
+			}
+
+			#start {
+				width: 332px !important;
+				height: 127px !important;
+				background-size: 1000px auto !important;
+				font-size: 2.5rem !important;
+				line-height: 22px !important;
+				margin-top: 29% !important;
+			}
+
+		}
+
+		.general {
+			text-align: center;
+		}
+
+		.title {
+			margin-top: 10%;
+		}
+
+		.label {
+			margin-top: 1%;
+		}
+
+		#start:hover {
+			background-position: 0 50%;
+		}
+
+		#start {
+			width: 194px;
+			height: 73px;
+			background-image: url(./btn2x.png);
+			-webkit-background-size: 582px auto;
+			background-size: 582px auto;
+			background-color: rgba(255, 0, 0, 0);
+			border: none 0;
+			outline: none;
+			font-size: 18px;
+			color: #fff;
+			text-shadow: #9e9c9c 0 1px 0;
+			cursor: pointer;
+			margin-top: 3%;
+		}
+
+		.temp {
+			position: absolute;
+			z-index: 999;
+			color: #777;
+		}
+	</style>
+	<body>
+		<div class="container">
+			<h1 class="general title">今天中午吃<b id="what">什么</b>？</h1>
+			<p class="general label">解决人类的世纪难题！吃什么不用愁！</p>
+			<input type="button" value="开始" id="start">
+		</div>
+	</body>
+</html>
+<script src="./jquery-2.1.0.min.js"></script>
+<script type="text/javascript">
+	var mofun = {};
+
+	mofun.random = function(max, min) {
+		max = max || 100;
+		min = min || 0;
+		return Math.ceil(Math.random() * (max - min) + min);
+	}
+
+	mofun.remove = function(ele) {
+		ele && ele.parentNode.removeChild(ele);
+	};
+
+	$(function() {
+		var running = 0,
+			what = $("#what"),
+			btn = $("#start"),
+			book = [
+				["早上",
+					"面包 蛋糕 荷包蛋 烧饼 饽饽 油条 馄饨 火腿 面条 小笼包  玉米粥 肉包 山东煎饼 饺子 煎蛋 烧卖 生煎 锅贴 包子 酸奶 苹果 梨 香蕉 皮蛋瘦肉粥 蛋挞 南瓜粥 煎饼 玉米糊 泡面 粥 馒头 燕麦片 水煮蛋 米粉 豆浆 牛奶 花卷 豆腐脑 煎饼果子 小米粥 黑米糕 鸡蛋饼 牛奶布丁 水果沙拉 鸡蛋羹 南瓜馅饼 鸡蛋灌饼 奶香小馒头 汉堡包 披萨 八宝粥 三明治 蛋包饭 豆沙红薯饼 驴肉火烧 粥 粢饭糕 蒸饺 白粥"
+				],
+				["中午",
+					// "盖浇饭 砂锅 大排档 米线 满汉全席 西餐 麻辣烫 自助餐 炒面 快餐 水果 西北风 馄饨 火锅 烧烤 泡面 速冻水饺 日本料理 涮羊肉 味千拉面 肯德基 面包 扬州炒饭 自助餐 茶餐厅 海底捞 咖啡 比萨 麦当劳 兰州拉面 沙县小吃 烤鱼 海鲜 铁板烧 韩国料理 粥 快餐 萨莉亚 桂林米粉 东南亚菜 甜点 农家菜 川菜 粤菜 湘菜 本帮菜 竹笋烤肉"
+					"牛肉面 刀削面 酸汤水饺 炒拉条 炒面片 烩面片 丁丁炒面 凉面 牛羊肉泡馍 泡馍小炒 酸辣粉 泡面 油泼面 土豆牛肉盖饭 孜然牛肉盖饭 孜然牛肉盖面 土豆牛肉盖面 肉丸胡辣汤 快餐米饭 大盘鸡拌面 火鸡面 大烩菜 烤肉饭 户县软面 西红柿鸡蛋面 蘸水面 酸菜鱼 麻辣面 黄焖鸡米饭 蛋炒饭 沙县小吃 必胜客 肯德基 焖面 麻辣烫 炒米粉 披萨"
+				],
+				["晚上",
+					"盖浇饭 砂锅 大排档 米线 满汉全席 西餐 麻辣烫 自助餐 炒面 快餐 水果 西北风 馄饨 火锅 烧烤 泡面 速冻水饺 日本料理 涮羊肉 味千拉面 肯德基 面包 扬州炒饭 自助餐 茶餐厅 海底捞 咖啡 比萨 麦当劳 兰州拉面 沙县小吃 烤鱼 海鲜 铁板烧 韩国料理 粥 快餐 萨莉亚 桂林米粉 东南亚菜 甜点 农家菜 川菜 粤菜 湘菜 本帮菜 竹笋烤肉"
+				]
+			],
+			list = book[1][1];
+		times = 0,
+			timer = 0;
+
+		btn.val("开始").removeAttr("disabled").click(function() {
+			var l = list.replace(/ +/g, " ").replace(/^ | $/g, "").split(" ");
+			if (l.length == 1 && l[0] != "") return alert("→_→ 耍我是吧，一个有什么好选的！");
+			if (l.length == 1) return alert("啥也没有，吃西北风去啊？");
+			if (!running) {
+				times++;
+				if (times == 3) {
+					btn.val("继续");
+					return false;
+				}
+				$(this).val("停止");
+				timer = setInterval(function() {
+					var r = mofun.random(l.length),
+						food = l[r - 1],
+						rTop = mofun.random($(document).height()),
+						rLeft = mofun.random($(document).width() - 50),
+						rSize = mofun.random(37, 14);
+					what.html(food);
+					$("<span class='temp'>" + food + "</span>").css({
+						"display": "none",
+						"top": rTop,
+						"left": rLeft,
+						"color": "rgba(0,0,0,." + Math.random() + ")",
+						"fontSize": rSize + "px"
+					}).appendTo("body").fadeIn("slow", function() {
+						$(this).fadeOut("slow", function() {
+							$(this).remove();
+						});
+					});
+				}, 60);
+				running = 1;
+				$("#shareto").fadeOut(function() {
+					$(this).remove()
+				});
+			} else {
+				btn.val("不行，换一个");
+				clearInterval(timer);
+				running = 0;
+			};
+		});
+
+		document.onkeydown = function(e) {
+			e = e || window.event;
+			if (e.keyCode == 32) {
+				$("#start").trigger("click");
+			}
+		};
+	});
+</script>

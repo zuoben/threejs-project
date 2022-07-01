@@ -1,0 +1,300 @@
+@charset "utf-8";
+@rem:75rem;
+
+body{
+    background-color: #feefab;
+}
+
+#wrap {
+    margin-top: -1/@rem;
+    height: 1335/@rem;
+    background-image: url("../image/bg.png");
+}
+
+.rule, .my {
+    position: relative;
+    z-index: 3;
+    margin-top: 36/@rem;
+    width: 82/@rem;
+    height: 56/@rem;
+    background-color: #ff9d1b;
+    text-align: center;
+    line-height: 56/@rem;
+    font-size: 24/@rem;
+    color: #fff;
+}
+
+.rule {
+    border-top-right-radius: 10/@rem;
+    border-bottom-right-radius: 10/@rem;
+}
+
+.my {
+    background-color: #fe5362;
+    border-top-left-radius: 10/@rem;
+    border-bottom-left-radius: 10/@rem;
+}
+
+/*游戏区域*/
+.main{
+    position: relative;
+    width: 100%;
+    height: 974/@rem;
+}
+
+.main .caidai{
+    position: absolute;
+    left: 50%;
+    top: 0;
+    z-index: 3;
+    margin-left: -322/@rem;
+    width: 644/@rem;
+    height: 873/@rem;
+    background-image: url("../image/caidai.png");
+}
+
+.main .title{
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 314/@rem;
+    background-image: url("../image/title.png");
+}
+
+.main .box{
+    position: relative;
+    margin-top: -120/@rem;
+    width: 100%;
+    height: 782/@rem;
+    background-image: url("../image/box.png");
+}
+
+/*钩子*/
+.main .box #hook{
+    position: absolute;
+    left: 50%;
+    top: -220/@rem;
+    z-index: 1;
+    margin-left: -65/@rem;
+    width: 130/@rem;
+    height: 430/@rem;
+}
+
+#hook .line{
+    margin: auto;
+    width: 44/@rem;
+    height: 342/@rem;
+    background-image: url("../image/line.png");
+}
+
+#hook .left,#hook .right{
+    position: absolute;
+    bottom: 0;
+    width: 56/@rem;
+    height: 101/@rem;
+}
+
+#hook .left{
+    left: 0;
+    background-image: url("../image/left.png");
+    -o-transform-origin: right top;
+    -ms-transform-origin: right top;
+    -moz-transform-origin: right top;
+    -webkit-transform-origin: right top;
+    transform-origin: right top;
+    transform: rotate(-20deg);
+}
+
+#hook .right{
+    right: 0;
+    background-image: url("../image/right.png");
+    -o-transform-origin: left top;
+    -ms-transform-origin: left top;
+    -moz-transform-origin: left top;
+    -webkit-transform-origin: left top;
+    transform-origin: left top;
+    -o-transform: rotate(20deg);
+    -ms-transform: rotate(20deg);
+    -moz-transform: rotate(20deg);
+    -webkit-transform: rotate(20deg);
+    transform: rotate(20deg);
+}
+
+#hook .up{
+    -o-animation: up .5s linear forwards;
+    -ms-animation: up .5s linear forwards;
+    -moz-animation: up .5s linear forwards;
+    -webkit-animation: up .5s linear forwards;
+    animation: up .5s linear forwards;
+}
+
+@keyframes up{
+    100%{
+        -o-transform: rotate(0deg);
+        -ms-transform: rotate(0deg);
+        -moz-transform: rotate(0deg);
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+}
+
+/*传送带*/
+.behind,.front{
+    overflow-x: hidden;
+    position: relative;
+    left: 50%;
+    top: 32%;
+    margin: -86/@rem 0 0 -310/@rem;
+    width: 620/@rem;
+    height: 150/@rem;
+    background-image: url("../image/behind.png");
+    background-position: left bottom;
+}
+
+.front{
+    top: 43%;
+    width: 620/@rem;
+    height: 215/@rem;
+    background-image: url("../image/front.png");
+}
+
+.behind ul,.front ul{
+    width: 14rem;
+}
+
+.front ul{
+    position: absolute;
+    right: 0;
+}
+
+.behind li{
+    position: relative;
+    float: left;
+    height: 105/@rem;
+}
+
+.front li{
+    position: relative;
+    float: right;
+    height: 156/@rem;
+}
+
+.behind img{
+    position: absolute;
+    width: 91/@rem;
+    height: 102/@rem;
+}
+
+.front img{
+    position: absolute;
+    right: 0;
+    width: 139/@rem;
+    height: 156/@rem;
+}
+
+.box h3{
+    margin: 355/@rem auto 18/@rem;
+    width: 286/@rem;
+    height: 52/@rem;
+    background-color: #ff9d1b;
+    text-align: center;
+    line-height: 52/@rem;
+    font-size: 20/@rem;
+    font-weight: normal;
+    color: #bc5700;
+    border-radius: 26/@rem;
+}
+
+/*按钮区域*/
+.box-btn{
+    width: 100%;
+    height: 139/@rem;
+}
+
+.box-btn li{
+    float: left;
+}
+
+.box-btn li:nth-child(1){
+    width: 157/@rem;
+    height: 139/@rem;
+    background-image: url("../image/coin1.png");
+    -o-transform-origin: center bottom;
+    -ms-transform-origin: center bottom;
+    -moz-transform-origin: center bottom;
+    -webkit-transform-origin: center bottom;
+    transform-origin: center bottom;
+    -o-animation: shak 3s ease-in-out infinite alternate;
+    -ms-animation: shak 3s ease-in-out infinite alternate;
+    -moz-animation: shak 3s ease-in-out infinite alternate;
+    -webkit-animation: shak 3s ease-in-out infinite alternate;
+    animation: shak 3s ease-in-out infinite alternate;
+}
+
+@keyframes shak{
+    0%,100%{
+        -o-transform: rotate(0deg);
+        -ms-transform: rotate(0deg);
+        -moz-transform: rotate(0deg);
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    20%,60%{
+        -o-transform: rotate(-5deg);
+        -ms-transform: rotate(-5deg);
+        -moz-transform: rotate(-5deg);
+        -webkit-transform: rotate(-5deg);
+        transform: rotate(-5deg);
+    }
+    40%,80%{
+        -o-transform: rotate(5deg);
+        -ms-transform: rotate(5deg);
+        -moz-transform: rotate(5deg);
+        -webkit-transform: rotate(5deg);
+        transform: rotate(5deg);
+    }
+}
+
+.box-btn li:nth-child(2){
+    margin: 0 60/@rem;
+    width: 306/@rem;
+    height: 103/@rem;
+    background-image: url("../image/start.png");
+}
+
+.box-btn li:nth-child(3){
+    width: 165/@rem;
+    height: 125/@rem;
+    background-image: url("../image/coin2.png");
+}
+
+/*奖品展示*/
+.awards {
+    position: static;
+    margin: 96/@rem auto;
+    width: 690/@rem;
+    height: 222/@rem;
+    background-image: url("../image/rect.png");
+}
+
+.awards .swiper-container{
+    overflow: hidden;
+    margin: 16/@rem auto;
+    padding: 22/@rem 0;
+    width: 658/@rem;
+    height: 146/@rem;
+    background-color: #f5ae4f;
+    box-shadow: 0 20/@rem 20/@rem rgba(248, 131, 23, .7) inset;
+    border-radius: 16/@rem;
+}
+
+/*规则弹窗背景色*/
+#mask-rule .box-rule{
+    background-color: #fe5c51;
+}
+
+#mask-rule .box-rule .star{
+    background-image: url("../../common/image/rule/star2.png");
+}
+
+

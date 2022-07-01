@@ -1,0 +1,296 @@
+@charset "utf-8";
+@rem:75rem;
+
+body{
+    background-color: #ff7040;
+}
+
+#wrap{
+    margin-top: -1/@rem;
+    height:1335/@rem;
+    background-image: url("../image/bg.png");
+}
+
+.caidai {
+    position: absolute;
+    width: 100%;
+    height: 1024/@rem;
+    background-image: url("../image/caidai.png");
+}
+
+.header {
+    padding: 37/@rem;
+}
+
+.rule, .my {
+    position: relative;
+    z-index: 1;
+    width: 90/@rem;
+    height: 50/@rem;
+    border: 1px solid #d89720;
+    font-size: 24/@rem;
+    line-height: 49/@rem;
+    text-align: center;
+    color: #d89720;
+    border-radius: 5/@rem;
+}
+
+.my {
+    width: 120/@rem;
+}
+
+.title {
+    width: 639/@rem;
+    height: 316/@rem;
+    margin: auto;
+    background-image: url("../image/title.png");
+}
+
+/*轮盘*/
+.rotate {
+    position: relative;
+    width: 100%;
+    height: 670/@rem;
+}
+
+.lunpai {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 665/@rem;
+    height: 665/@rem;
+    margin-left: -332/@rem;
+    background-image: url("../image/circle.png");
+}
+
+.ring {
+    position: absolute;
+    left: 50%;
+    top: 26/@rem;
+    width: 617/@rem;
+    height: 617/@rem;
+    margin-left: -306/@rem;
+    background-image: url("../image/dark.png");
+}
+
+.rotate div.light {
+    background-image: url("../image/light.png");
+}
+
+#btn {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 160/@rem;
+    height: 198/@rem;
+    margin: -99/@rem 0 0 -80/@rem;
+    background-image: url("../image/button.png");
+}
+
+/*奖品*/
+.prize {
+    overflow: hidden;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin: -290/@rem 0 0 -290/@rem;
+    width: 580/@rem;
+    height: 580/@rem;
+    border-radius: 50%;
+}
+
+.running{
+    -o-animation: init 90s linear infinite;
+    -ms-animation: init 90s linear infinite;
+    -moz-animation: init 90s linear infinite;
+    -webkit-animation: init 90s linear infinite;
+    animation: init 90s linear infinite;
+}
+
+@keyframes init{
+    100%{
+        -o-transform: rotate(360deg);
+        -ms-transform: rotate(360deg);
+        -moz-transform: rotate(360deg);
+        -webkit-transform: rotate(360deg);
+        transform: rotate(360deg);
+    }
+}
+
+.prize li {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 290/@rem;
+    background: no-repeat center 35%;
+    font-size: 24/@rem;
+    font-weight: bold;
+    line-height: 60/@rem;
+    text-align: center;
+    color: #f44747;
+    -moz-transform-origin: center bottom;
+    -webkit-transform-origin: center bottom;
+    -o-transform-origin: center bottom;
+    -ms-transform-origin: center bottom;
+    transform-origin: center bottom;
+}
+
+.prize li:nth-child(1) {
+    background-image: url("../image/gift.png");
+    background-size: 69/@rem 73/@rem;
+    -o-transform: rotate(0deg);
+    -ms-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
+}
+
+.prize li:nth-child(2) {
+    background-image: url("../image/50.png");
+    background-size: 54/@rem 66/@rem;
+    -o-transform: rotate(60deg);
+    -ms-transform: rotate(60deg);
+    -moz-transform: rotate(60deg);
+    -webkit-transform: rotate(60deg);
+    transform: rotate(60deg);
+}
+.prize li:nth-child(3) {
+    background-image: url("../image/20.png");
+    background-size: 54/@rem 66/@rem;
+    -o-transform: rotate(120deg);
+    -ms-transform: rotate(120deg);
+    -moz-transform: rotate(120deg);
+    -webkit-transform: rotate(120deg);
+    transform: rotate(120deg);
+}
+
+.prize li:nth-child(4) {
+    background-image: url("../image/gift.png");
+    background-size: 69/@rem 73/@rem;
+    -o-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -webkit-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+.prize li:nth-child(5) {
+    background-image: url("../image/100.png");
+    background-size: 54/@rem 66/@rem;
+    -o-transform: rotate(240deg);
+    -ms-transform: rotate(240deg);
+    -moz-transform: rotate(240deg);
+    -webkit-transform: rotate(240deg);
+    transform: rotate(240deg);
+}
+
+.prize li:nth-child(6) {
+    background-image: url("../image/face.png");
+    background-size: 77/@rem 77/@rem;
+    -o-transform: rotate(300deg);
+    -ms-transform: rotate(300deg);
+    -moz-transform: rotate(300deg);
+    -webkit-transform: rotate(300deg);
+    transform: rotate(300deg);
+}
+
+.prize li span{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    margin-left: -50%;
+    border-right: 2px solid #f44747;
+    -o-transform-origin: right bottom;
+    -ms-transform-origin: right bottom;
+    -moz-transform-origin: right bottom;
+    -webkit-transform-origin: right bottom;
+    transform-origin: right bottom;
+    -o-transform: rotate(30deg) skewY(30deg);
+    -ms-transform: rotate(30deg) skewY(30deg);
+    -moz-transform: rotate(30deg) skewY(30deg);
+    -webkit-transform: rotate(30deg) skewY(30deg);
+    transform: rotate(30deg) skewY(30deg);
+}
+
+.prize li p{
+    overflow: hidden;
+    position: relative;
+    margin: 0 auto;
+    width: 50%;
+    height: 60%;
+    padding-top: 20/@rem;
+    text-align: center;
+    line-height: 25/@rem;
+}
+
+/*次数*/
+.border {
+    width: 380/@rem;
+    height: 63/@rem;
+    margin: 10/@rem auto 25/@rem;
+    background-image: url("../image/border.png");
+    font-size: 24/@rem;
+    line-height: 63/@rem;
+    text-align: center;
+    color: #fff;
+}
+
+.scroll {
+    width: 550/@rem;
+    height: 175/@rem;
+    margin: auto;
+}
+
+.scroll p {
+    width: 357/@rem;
+    height: 22/@rem;
+    margin: auto;
+    background-image: url("../image/list.png");
+}
+
+.scroll div{
+    width: 100%;
+    height: 80/@rem;
+    margin-top: 20/@rem;
+    padding: 20/@rem 0;
+    background-color: rgba(255, 255, 255, .2);
+    border-radius: 10/@rem;
+}
+
+.scroll ul {
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+}
+
+.scroll ul li {
+    position: relative;
+    top: 0;
+    text-align: center;
+    font-size: 22/@rem;
+    line-height: 40/@rem;
+    color: #fff;
+    -o-transition: all .5s ease-in-out;
+    -ms-transition: all .5s ease-in-out;
+    -moz-transition: all .5s ease-in-out;
+    -webkit-transition: all .5s ease-in-out;
+    transition: all .5s ease-in-out;
+}
+
+/*规则背景*/
+#mask-rule .box-rule{
+    background-color: #fe5c51;
+}
+
+#mask-rule .box-rule .star{
+    background-image: url("../../common/image/rule/star2.png");
+}
+
+
+
+
+
+
+

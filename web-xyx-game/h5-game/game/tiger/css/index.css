@@ -1,0 +1,191 @@
+@charset "utf-8";
+#wrap {
+  height: 16.66666667rem;
+  background-image: url("../image/bg.png");
+}
+.main {
+  margin-top: 2.45333333rem;
+  width: 100%;
+  height: 10.66666667rem;
+}
+/*滚动信息*/
+.main .info {
+  margin: auto;
+  padding: 0.16rem 0.26666667rem;
+  width: 5.70666667rem;
+  height: 0.48rem;
+  background-color: #3459f0;
+  border-radius: 0.13333333rem;
+  box-shadow: 0.16rem 0.26666667rem 0.26666667rem rgba(45, 76, 206, 0.7) inset;
+}
+.main .info img {
+  float: left;
+  margin-right: 0.26666667rem;
+  width: 0.48rem;
+  height: 0.48rem;
+}
+.main .info ul {
+  overflow: hidden;
+  float: left;
+  width: 4.8rem;
+  height: 0.48rem;
+}
+.main .info ul li {
+  overflow: hidden;
+  position: relative;
+  top: 0;
+  height: 0.48rem;
+  line-height: 0.48rem;
+  font-size: 0.29333333rem;
+  color: #e2e4ec;
+}
+/*游戏区域*/
+.main .box {
+  position: relative;
+  margin: 0.6rem auto 0.69333333rem;
+  padding-left: 0.22666667rem;
+  width: 9.77333333rem;
+  height: 4.02666667rem;
+}
+.main .box .roll {
+  float: left;
+  padding-top: 0.18666667rem;
+  width: 3.24rem;
+  height: 3.84rem;
+  background-image: url("../image/shadow1.png");
+}
+.main .box .roll div {
+  overflow: hidden;
+  position: relative;
+  margin: auto;
+  width: 2.88rem;
+  height: 3.64rem;
+  background-color: #fff;
+  background-image: url("../image/shadow2.png"), url("../image/shadow3.png");
+  border-radius: 0.13333333rem;
+}
+.main .box .roll ul {
+  position: absolute;
+  left: 0;
+  top: -1.6rem;
+  width: 100%;
+  height: 6.6rem;
+}
+.main .box .roll ul li {
+  margin: auto;
+  width: 2.8rem;
+  height: 2.18666667rem;
+  background-position: center;
+}
+.main .box .roll ul li.prize1 {
+  background-image: url("../image/prize1.png");
+  background-size: 1.32rem 1.52rem;
+}
+.main .box .roll ul li.prize2 {
+  background-image: url("../image/prize2.png");
+  background-size: 1.66666667rem 1.29333333rem;
+}
+.main .box .roll ul li.prize3 {
+  background-image: url("../image/prize3.png");
+  background-size: 1.18666667rem 1.68rem;
+}
+.shadow {
+  position: absolute;
+  left: 0.21333333rem;
+  top: 0.02666667rem;
+  z-index: 1;
+  width: 9.77333333rem;
+  height: 100%;
+  background-image: url("../image/shadow.png");
+}
+/*信息显示*/
+.txt {
+  padding: 0 0.50666667rem;
+  width: 8.98666667rem;
+  height: 1.44rem;
+}
+.txt p {
+  width: 3.92rem;
+  height: 1.44rem;
+  background-image: url("../image/text_bg.png");
+  text-align: center;
+  line-height: 1.44rem;
+  font-size: 0.32rem;
+  color: #4890f9;
+}
+/*按钮区域*/
+.box-btn {
+  position: relative;
+  padding: 0.8rem 0.37333333rem;
+  width: 9.25333333rem;
+}
+.box-btn .rule {
+  width: 1.98666667rem;
+  height: 1.53333333rem;
+  background-image: url("../image/rule.png");
+}
+.box-btn .my {
+  width: 1.98666667rem;
+  height: 1.53333333rem;
+  background-image: url("../image/my.png");
+}
+.box-btn .go {
+  position: absolute;
+  left: 46%;
+  top: 50%;
+  margin: -1.44rem 0 0 -1rem;
+  width: 2.88rem;
+  height: 2.01333333rem;
+  background-image: url("../image/go.png");
+}
+.box-btn #hand {
+  position: absolute;
+  left: 60%;
+  top: 50%;
+  margin-top: -0.76rem;
+  width: 1.56rem;
+  height: 1.53333333rem;
+  background-image: url("../image/hand.png");
+  -o-transform-origin: center bottom;
+  -ms-transform-origin: center bottom;
+  -moz-transform-origin: center bottom;
+  -webkit-transform-origin: center bottom;
+  transform-origin: center bottom;
+}
+.shak {
+  -o-animation: shak .5s infinite alternate;
+  -ms-animation: shak .5s infinite alternate;
+  -moz-animation: shak .5s infinite alternate;
+  -webkit-animation: shak .5s infinite alternate;
+  animation: shak .5s infinite alternate;
+}
+@keyframes shak {
+  100% {
+    -o-transform: rotate(-10deg);
+    -ms-transform: rotate(-10deg);
+    -moz-transform: rotate(-10deg);
+    -webkit-transform: rotate(-10deg);
+    transform: rotate(-10deg);
+  }
+}
+/*奖品展示*/
+.awards {
+  position: static;
+  margin: 0.26666667rem auto;
+  padding-top: 0.33333333rem;
+  width: 9.46666667rem;
+  height: 2.2rem;
+  background-color: #2d42b7;
+  border-radius: 0.13333333rem;
+  box-shadow: 0 0.26666667rem 0.26666667rem rgba(39, 57, 158, 0.7) inset;
+}
+.awards li.swiper-slide {
+  background-image: url("../image/rect.png");
+}
+/*规则弹窗背景色*/
+#mask-rule .box-rule {
+  background-color: #f7b50b;
+}
+#mask-rule .box-rule .star {
+  background-image: url("../../common/image/rule/star1.png");
+}
