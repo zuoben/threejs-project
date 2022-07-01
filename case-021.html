@@ -3,7 +3,8 @@
 	<head>
 		<title>Threejs实现天空盒，全景场景，雪天空地</title>
 		<script type="text/javascript" src="libs/three.js"></script>
-		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<!-- <script type="text/javascript" src="libs/OrbitControls.js"></script> -->
+		<script type="text/javascript" src="libs/dat.gui.js"></script>
 		<style>
 			body {
 				margin: 0;
@@ -73,7 +74,6 @@
 				// 将摄像机对准场景的中心
 				camera.position.z = 500;
 				camera.lookAt(scene.position);
-				var orbit = new THREE.OrbitControls(camera);
 
 				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
 				renderer = new THREE.WebGLRenderer({
@@ -81,6 +81,8 @@
 					logarithmicDepthBuffer: true,
 				});
 				renderer.setSize(window.innerWidth, window.innerHeight);
+				
+				// var orbit = new THREE.OrbitControls(camera, renderer.domElement);
 
 				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
 				scene.add(ambientLight);
@@ -88,11 +90,38 @@
 				// 将呈现器的输出添加到HTML元素
 				document.getElementById("dom").appendChild(renderer.domElement);
 
+				var controls = new function() {
+					this.switch = "场景一";
+				}
+
+				var gui = new dat.GUI();
+				let arr = ["场景一", "场景二", "场景三", "场景四", "场景五"];
+				gui.add(controls, "switch", arr).name("切换").onChange(function(e) {
+					console.log(e);
+					switch (e) {
+						case arr[0]:
+							scene.background = cubeLoader.load(urls1);
+							break;
+						case arr[1]:
+							scene.background = cubeLoader.load(urls2);
+							break;
+						case arr[2]:
+							scene.background = cubeLoader.load(urls3);
+							break;
+						case arr[3]:
+							scene.background = cubeLoader.load(urls4);
+							break;
+						case arr[4]:
+							scene.background = cubeLoader.load(urls6);
+							break;
+					}
+				});
+
 				// 启动动画
 				renderScene();
-				
+
 				function renderScene() {
-					orbit.update();
+					// orbit.update();
 					// 使用requestAnimationFrame函数进行渲染
 					requestAnimationFrame(renderScene);
 					renderer.render(scene, camera);
