@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Threejs实现天空盒，全景场景，雪天空地</title>
+		<title>Threejs实现天空盒，全景场景，雪天空地，各种场景</title>
 		<script type="text/javascript" src="libs/three.js"></script>
 		<script type="text/javascript" src="libs/OrbitControls.js"></script>
 		<style>
@@ -20,21 +20,21 @@
 			function init() {
 
 				var urls1 = [
-					'assets/bgImage/skyBox1/px_r.jpg',
-					'assets/bgImage/skyBox1/nx_l.jpg',
-					'assets/bgImage/skyBox1/ny_f.jpg',
-					'assets/bgImage/skyBox1/py_b.jpg',
-					'assets/bgImage/skyBox1/pz_t.jpg',
-					'assets/bgImage/skyBox1/nz_b.jpg',
+					'assets/bgImage/skyBox1/posx.jpg',
+					'assets/bgImage/skyBox1/negx.jpg',
+					'assets/bgImage/skyBox1/posy.jpg',
+					'assets/bgImage/skyBox1/negy.jpg',
+					'assets/bgImage/skyBox1/posz.jpg',
+					'assets/bgImage/skyBox1/negz.jpg'
 				];
 				
 				var urls2 = [
-					'assets/bgImage/skyBox2/px_r.jpg',
-					'assets/bgImage/skyBox2/nx_l.jpg',
-					'assets/bgImage/skyBox2/ny_f.jpg',
-					'assets/bgImage/skyBox2/py_b.jpg',
-					'assets/bgImage/skyBox2/pz_t.jpg',
-					'assets/bgImage/skyBox2/nz_b.jpg',
+					'assets/bgImage/skyBox2/posx.jpg',
+					'assets/bgImage/skyBox2/negx.jpg',
+					'assets/bgImage/skyBox2/posy.jpg',
+					'assets/bgImage/skyBox2/negy.jpg',
+					'assets/bgImage/skyBox2/posz.jpg',
+					'assets/bgImage/skyBox2/negz.jpg'
 				];
 				var urls3 = [
 					'assets/bgImage/skyBox3/posx.jpg',
@@ -71,7 +71,7 @@
 				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
 				var scene = new THREE.Scene();
 				var cubeLoader = new THREE.CubeTextureLoader();
-				scene.background = cubeLoader.load(urls2);
+				scene.background = cubeLoader.load(urls6);
 				scene.opacity = 0;
 
 				var cubeLoader = new THREE.CubeTextureLoader();

@@ -76,7 +76,7 @@
 						var allChildren = scene.children;
 						var lastObject = allChildren[allChildren.length - 1];
 						// 只移除THREE.Mesh对象
-						if (lastObject instanceof THREE.Mesh && lastObject != plane && lastObject != cube &&
+						if (lastObject instanceof THREE.Mesh && lastObject != plane && 
 							lastObject != sphere) {
 							scene.remove(lastObject);
 							// 更新界面中的对象数量

@@ -167,6 +167,7 @@
 					var intersects = raycaster.intersectObjects(mesh, true);
 					if (intersects.length > 0) {
 						intersects[0].object.material.color.set("#ff0000");
+						alert(JSON.stringify(intersects[0]))
 					}
 				}
 

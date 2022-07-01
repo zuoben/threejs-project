@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>使用threejs创建几何体添加图片材质，显示坐标轴</title>
+		<title>Threejs使用LOD根据摄像机远近显示不同的物体</title>
 		<script type="text/javascript" src="libs/three.js"></script>
 		<script type="text/javascript" src="libs/OrbitControls.js"></script>
 		<script type="text/javascript" src="libs/OBJLoader.js"></script>
@@ -62,7 +62,7 @@
 
 				// 将平面添加到场景中
 				var plane = createPlaneGeometryBasicMaterial();
-				// scene.add(plane);
+				scene.add(plane);
 
 				// 将立方体添加到场景中
 				var cube = createBoxGeometryBasicMaterial();
@@ -71,12 +71,12 @@
 
 				var cube_img = createBoxGeometryBasicMaterialImg();
 				lod.addLevel(cube_img, 100);
-				// scene.add(cube_img);
+				scene.add(cube_img);
 
 				// 将球体添加到场景中
 				var sphere = createSphereGeometryLambertMaterial();
 				lod.addLevel(sphere, 300);
-				// scene.add(sphere);
+				scene.add(sphere);
 				
 				// lod.position.z = -300
 				scene.add(lod);
