@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+        <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+        <title>mapbox+webgl-3D气泡图</title>
+        <script type="text/javascript" src="jquery.min.js"></script>
+        <script type="text/javascript" src="mapbox-gl.min.js"></script>
+        <script type="text/javascript" src="three.min.js"></script>
+        <link href="mapbox-gl.min.css" rel="stylesheet"/>
+        <style>
+            body { margin: 0; padding: 0; }
+            #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+            #title {
+                position: absolute;
+                color: white;
+                left: 40%;
+                top: 30px;
+                text-align: center;
+                width: 500px;
+                z-index: 2;
+            }
+            #title > h3 {
+                margin: 10px 0;
+                letter-spacing: 0.1em;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="title">
+            <h3>3D气泡图-Demo</h3>
+            <h6>mapboxgl-threejs-webgl</h6>
+        </div>
+        <div id="map"></div>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
+         var host = window.isLocal ? window.server : "https://iserver.supermap.io",
+        url = host + "/iserver/services/map-china400/rest/maps/ChinaDark";
+        var map, popup;
+        var attribution = "3d-dubble-demo";
+        map = new mapboxgl.Map({
+            container: 'map',
+				style: 'mapbox://styles/mapbox/satellite-v9', // style URL
+				center: [137.9150899566626, 36.25956997955441], // starting position [lng, lat]
+				zoom: 9 // starting zoom
+				// style: {
+				//     "version": 8,
+				//     "sources": {
+				//         "raster-tiles": {
+				//             "attribution": attribution,
+				//             "type": "raster",
+				//             "tiles": [url + '/zxyTileImage.png?z={z}&x={x}&y={y}'],
+				//             "tileSize": 512,
+				//         },
+				//     },
+				//     "layers": [{
+				//         "id": "simple-tiles",
+				//         "type": "raster",
+				//         "source": "raster-tiles",
+				//         "minzoom": 0,
+				//         "maxzoom": 22
+				//     }]
+				// },
+				// center: [104.070606,30.611274],
+				// zoom: 7,
+				// pitch: 40,
+				// bearing: -30
+        });
+        map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+        window.map = this.map;
+    </script>
+    <script type="text/javascript" src="json.js"></script>
+    <script type="text/javascript" src="create_bubble.js"></script>
+    </body>
+</html>

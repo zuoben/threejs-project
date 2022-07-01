@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta http-equiv="X-UA-Compatible" content="ie=edge">
+		<title>cesium 标点</title>
+		<script src="https://cesium.com/downloads/cesiumjs/releases/1.82/Build/Cesium/Cesium.js"></script>
+		<link href="https://cesium.com/downloads/cesiumjs/releases/1.82/Build/Cesium/Widgets/widgets.css"
+			rel="stylesheet">
+		<style>
+			html,
+			body,
+			#cesiumContainer {
+				padding: 0;
+				margin: 0;
+				width: 100%;
+				height: 100%
+			}
+		</style>
+	</head>
+	<body>
+		<div id="cesiumContainer"></div>
+		<script>
+			// cesium 秘钥
+			Cesium.Ion.defaultAccessToken =
+				'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI3YjQ1ZWVhYS03NjI2LTRjYTAtOTZhYy04OGY2YmQyZTU3N2IiLCJpZCI6MTA2NjYsInNjb3BlcyI6WyJhc3IiLCJnYyJdLCJpYXQiOjE1NTcxMjcxODF9.Tn2oD9D3qxEBksEZ4L1cpHq1gVT6t4_GCI4G1USewkk';
+			var viewer = new Cesium.Viewer("cesiumContainer", {
+				geocoder: false, //是否显示地名查找控件
+				sceneModePicker: false, //是否显示投影方式控件
+				navigationHelpButton: false, //是否显示帮助信息控件
+				baseLayerPicker: false, //是否显示图层选择控件
+				homeButton: false, //是否显示Home按钮
+				fullscreenButton: false, //是否显示全屏按钮    
+				timeline: true, //时间轴控件 
+				animation: true, //动画控件 
+				terrainProvider: Cesium.createWorldTerrain(),
+			});
+
+			var scene = viewer.scene;
+			var clock = viewer.clock;
+
+			var entity;
+			var positionProperty;
+			var dataSourcePromise = Cesium.CzmlDataSource.load(
+				"http://localhost:8080/Apps/SampleData/ClampToGround.czml"
+			);
+			viewer.dataSources.add(dataSourcePromise).then(function(dataSource) {
+				entity = dataSource.entities.getById("CesiumMilkTruck");
+				positionProperty = entity.position;
+			});
+
+			var tileset = scene.primitives.add(
+				new Cesium.Cesium3DTileset({
+					url: Cesium.IonResource.fromAssetId(40866),
+				})
+			);
+
+			viewer.camera.setView({
+				destination: new Cesium.Cartesian3(
+					1216403.8845586285,
+					-4736357.493351395,
+					4081299.715698949
+				),
+				orientation: new Cesium.HeadingPitchRoll(
+					4.2892217081808806,
+					-0.4799070147502502,
+					6.279789177843313
+				),
+				endTransform: Cesium.Matrix4.IDENTITY,
+			});
+
+			if (scene.clampToHeightSupported) {
+				tileset.initialTilesLoaded.addEventListener(start);
+			} else {
+				window.alert("This browser does not support clampToHeight.");
+			}
+
+			function start() {
+				clock.shouldAnimate = true;
+				var objectsToExclude = [entity];
+				scene.postRender.addEventListener(function() {
+					var position = positionProperty.getValue(clock.currentTime);
+					entity.position = scene.clampToHeight(position, objectsToExclude);
+				});
+			}
+
+			var tileset = new Cesium.Cesium3DTileset({
+			  url: Cesium.IonResource.fromAssetId(40866),
+			});
+
+			viewer.scene.primitives.add(tileset);
+			viewer.zoomTo(tileset);
+			viewer.flyTo(tileset);
+		</script>
+	</body>
+</html>
