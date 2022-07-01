@@ -2,8 +2,8 @@
 <html>
 	<head>
 		<title>Threejs实现天空盒，全景场景，雪天空地</title>
-		<script type="text/javascript" src="libs/three.js"></script>
-		<!-- <script type="text/javascript" src="libs/OrbitControls.js"></script> -->
+		<script type="text/javascript" src="libs/js/three.min.js"></script>
+		<script type="text/javascript" src="libs/js/OrbitControls.js"></script>
 		<script type="text/javascript" src="libs/dat.gui.js"></script>
 		<style>
 			body {
@@ -82,7 +82,7 @@
 				});
 				renderer.setSize(window.innerWidth, window.innerHeight);
 				
-				// var orbit = new THREE.OrbitControls(camera, renderer.domElement);
+				var orbit = new THREE.OrbitControls(camera, renderer.domElement);
 
 				var ambientLight = new THREE.AmbientLight("#ffffff", 1);
 				scene.add(ambientLight);
@@ -121,7 +121,7 @@
 				renderScene();
 
 				function renderScene() {
-					// orbit.update();
+					orbit.update();
 					// 使用requestAnimationFrame函数进行渲染
 					requestAnimationFrame(renderScene);
 					renderer.render(scene, camera);
