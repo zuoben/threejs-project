@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+		<link rel="stylesheet" href="./css/view.min.css">
+		<link rel="stylesheet" href="./css/base.css">
+		<script src="./js/zepto_1.1.3.js"></script>
+		<title>实现全景图预览</title>
+	</head>
+
+	<body>
+		<div class="playBtn"></div>
+		<audio src="./js/szovo.mp3" id="audios" style="position: absolute;left: 99999999999999px;top: 999999999px;" loop="true"></audio>
+		<div id="photosphere"></div>
+		<script src="./js/three.js"></script>
+		<script src="./js/D.min.js"></script>
+		<script src="./js/uEvent.js"></script>
+		<script src="./js/doT.js"></script>
+		<script src="./js/CanvasRenderer.js"></script>
+		<script src="./js/Projector.js"></script>
+		<script src="./js/DeviceOrientationControls.js"></script>
+		<script src="./js/view.min.js"></script>
+		<div class="szovo">
+			<svg version="1.1" id="dc-spinner" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width: "38"="" height: "38"="" viewBox="0 0 38 38" preserveAspectRatio="xMinYMin meet">
+				<text x="14" y="21" font-family="Monaco" font-size="2px" style="letter-spacing:0.6" fill="#99cc33">LOADING
+     <animate attributeName="opacity" values="0;1;0" dur="1.8s" repeatCount="indefinite"></animate>
+  </text>
+				<path fill="#373a42" d="M20,35c-8.271,0-15-6.729-15-15S11.729,5,20,5s15,6.729,15,15S28.271,35,20,35z M20,5.203
+    C11.841,5.203,5.203,11.841,5.203,20c0,8.159,6.638,14.797,14.797,14.797S34.797,28.159,34.797,20
+    C34.797,11.841,28.159,5.203,20,5.203z">
+				</path>
+
+				<path fill="#373a42" d="M20,33.125c-7.237,0-13.125-5.888-13.125-13.125S12.763,6.875,20,6.875S33.125,12.763,33.125,20
+    S27.237,33.125,20,33.125z M20,7.078C12.875,7.078,7.078,12.875,7.078,20c0,7.125,5.797,12.922,12.922,12.922
+    S32.922,27.125,32.922,20C32.922,12.875,27.125,7.078,20,7.078z">
+				</path>
+
+				<path fill="#2AA198" stroke="#2AA198" stroke-width="0.6027" stroke-miterlimit="10" d="M5.203,20
+			c0-8.159,6.638-14.797,14.797-14.797V5C11.729,5,5,11.729,5,20s6.729,15,15,15v-0.203C11.841,34.797,5.203,28.159,5.203,20z" transform="rotate(7.50829 20 20)">
+					<animateTransform attributeName="transform" type="rotate" from="0 20 20" to="360 20 20" calcMode="spline" keySplines="0.4, 0, 0.2, 1" keyTimes="0;1" dur="2s" repeatCount="indefinite"></animateTransform>
+				</path>
+
+				<path fill="#859900" stroke="#859900" stroke-width="0.2027" stroke-miterlimit="10" d="M7.078,20
+  c0-7.125,5.797-12.922,12.922-12.922V6.875C12.763,6.875,6.875,12.763,6.875,20S12.763,33.125,20,33.125v-0.203
+  C12.875,32.922,7.078,27.125,7.078,20z" transform="rotate(276.329 20 20)">
+					<animateTransform attributeName="transform" type="rotate" from="0 20 20" to="360 20 20" dur="1.8s" repeatCount="indefinite"></animateTransform>
+				</path>
+			</svg>
+		</div>
+		<script>
+		$(function(){
+			var panos = [{
+				url: './img/1.jpg',
+				desc: '全景主页',
+				target: {
+					longitude: 3.848,
+					latitude: -0.244
+				}
+			}, {
+				url: './img/2.jpg',
+				desc: '全景详情',
+				target: {
+					longitude: 0,
+					latitude: 0
+				}
+			}];
+			var isCahe = true;
+			var PSV = new PhotoSphereViewer({
+				container: 'photosphere',
+				panorama: panos[0].url,
+				caption: panos[0].desc,
+				time_anim: false,
+				default_long: Math.PI / 2,
+				loading_img: '',
+				loading_txt: '',
+				cache_texture:10,
+				navbar: [
+					'autorotate', 'zoom', 'markers',
+					'spacer-1',
+					'caption', 'gyroscope', 'fullscreen'
+				],
+				anim_speed: "0.6rpm",
+				markers: (function() {
+					return common();
+				}())
+			});
+			
+			PSV.on('ready',function(){
+				PSV.toggleAutorotate();
+				$('#audios')[0].play();
+				$('.szovo').hide();
+				$('.playBtn').show();
+			});
+			
+			PSV.on('select-marker', function(marker) {
+				console.log(marker);
+				if(marker.data && marker.data.deletable) {
+					if(isCahe){
+						$('.szovo').show();
+						isCahe = false;
+					}
+					
+					PSV.clearMarkers();
+					PSV.setPanorama(panos[1].url, panos[1].target, true)
+						.then(function() {
+							$('.szovo').hide();
+							PSV.setCaption(panos[1].desc);
+							var len = common2().length;
+							for(var k = 0; k < len; k++) {
+								PSV.addMarker(common2()[k]);
+							}
+							PSV.setCaption(panos[1].desc);
+						});
+				}
+				if(marker.data && marker.data.deletables) {
+					if(isCahe){
+						$('.szovo').show();
+						isCahe = false;
+					}
+					PSV.clearMarkers();
+					PSV.setPanorama(panos[0].url, panos[0].target, true)
+						.then(function() {
+							$('.szovo').hide();
+							PSV.setCaption(panos[1].desc);
+							var len = common().length;
+							for(var k = 0; k < len; k++) {
+								PSV.addMarker(common()[k]);
+							}
+							PSV.setCaption(panos[0].desc);
+						});
+				}
+			});
+
+			$('.playBtn').click(function() {
+				if($(this).hasClass('pause')) {
+					$(this).removeClass('pause')
+					$('#audios')[0].play()
+				} else {
+					$(this).addClass('pause')
+					$('#audios')[0].pause()
+				}
+			});
+
+			function common() {
+				var a = [];
+				a.push({
+					id: '#0',
+					tooltip: '另一个房间',
+					latitude: -0.4,
+					longitude: -1.80,
+					image: './img/pin2.png',
+					width: 64,
+					height: 64,
+					anchor: 'bottom center',
+					data: {
+						deletable: true
+					}
+				});
+				a.push({
+					id: 'text',
+					longitude: -0.5,
+					latitude: -0.28,
+					html: '床头柜',
+					anchor: 'bottom right',
+					style: {
+						maxWidth: '320px',
+						color: '#fff',
+						fontSize: '20px',
+						fontFamily: 'Helvetica, sans-serif',
+						textAlign: 'center'
+					},
+					tooltip: {
+						content: '这里可以放注释',
+						position: 'right'
+					}
+				});
+				a.push({
+					id: 'circle',
+					tooltip: '这是坐窗的坐垫',
+					circle: 20,
+					svgStyle: {
+						fill: 'rgba(255,255,0,0.3)',
+						stroke: 'yellow',
+						strokeWidth: '2px'
+					},
+					//						longitude: 0.14842681258549928,
+					//						latitude: -0.8678522571819425,
+					x: 8395,
+					y: 6827,
+					anchor: 'center right'
+				});
+				return a
+			}
+
+			function common2() {
+				var a = [];
+				a.push({
+					id: '#1',
+					tooltip: '第一个房间',
+					latitude: -0.5,
+					longitude: -2.00,
+					image: './img/pin2.png',
+					width: 64,
+					height: 64,
+					anchor: 'bottom center',
+					data: {
+						deletables: true
+					}
+				});
+				a.push({
+					id: 'text',
+					longitude: -0.5,
+					latitude: -0.28,
+					html: '挂壁电视',
+					anchor: 'bottom right',
+					style: {
+						maxWidth: '320px',
+						color: '#fff',
+						fontSize: '20px',
+						fontFamily: 'Helvetica, sans-serif',
+						textAlign: 'center'
+					},
+					tooltip: {
+						content: '可以休闲看电视',
+						position: 'right'
+					}
+				});
+				a.push({
+					id: 'circle',
+					tooltip: '这是一个床头桌',
+					circle: 10,
+					svgStyle: {
+						fill: 'rgba(255,255,0,0.3)',
+						stroke: '#4693e2',
+						strokeWidth: '1px'
+					},
+					longitude: 1.666216355886427,
+					latitude:-0.24621449385904493,
+											 
+					anchor: 'center right'
+				});
+				return a
+			}
+			
+			function transToThreeCoord(x, y) {
+				let mouse = new THREE.Vector3();
+				mouse.x = (x / 14620) * 2 - 1;
+				mouse.y = -(y / 7310) * 2 + 1;
+				return mouse;
+			}
+
+			/**
+			 * 当用户点击某个地方时，创建一个新的标记，获取经纬度
+			 */
+			PSV.on('click', function (e) {
+				// PSV.addMarker({
+				// 	id: '#' + Math.random(),
+				// 	longitude: e.longitude,
+				// 	latitude: e.latitude,
+				// 	image: 'http://photo-sphere-viewer.js.org/assets/pin-red.png',
+				// 	width: 32,
+				// 	height: 32,
+				// 	anchor: 'bottom center',
+				// 	tooltip: 'Generated pin',
+				// 	data: {
+				// 		generated: true
+				// 	}
+				// });
+				console.log(e.longitude,e.latitude)
+			});
+		})
+		</script>
+
+	</body>
+
+</html>

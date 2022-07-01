@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<style>
+            body{
+                overflow: hidden;
+                padding:0;
+                margin:0;
+            }
+        </style>
+	</head>
+	<body>
+        <canvas id="mainCanvas"></canvas>
+
+        <script src="assets/jquery.js"></script>
+        <script src="assets/js/three.js"></script>
+        <script src="assets/js/loaders/DDSLoader.js"></script>
+        <script src="assets/js/loaders/GLTFLoader.js"></script>
+        <script src="assets/js/controls/OrbitControls.js"></script>
+        <script src="assets/js/controls/FirstPersonControls.js"></script>
+        <script src="assets/js/libs/tween.min.js"></script>
+
+        <script type="text/javascript">
+            'use strict'
+
+            let renderer, scene, camera, controls;
+            let clock, ground, camTarget, circle;
+            let movingTarget, moveTime, moveSpeed;
+            let mouse = new THREE.Vector2();
+            let raycaster = new THREE.Raycaster();
+            let objects = {children:[]}
+            let currObj;
+            let downPoint,upPoint;
+
+            init()
+            animate()
+
+            function init(){
+                renderer = new THREE.WebGLRenderer({
+                    antialias:true,
+                    alpha:true,
+                    canvas: document.getElementById('mainCanvas')
+                })
+
+                renderer.setSize(window.innerWidth,window.innerHeight)
+                renderer.setPixelRatio(window.devicePixelRatio)
+                renderer.setClearColor(new THREE.Color(0xdddddd))
+                
+                scene = new THREE.Scene()
+
+                camera = new THREE.PerspectiveCamera( 60, window.innerWidth/window.innerHeight, 0.1, 20000)
+                camera.position.set(8,6,-27)
+                scene.add(camera)
+                
+                clock = new THREE.Clock()
+
+                controls = new THREE.OrbitControls(camera, renderer.domElement)
+                controls.enableZoom = true
+                controls.enablePan = false
+                controls.minDistance = 0.5
+                controls.maxDistance = 1.5
+                controls.enableDamping = true
+                controls.dampingFactor = 0.25
+                controls.rotation = 0.3
+                controls.addEventListener('start', () => {
+                    if(movingTarget){
+                        movingTarget.stop() 
+                    }
+                })
+                
+                let targetMat = new THREE.MeshBasicMaterial({color:'#ff0000'})
+                let targetGeo = new THREE.BoxGeometry(4,17,4)
+                camTarget = new THREE.Mesh(targetGeo, targetMat)
+                camTarget.position.set(0,8.5,0)
+                camTarget.visible = false
+                scene.add(camTarget)
+
+                let circleMat = new THREE.MeshBasicMaterial({color:'#eeeeee'})
+                let circleGeo = new THREE.CircleGeometry(1.5,20)
+                circle = new THREE.Mesh(circleGeo,circleMat)
+                circle.rotation.x = -Math.PI/2
+                circle.position.set(10000,10000,10000)
+                circle.material.transparent = true
+                circle.material.opacity = 0.5
+                scene.add(circle)
+
+                addLights()
+
+                addGround()
+
+                addObjs()
+
+                createSkyBOX('assets/skybox/')
+
+                // window.addEventListener( 'click', onClick, false)
+                window.addEventListener( 'mousedown', onMouseDown, false )
+                window.addEventListener( 'mouseup', onClick, false )
+                window.addEventListener( 'mousemove', onMouseMove, false )
+                window.addEventListener( 'resize', onWindowResize, false )
+
+                
+            }
+            
+            function addLights(){
+                let aLight = new THREE.AmbientLight( 0xffffff )
+                let dLight = new THREE.DirectionalLight( 0xffffff )
+                dLight.position.set(0,1,0)
+                dLight.intensity = 0.6
+                scene.add( aLight )
+                scene.add( dLight )
+            }
+            
+            function addGround(){
+                ground = new THREE.Mesh(new THREE.PlaneBufferGeometry(500, 500, 1, 1), new THREE.MeshBasicMaterial({color:0xfff000,side:THREE.DoubleSide}));  
+                ground.position.set(0, 0, 0);  
+                ground.name = 'ground'
+                ground.rotation.x = -Math.PI/2;  
+                scene.add(ground);  
+                objects.children.push(ground)
+            }
+            
+            function addObjs(){
+                let objs = new THREE.Object3D()
+                console.log(objs)
+                for(let i=0;i<20;i++){
+                    let objcolor = Math.floor(Math.random()*0xffffff).toString(16)
+                    let mat = new THREE.MeshBasicMaterial({color:`#${objcolor}`})
+                    let geo = new THREE.BoxGeometry(15,15,15)
+                    let obj = new THREE.Mesh(geo,mat)
+                    obj.position.set(Math.random()*100,7.5,Math.random()*100)
+                    objects.children.push(obj)
+                    scene.add(obj)
+                }
+            }
+
+            function createSkyBOX(path){
+                let sides = [path + 'posx.jpg', path + 'negx.jpg', path + 'posy.jpg', path + 'negy.jpg', path + 'posz.jpg', path + 'negz.jpg']
+                let skyCube = new THREE.CubeTextureLoader().load( sides )
+                skyCube.format = THREE.RGBFormat
+                scene.background = skyCube
+            }
+
+            function getMousePosition(event){
+                let x, y;
+                if(event.changedTouches){
+                    x=event.changedTouches[0].pageX;
+                    y=event.changedTouches[0].pageY;
+                }else{
+                    x=event.clientX;
+                    y=event.clientY;
+                }
+                mouse.x = ( x / window.innerWidth ) * 2 - 1
+                mouse.y = -( y / window.innerHeight ) * 2 + 1
+            }
+            function onMouseDown(event){
+                getMousePosition(event)
+                raycaster.setFromCamera(mouse, camera)
+                if( objects.children.length>0 ){
+                    let intersects = raycaster.intersectObjects(objects.children)
+                    if(intersects.length > 0){
+                        if(intersects[0].object.name == 'ground'){
+                            downPoint = intersects[0].point
+                            console.log(downPoint)
+                        }
+                    }
+                }                 
+            }
+            function onClick(event){
+                getMousePosition(event)
+                raycaster.setFromCamera(mouse, camera)
+                if( objects.children.length > 0 ){
+                    let intersects = raycaster.intersectObjects( objects.children )
+                    if( intersects.length > 0 ){
+                        currObj = intersects[0].object
+                        if(currObj.name == 'ground'){
+                            upPoint = intersects[0].point
+                        }
+                        let bool = (upPoint.toString() === downPoint.toString())
+                        if(currObj.name == 'ground' && bool){
+                            let distance = Math.sqrt(Math.pow(Math.abs(camTarget.position.x - intersects[0].point.x),2) + Math.pow(Math.abs(camera.position.z - intersects[0].point.z),2))
+                            if( distance > moveSpeed ){
+                                let i = distance/moveSpeed
+                                moveTime = i*1000
+                            }else{
+                                moveTime = 1000
+
+                            }
+                            movingTarget = new TWEEN.Tween(camTarget.position)
+                            movingTarget.to(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y + 8.5,intersects[0].point.z), moveTime)
+                            movingTarget.start()
+                        }
+                    }
+                }
+            }
+            
+            function onMouseMove(event){
+                getMousePosition(event)
+                raycaster.setFromCamera(mouse, camera)
+                if(objects.children.length>0){
+                    let intersects = raycaster.intersectObjects( objects.children )
+                
+                    if(intersects.length>0){
+                        if(intersects[0].object.name === 'ground'){
+                            let op = intersects[0].point
+                            let nx = op.x
+                            let ny = op.y+0.05
+                            let nz = op.z
+                            let np = new THREE.Vector3(nx,ny,nz)
+                            circle.position.copy(np)
+                        }
+                    }
+                }
+                
+            }
+
+            function onWindowResize(){
+                camera.aspect = window.innerWidth/window.innerHeight
+                camera.updateProjectionMatrix()
+                renderer.setSize(window.innerWidth, window.innerHeight)
+            }
+
+            function animate(){
+                requestAnimationFrame(animate)
+                render()
+            }
+
+            function render(){
+                TWEEN.update()
+
+                controls.target.copy( camTarget.position ).add( new THREE.Vector3(0,1,0))
+                controls.update(clock.getDelta())
+
+                renderer.clear()
+                renderer.render( scene, camera )
+            }
+        </script>
+    </body>
+</html>

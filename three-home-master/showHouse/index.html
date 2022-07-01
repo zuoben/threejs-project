@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<style>
+            body{
+                overflow: hidden;
+                padding:0;
+                margin:0;
+            }
+            #HUD{
+                position:absolute;
+                float:left;
+                background:rgba(0,0,0,0.5);
+                border-color:#fff;
+                border-radius:5px;
+                color:#fff;
+            }
+        </style>
+	</head>
+	<body>
+        <canvas id="mainCanvas"></canvas>
+        <div id="HUD"></div>
+        <script src="assets/jquery.js"></script>
+        <script src="assets/js/three.js"></script>
+        <script src="assets/js/loaders/DDSLoader.js"></script>
+        <script src="assets/js/loaders/GLTFLoader.js"></script>
+        <script src="assets/js/controls/OrbitControls.js"></script>
+        <script src="assets/js/controls/FirstPersonControls.js"></script>
+        <script src="assets/js/libs/tween.min.js"></script>
+
+        <script type="text/javascript">
+            'use strict'
+
+            let renderer, scene, camera, controls;
+            let clock, ground, camTarget, circle;
+            let movingTarget, moveTime;
+            let moveSpeed = 10;
+            let mouse = new THREE.Vector2();
+            let raycaster = new THREE.Raycaster();
+            let objects = {children:[]}
+            let currObj;
+            let downPoint,upPoint;
+            let dic;// 字典
+            let ignoreArr = [];
+
+            init()
+            animate()
+
+            function init(){
+                renderer = new THREE.WebGLRenderer({
+                    antialias:true,
+                    alpha:true,
+                    canvas: document.getElementById('mainCanvas')
+                })
+
+                renderer.setSize(window.innerWidth,window.innerHeight)
+                renderer.setPixelRatio(window.devicePixelRatio)
+                renderer.setClearColor(new THREE.Color(0xdddddd))
+                
+                scene = new THREE.Scene()
+
+                camera = new THREE.PerspectiveCamera( 60, window.innerWidth/window.innerHeight, 0.1, 20000)
+                camera.position.set(8,6,-27)
+                scene.add(camera)
+                
+                clock = new THREE.Clock()
+
+                controls = new THREE.OrbitControls(camera, renderer.domElement)
+                controls.enableZoom = true
+                controls.enablePan = false
+                controls.minDistance = 0.5
+                controls.maxDistance = 1.5
+                controls.enableDamping = true
+                controls.dampingFactor = 0.25
+                controls.rotation = 0.3
+                controls.addEventListener('start', () => {
+                    if(movingTarget){
+                        movingTarget.stop() 
+                    }
+                })
+                
+                let targetMat = new THREE.MeshBasicMaterial({color:'#ff0000'})
+                let targetGeo = new THREE.BoxGeometry(0.01,17,0.01)
+                camTarget = new THREE.Mesh(targetGeo, targetMat)
+                camTarget.position.set(6,15,-27)
+                camTarget.visible = false
+                scene.add(camTarget)
+
+                let circleMat = new THREE.MeshBasicMaterial({color:'#eeeeee'})
+                let circleGeo = new THREE.CircleGeometry(1.5,20)
+                circle = new THREE.Mesh(circleGeo,circleMat)
+                circle.rotation.x = -Math.PI/2
+                circle.position.set(10000,10000,10000)
+                circle.material.transparent = true
+                circle.material.opacity = 0.5
+                scene.add(circle)
+
+                addLights()
+
+                // addGround()
+                loadGLTF('assets/models/gltf/interior/scene.gltf')
+                // addObjs()
+
+                createSkyBOX('assets/skybox/')
+
+                config()
+
+                // window.addEventListener( 'click', onClick, false)
+                window.addEventListener( 'mousedown', onMouseDown, false )
+                window.addEventListener( 'mouseup', onClick, false )
+                window.addEventListener( 'mousemove', onMouseMove, false )
+                window.addEventListener( 'resize', onWindowResize, false )
+
+                
+            }
+            
+            function addLights(){
+                let aLight = new THREE.AmbientLight( 0xffffff )
+                let dLight = new THREE.DirectionalLight( 0xffffff )
+                dLight.position.set(0,1,0)
+                dLight.intensity = 0.6
+                scene.add( aLight )
+                scene.add( dLight )
+            }
+            
+            function loadGLTF(path){
+                let loader = new THREE.GLTFLoader();
+				loader.load( path, function ( gltf ) {
+					gltf.scene.traverse( function ( child ) {
+						if ( child.isMesh ) {
+							if(child.id.toString() === '132'){
+								child.material.transparent = true;
+								child.material.opacity = 0.5;
+							}
+                            child.scale.set(0.01,0.01,0.01)
+                            objects.children.push(child)
+						}
+                    } );
+					scene.add( gltf.scene );
+				});
+			}
+
+            
+            function createSkyBOX(path){
+                let sides = [path + 'posx.jpg', path + 'negx.jpg', path + 'posy.jpg', path + 'negy.jpg', path + 'posz.jpg', path + 'negz.jpg']
+                let skyCube = new THREE.CubeTextureLoader().load( sides )
+                skyCube.format = THREE.RGBFormat
+                scene.background = skyCube
+            }
+
+            function getMousePosition(event){
+                let x, y;
+                if(event.changedTouches){
+                    x=event.changedTouches[0].pageX;
+                    y=event.changedTouches[0].pageY;
+                }else{
+                    x=event.clientX;
+                    y=event.clientY;
+                }
+                mouse.x = ( x / window.innerWidth ) * 2 - 1
+                mouse.y = -( y / window.innerHeight ) * 2 + 1
+            }
+            function onMouseDown(event){
+                getMousePosition(event)
+                raycaster.setFromCamera(mouse, camera)
+                if( objects.children.length>0 ){
+                    let intersects = raycaster.intersectObjects(objects.children)
+                    if(intersects.length > 0){
+                        downPoint = intersects[0].point || new Vector3(0,0,0)
+                    }
+                }                 
+            }
+            function onClick(event){
+                getMousePosition(event)
+                raycaster.setFromCamera(mouse, camera)
+                if( objects.children.length > 0 ){
+                    let intersects = raycaster.intersectObjects( objects.children )
+                    if( intersects.length > 0 ){
+                        currObj = intersects[0].object
+                        upPoint = intersects[0].point || new THREE.Vector3(0,0,0)
+                        
+                        let bool = (upPoint.x == downPoint.x && upPoint.y == downPoint.y && upPoint.z == downPoint.z) && (currObj.id == '114' || currObj.id == '108')
+                        
+                        if( bool ){
+                            
+                            let distance = Math.sqrt(Math.pow(Math.abs(camTarget.position.x - intersects[0].point.x),2) + Math.pow(Math.abs(camera.position.z - intersects[0].point.z),2))
+                            if( distance > moveSpeed ){
+                                let i = distance/moveSpeed
+                                moveTime = i*1000
+                            }else{
+                                moveTime = 1000
+
+                            }
+                            movingTarget = new TWEEN.Tween(camTarget.position)
+                            movingTarget.to(new THREE.Vector3(intersects[0].point.x, intersects[0].point.y + 15,intersects[0].point.z), moveTime)
+                            movingTarget.start()
+                        }
+                    }
+                }
+            }
+            
+            function onMouseMove(event){
+                getMousePosition(event)
+                raycaster.setFromCamera(mouse, camera)
+                if(objects.children.length>0){
+                    let intersects = raycaster.intersectObjects( objects.children )
+                
+                    if(intersects.length>0){
+                        
+                        
+                        if(intersects[0].object.id == '114' || intersects[0].object.id == '108'){
+                            $('#HUD').text('')
+                            $('#HUD').css('padding','0')
+                            let op = intersects[0].point
+                            let nx = op.x
+                            let ny = op.y+0.05
+                            let nz = op.z
+                            let np = new THREE.Vector3(nx,ny,nz)
+                            circle.position.copy(np)
+                        }else if( $.inArray(intersects[0].object.id.toString(), ignoreArr) >= 0 ){
+                            $('#HUD').text('')
+                            $('#HUD').css('padding','0')
+                        }else{
+                            HUD(intersects[0])
+                        }
+                    }
+                }
+            }
+            
+            function HUD(e){
+                let objId = e.object.id
+                let position = worldToScreen(e.point)
+                let name = dic.get(objId)
+                if(name && name !== ''){
+                    $('#HUD').text(name)
+                    $('#HUD').css({'left':`${position.x}px`,'top':`${position.y-35}px`,'padding':'5px 15px'})
+                }
+            }
+            
+            function worldToScreen(position){
+                let worldVector = position
+                let vector = worldVector.project(camera)
+
+                let halfWidth = window.innerWidth/2
+                let halfHeight = window.innerHeight/2
+
+                let result = {
+                    x: Math.round( vector.x * halfWidth + halfWidth),
+                    y: Math.round( -vector.y * halfHeight + halfHeight)
+                }
+
+                return result
+            }
+            
+            function config(){
+
+                ignoreArr = ["86","87","89","90","92","102","103","108","109","111","118","125","113","127","137","138","140","143","146","148","152","153"];
+
+                dic = new dictionary()
+				dic.put("88","艺术画")
+				dic.put("91","盆栽");
+				dic.put("93","沙发");
+				dic.put("94","沙发");
+				dic.put("95","沙发");
+				dic.put("96","书椅");
+				dic.put("97","书柜");
+				dic.put("98","窗帘");
+				dic.put("99", "被子");
+				dic.put("100", "被子");
+				dic.put("101","茶几");
+				dic.put("107", "枕头");
+				dic.put("110", "书架");
+				dic.put("112", "电视机");
+				dic.put("115", "摄像头");
+				dic.put("117", "相框");
+				dic.put("119", "床头灯");
+				dic.put("123", "艺术画");
+				dic.put("124", "床");
+				dic.put("126", "落地灯");
+				dic.put("128", "餐椅");
+				dic.put("129", "餐椅");
+				dic.put("130", "餐椅");
+				dic.put("131", "餐椅");
+				dic.put("132", "窗帘");
+				dic.put("133", "窗帘");
+				dic.put("134", "书籍");
+				dic.put("136", "书籍");
+				dic.put("139", "落地窗");
+				dic.put("141", "电视柜");
+				dic.put("144", "餐桌");
+				dic.put("147", "落地窗");
+				dic.put("149", "书桌");
+				dic.put("150", "枕头");
+				dic.put("151", "枕头");
+            }
+
+            function dictionary(){
+                this.data = new Array()
+                this.put = (key,value) => {
+                    this.data[key] = value
+                }
+                this.get = key => {
+                    if(this.data[key]){
+                        return this.data[key]
+                    }else{
+                        return key
+                    }
+                }
+                this.remove = key => {
+                    this.data[key] = null
+                }
+                this.isEmpty = () => {
+                    return this.data.length == 0
+                }
+                this.size = () =>{
+                    return this.data.length
+                }
+            }
+
+            function onWindowResize(){
+                camera.aspect = window.innerWidth/window.innerHeight
+                camera.updateProjectionMatrix()
+                renderer.setSize(window.innerWidth, window.innerHeight)
+            }
+
+            function animate(){
+                requestAnimationFrame(animate)
+                render()
+            }
+
+            function render(){
+                TWEEN.update()
+
+                controls.target.copy( camTarget.position ).add( new THREE.Vector3(0,1,0))
+                controls.update(clock.getDelta())
+
+                renderer.clear()
+                renderer.render( scene, camera )
+            }
+        </script>
+    </body>
+</html>

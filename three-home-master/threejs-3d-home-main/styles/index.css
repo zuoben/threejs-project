@@ -1,0 +1,15 @@
+* {
+	padding: 0;
+	margin: 0;
+}
+body {
+	height: 100%;
+}
+#webgl-cont {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	/* background-color: #000; */
+}
