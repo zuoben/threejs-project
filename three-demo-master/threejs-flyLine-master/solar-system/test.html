@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <title>threejs-line</title>
+    <script src="js/three.min.js"></script>
+    <style>
+        body{
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="mycanvas"></canvas>
+    <script>
+    var mycanvas = document.getElementById('mycanvas');
+
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    camera.position.z = 700;
+    var renderer = new THREE.WebGLRenderer({
+        canvas: mycanvas,
+        antialias: true
+    });
+    renderer.setSize( window.innerWidth, window.innerHeight )
+
+    var geometry = new THREE.Geometry();
+    geometry.vertices.push(
+        new THREE.Vector3( 0, -200, 0 ),
+        new THREE.Vector3( 0, 200, 0 )
+    );
+
+    var material = new THREE.LineBasicMaterial({
+        color: 0xffff00
+    });
+
+    for(var i = 0; i<=20; i++){
+        var line = new THREE.Line( geometry, material );
+        line.position.x = 20 * i;
+        scene.add(line);
+
+        var line = new THREE.Line( geometry, material );
+        line.position.x = 200;
+        line.position.y = 20 * i - 200;
+        line.rotation.z = 90 * Math.PI / 180;
+        scene.add(line);
+    }
+
+
+    function render(){
+        scene.rotation.x += .01
+        scene.rotation.y += .01
+        scene.rotation.z += .01
+        renderer.render(scene, camera);
+        requestAnimationFrame(render)
+    }
+
+    render();
+
+    </script>
+</body>
+</html>

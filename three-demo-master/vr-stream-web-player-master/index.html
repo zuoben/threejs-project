@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<title>Web VR boilerplate</title>
+		<meta charset="utf-8">
+		<meta name="viewport"
+			content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, shrink-to-fit=no">
+		<meta name="mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<style>
+			body {
+				width: 100%;
+				height: 100%;
+				background-color: #000;
+				color: #fff;
+				margin: 0px;
+				padding: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+
+	<body>
+
+	</body>
+
+	<script>
+		/*
+		 * Debug parameters.
+		 */
+		WebVRConfig = {
+			/**
+			 * webvr-polyfill configuration
+			 */
+
+			// Forces availability of VR mode.
+			//FORCE_ENABLE_VR: true, // Default: false.
+			// Complementary filter coefficient. 0 for accelerometer, 1 for gyro.
+			// K_FILTER: 0.5, // Default: 0.98.
+			// How far into the future to predict during fast motion.
+			PREDICTION_TIME_S: 0.020, // Default: 0.040 (in seconds).
+			// Flag to disable touch panner. In case you have your own touch controls
+			//TOUCH_PANNER_DISABLED: true, // Default: false.
+			// Enable yaw panning only, disabling roll and pitch. This can be useful for
+			// panoramas with nothing interesting above or below.
+			//YAW_ONLY: true, // Default: false.
+			// Enable the deprecated version of the API (navigator.getVRDevices).
+			//ENABLE_DEPRECATED_API: true, // Default: false.
+			// Scales the recommended buffer size reported by WebVR, which can improve
+			// performance. Making this very small can lower the effective resolution of
+			// your scene.
+			BUFFER_SCALE: 2.0, // default: 1.0
+			// Allow VRDisplay.submitFrame to change gl bindings, which is more
+			// efficient if the application code will re-bind it's resources on the
+			// next frame anyway.
+			// Dirty bindings include: gl.FRAMEBUFFER_BINDING, gl.CURRENT_PROGRAM,
+			// gl.ARRAY_BUFFER_BINDING, gl.ELEMENT_ARRAY_BUFFER_BINDING,
+			// and gl.TEXTURE_BINDING_2D for texture unit 0
+			// Warning: enabling this might lead to rendering issues.
+			//DIRTY_SUBMIT_FRAME_BINDINGS: true // default: false
+		};
+	</script>
+
+	<!--
+  A polyfill for Promises. Needed for IE and Edge.
+  -->
+	<!-- <script src="node_modules/es6-promise/dist/es6-promise.js"></script> -->
+
+	<!--
+  three.js 3d library
+  -->
+	<script src="src/three.min.js"></script>
+
+	<script src="src/stats.min.js"></script>
+
+	<script src="src/extra/Animation.js"></script>
+	<script src="src/extra/AnimationHandler.js"></script>
+	<script src="src/extra/KeyFrameAnimation.js"></script>
+
+	<script src="src/extra/ColladaLoader.js"></script>
+
+	<!-- <script src="src/extra/Detector.js"></script> -->
+	<script src="src/extra/dat.gui.min.js"></script>
+
+	<!--
+  VRControls.js acquires positional information from connected VR devices and applies the transformations to a three.js camera object.
+   -->
+	<script src="node_modules/three/examples/js/controls/VRControls.js"></script>
+
+	<!--
+  VREffect.js handles stereo camera setup and rendering.
+  -->
+	<script src="node_modules/three/examples/js/effects/VREffect.js"></script>
+
+	<!--
+  A polyfill for WebVR using the Device{Motion,Orientation}Event API.
+  -->
+	<script src="node_modules/webvr-polyfill/build/webvr-polyfill.js"></script>
+
+	<!--
+  Helps enter and exit VR mode, provides best practices while in VR.
+  -->
+	<script src="build/webvr-manager.js"></script>
+
+	<script src="src/jquery-3.1.1.min.js"></script>
+
+	<video id="video" autoplay="true" loop="false" hidden="hidden" src="vr_style_s.mp4" muted webkit-playsinline>
+	</video>
+	<video id="video_content" hidden="hidden" src="dd.mp4" autoplay="true" loop="false" webkit-playsinline>
+	</video>
+	<video id="video2" hidden="hidden" webkit-playsinline>
+	</video>
+	<script type="x-shader/x-vertex" id="vertexShader">
+		uniform sampler2D uSampler;
+
+      varying mediump vec4 vDirection;
+
+      void main() {
+        vec4 outExtraPixel =  projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+        
+        gl_Position = outExtraPixel;
+        
+        vDirection = vec4( position, 1.0 );
+      }
+
+</script>
+
+	<script type="x-shader/x-fragment" id="fragmentShader">
+		precision mediump float;
+      #define PI 3.1415926535897932384626433832795
+
+
+      uniform sampler2D uSampler;
+      uniform sampler2D uSource;
+
+      uniform float uRotate;
+      uniform float uTop;
+      uniform float uScale;
+
+      uniform float uDiff;
+
+      varying mediump vec4 vDirection;
+
+      mediump vec4 samplerColor(mediump vec3 direction){
+        mediump float theta = atan(direction.x, -1.0 * direction.z);
+        mediump float phi = atan(direction.y, length(direction.xz));
+        if (abs(direction.x) < 1e-4 * abs(direction.z))
+          theta = 0.5*PI * (1.0 - sign(-1.0 * direction.z));
+        if (abs(direction.y) < 1e-4 * length(direction.xz))
+          phi = 0.0;
+
+        float radio = 9.5 / 3.5 ;
+        float base = uScale;
+        float left = 3.;
+        float top = uTop;
+        float dy = (phi / PI + 0.5)*base-top;
+        if(dy >1.||dy < 0.){
+          return vec4(0.,1.,0.,1.);
+        }
+        float dx=(mod(theta / (2.0*PI), 1.0))*base*radio-left;
+        if(dx >1. || dx < 0.){
+          return vec4(0.,1.,0.,1.);
+        }
+        return texture2D(uSampler,vec2(dx,dy));
+      }
+      mediump vec4 sourceColor(mediump vec3 direction){
+
+        mediump float theta = atan(direction.x, -1.0 * direction.z);
+        mediump float phi = atan(direction.y, length(direction.xz));
+
+        if (abs(direction.x) < 1e-4 * abs(direction.z))
+        theta = 0.5*PI * (1.0 - sign(-1.0 * direction.z));
+        if (abs(direction.y) < 1e-4 * length(direction.xz))
+        phi = 0.0;
+        float dx=mod(theta / (2.0*PI), 1.0);
+        float dy=phi / PI + 0.5;
+        dx+=uRotate;
+        if(dx>1.){
+          dx-=1.;
+        }
+
+        return texture2D(uSource,vec2(dx,dy));
+      }
+
+      void main() {
+        mediump vec3 direction =  vec3(vDirection.xyz/vDirection.w);
+
+        float diff=uDiff;
+        float left=.45;
+
+        vec4 sourcePixel = sourceColor(direction);
+
+        vec4 extraPixel = samplerColor(direction);
+        vec4 outExtraPixel =extraPixel;
+        if(vDirection.x+left<0.){
+          outExtraPixel = sourcePixel;
+        }
+        if (extraPixel.g > 0.50 && extraPixel.r < 0.5 && extraPixel.b <0.5){
+          outExtraPixel = sourcePixel;
+        }else if(extraPixel.g>0.7&&extraPixel.r > 0.4 && extraPixel.r <0.65 && extraPixel.b>0.4&&extraPixel.b<0.65){
+          outExtraPixel = sourcePixel;
+        }else if(extraPixel.g>0.9&& extraPixel.r<0.1 &&extraPixel.b<0.1){
+          outExtraPixel = sourcePixel;
+        }else if((extraPixel.g/extraPixel.r)>diff&&(extraPixel.g/extraPixel.b)>diff){
+          outExtraPixel = sourcePixel;
+        }else if(extraPixel.r == 0.0 && extraPixel.g == 0.0 && extraPixel.b == 0.0){
+          outExtraPixel = sourcePixel;
+        }
+        gl_FragColor= outExtraPixel;
+      }
+
+</script>
+	<script>
+		// Setup three.js WebGL renderer. Note: Antialiasing is a big performance hit.
+		// Only enable it if you actually need to.
+		var renderer = new THREE.WebGLRenderer({
+			antialias: true
+		});
+		renderer.setPixelRatio(window.devicePixelRatio);
+
+		// Append the canvas element created by the renderer to document body element.
+		document.body.appendChild(renderer.domElement);
+
+		// Create a three.js scene.
+		var scene = new THREE.Scene();
+
+		// Create a three.js camera.
+		var camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 10000);
+
+		// Apply VR headset positional data to camera.
+		var controls = new THREE.VRControls(camera);
+		controls.standing = true;
+
+		// Apply VR stereo rendering to renderer.
+		var effect = new THREE.VREffect(renderer);
+		effect.setSize(window.innerWidth, window.innerHeight);
+
+		// Add a repeating grid as a skybox.
+		var boxSize = 1;
+
+		video = document.getElementById('video');
+
+		texture = new THREE.VideoTexture(video);
+		texture.minFilter = THREE.LinearFilter;
+		texture.magFilter = THREE.LinearFilter;
+		texture.format = THREE.RGBFormat;
+		texture.wrapS = THREE.ClampToEdgeWrapping;
+		texture.wrapT = THREE.ClampToEdgeWrapping;
+
+
+		function getCubeBox() {
+			var geometry = new THREE.CubeGeometry(20, 20, 20);
+
+			// cubeFaceVertexUvs
+			var originUv = [
+				[new THREE.Vector2(1, 1.0 / 2), new THREE.Vector2(1, 0), new THREE.Vector2(2.0 / 3, 1.0 / 2)],
+				[new THREE.Vector2(1, 0), new THREE.Vector2(2.0 / 3, 0), new THREE.Vector2(2.0 / 3, 1.0 / 2)]
+			];
+			var originUvs = [];
+			for (var i = 0; i < 12; i++) {
+				var tUv = [];
+				var dx = (parseInt(i / 2) % 3) * 1.0 / 3;
+				var dy = parseInt(i / 6) * 1.0 / 2;
+				var index = (i + 1) % 2;
+				tUv[0] = new THREE.Vector2(originUv[index][0].x - dx, originUv[index][0].y + dy);
+				tUv[1] = new THREE.Vector2(originUv[index][1].x - dx, originUv[index][1].y + dy);
+				tUv[2] = new THREE.Vector2(originUv[index][2].x - dx, originUv[index][2].y + dy);
+
+				originUvs.push(tUv);
+			}
+
+			//* Place cubemap video faces in right places
+			for (var i = 0; i < 12; i++) {
+				geometry.faceVertexUvs[0][11 - i] = originUvs[i];
+			}
+			var temp1 = geometry.faceVertexUvs[0][0];
+			var temp2 = geometry.faceVertexUvs[0][1];
+			geometry.faceVertexUvs[0][0] = geometry.faceVertexUvs[0][2];
+			geometry.faceVertexUvs[0][1] = geometry.faceVertexUvs[0][3];
+			geometry.faceVertexUvs[0][2] = temp1;
+			geometry.faceVertexUvs[0][3] = temp2;
+
+			//* Cubemap video faces are expanded 1.01 by ffmpeg transform,fix them here.
+			var fixP = 0.0018;
+			for (var i = 0; i < 12; i += 2) {
+				geometry.faceVertexUvs[0][i][0].y -= fixP;
+				geometry.faceVertexUvs[0][i][2].y -= fixP;
+				geometry.faceVertexUvs[0][i][0].x -= fixP;
+				geometry.faceVertexUvs[0][i][1].x -= fixP;
+
+				geometry.faceVertexUvs[0][i][1].y += fixP;
+				geometry.faceVertexUvs[0][i][2].x += fixP;
+
+				geometry.faceVertexUvs[0][i + 1][0].y += fixP;
+				geometry.faceVertexUvs[0][i + 1][1].y += fixP;
+				geometry.faceVertexUvs[0][i + 1][1].x += fixP;
+				geometry.faceVertexUvs[0][i + 1][2].x += fixP;
+
+				geometry.faceVertexUvs[0][i + 1][0].x -= fixP;
+				geometry.faceVertexUvs[0][i + 1][2].y -= fixP;
+			}
+			var cubebox = new THREE.Mesh(geometry, material);
+			cubebox.position.y = 1.5;
+			cubebox.position.x = 0;
+			cubebox.rotation.y = 2 * Math.PI;
+			return cubebox;
+		}
+
+		var material = new THREE.MeshBasicMaterial({
+			map: texture,
+			side: THREE.BackSide
+		});
+
+		// For high end VR devices like Vive and Oculus, take into account the stage
+		// parameters provided.
+		setupStage();
+
+		var plane_position = 0;
+
+		function addPlane(item) {
+
+			var img = item.pictures.img;
+			img = img.replace('http:/', '/u');
+			var texture = new THREE.TextureLoader().load(img);
+			texture.wrapS = THREE.ClampToEdgeWrapping;
+			texture.wrapT = THREE.ClampToEdgeWrapping;
+			var radio = 1.5;
+			var planeWidth = 0.4 * radio;
+			var planeHeight = 0.3 * radio;
+			var planeSpan = 0.05 * radio;
+			var geometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
+
+			var material = new THREE.MeshBasicMaterial({
+				map: texture,
+				color: 0xffffff,
+				side: THREE.BackSide
+			});
+
+			var plane = new THREE.Mesh(geometry, material);
+			plane.name = "plane_" + plane_position;
+			plane.data = item;
+			plane.position.set(1.5, controls.userHeight - 0.5, 0.5);
+			plane.position.y += (plane_position % 4) * (planeHeight + planeSpan);
+			plane.position.z = parseInt(plane_position / 4) * (planeWidth + planeSpan);
+			plane_position += 1;
+			plane.rotation.y = Math.PI / 2;
+			scene.add(plane);
+
+			if (!playing) {
+				playing = true;
+				playRoom(item);
+			}
+		}
+		var liveItems;
+
+		function getPlanesData() {
+			var url = "/u/api.m.panda.tv/ajax_get_live_list_by_cate?cate=dota2&pageno=0&pagenum=12&__plat=h5";
+			$.getJSON(url, '', function(json) {
+				var items = json.data.items;
+				liveItems = items;
+				for (var i = 0; i < items.length; i++) {
+					var item = items[i];
+					addPlane(item);
+				}
+			});
+		}
+		// getPlanesData();
+
+		// monster (front animation)
+		var clock = new THREE.Clock();
+		var dae;
+		var mixer;
+		var dae_x = 4.09;
+		var dae_y = -1.42;
+		mixer = new THREE.AnimationMixer(scene);
+
+		function addMonster() {
+			var loader = new THREE.ColladaLoader();
+			loader.options.convertUpAxis = true;
+			loader.load('models/monster.dae', function(collada) {
+				dae = collada.scene;
+				dae.traverse(function(child) {
+					if (child instanceof THREE.SkinnedMesh) {
+						var animation = new THREE.Animation(child, child.geometry.animation);
+						animation.play();
+					}
+				});
+				dae.scale.x = dae.scale.y = dae.scale.z = 0.001;
+				dae.position.x = dae_x;
+				dae.position.y = dae_y;
+				dae.position.z = -2;
+				dae.rotation.y = 1 * Math.PI;
+				dae.updateMatrix();
+				scene.add(dae);
+				scene.add(new THREE.AmbientLight(0xffffff));
+			});
+		}
+		addMonster();
+
+		var logo_text;
+		var logo;
+
+		function addAppgameLogo(text) {
+			var loader = new THREE.FontLoader();
+			loader.load('models/appgame.typeface.json', function(font) {
+				text = text.replace(/[^任玩堂游戏手机好超级知道你我他]/g, '');
+				var logo_text = new THREE.TextGeometry(text, {
+					font: font,
+					size: 0.1,
+					height: 0.01
+				});
+				if (logo) {
+					scene.remove(logo);
+					logo.geometry.dispose();
+
+				}
+				logo = new THREE.Mesh(logo_text, new THREE.MeshBasicMaterial());
+				logo.position.set(0, controls.userHeight, 0);
+				logo.position.z -= 2;
+				scene.add(logo);
+
+			});
+		}
+		$(function() {
+			addAppgameLogo('任玩堂');
+		});
+
+		// Chromakey content
+		var video_content;
+		var texture_content;
+		var v_texture;
+		var v_shaderMaterial;
+		var effectController = {
+			bg_rotate: 0., //background rotate
+			c_top: 0.79, //content top
+			c_scale: 3.53,
+			monster_left: dae_x,
+			monster_top: dae_y,
+			video: 'vr_style_s',
+			text: '任玩堂',
+			c_diff: 1.11,
+			cubemapMode: false,
+			'bg_play/pause': function() {
+				if (video.paused) {
+					video.play();
+				} else {
+					video.pause();
+				}
+			},
+			'stream_panda': function() {
+				video_content.muted = true;
+				getPlanesData();
+			}
+		};
+		var changeCube = false;
+
+		function getContentVideo() {
+			var contentBox;
+			video_content = document.getElementById('video_content');
+			texture_content = new THREE.VideoTexture(video_content);
+			texture_content.minFilter = THREE.LinearFilter;
+			texture_content.magFilter = THREE.LinearFilter;
+
+			var geometry = new THREE.SphereBufferGeometry(50, 32, 32);
+
+			v_shaderMaterial = new THREE.ShaderMaterial({
+				uniforms: {
+					'uSampler': {
+						value: texture_content
+					},
+					'uSource': {
+						value: texture
+					},
+					'uRotate': {
+						value: effectController.bg_rotate
+					},
+					'uTop': {
+						value: effectController.c_top
+					},
+					'uScale': {
+						value: effectController.c_scale
+					},
+					'uDiff': {
+						value: effectController.c_diff
+					}
+				},
+				vertexShader: document.getElementById('vertexShader').textContent,
+				fragmentShader: document.getElementById('fragmentShader').textContent,
+				side: THREE.DoubleSide
+			});
+
+			v_shaderMaterial.extensions.derivatives = true;
+
+			contentBox = new THREE.Mesh(geometry, v_shaderMaterial);
+
+			contentBox.position.set(0, controls.userHeight, 0);
+			contentBox.rotation.y = 0.6 * Math.PI;
+			video_content.play();
+			return contentBox;
+		}
+
+
+		function setupGui() {
+			var gui = new dat.GUI();
+
+			var valuesChanger = function() {
+				// velocityUniforms.seperationDistance.value = effectController.seperation;
+				// velocityUniforms.alignmentDistance.value = effectController.alignment;
+				// velocityUniforms.cohesionDistance.value = effectController.cohesion;
+				// velocityUniforms.freedomFactor.value = effectController.freedom;
+				if (v_shaderMaterial) {
+					v_shaderMaterial.uniforms.uRotate.value = effectController.bg_rotate;
+					v_shaderMaterial.uniforms.uTop.value = effectController.c_top;
+					v_shaderMaterial.uniforms.uScale.value = effectController.c_scale;
+					v_shaderMaterial.uniforms.uDiff.value = effectController.c_diff;
+					dae_x = effectController.monster_left;
+					dae_y = effectController.monster_top;
+					$(video).attr('src', effectController.video + '.mp4');
+					addAppgameLogo(effectController.text);
+					if (changeCube != effectController.cubemapMode) {
+						if (effectController.cubemapMode) {
+							scene.remove(skybox);
+							skybox = getCubeBox();
+							scene.add(skybox);
+						} else {
+							scene.remove(skybox);
+							skybox = getContentVideo();
+							scene.add(skybox);
+						}
+						changeCube = effectController.cubemapMode;
+					}
+				}
+
+			};
+			valuesChanger();
+			gui.add(effectController, "bg_rotate", 0.0, 1.0, 0.01).onChange(valuesChanger);
+			gui.add(effectController, "c_diff", 0.0, 2.0, 0.01).onChange(valuesChanger);
+			gui.add(effectController, "c_top", -1.0, 10.0, 0.01).onChange(valuesChanger);
+			gui.add(effectController, "c_scale", 0.1, 10, 0.01).onChange(valuesChanger);
+			gui.add(effectController, "monster_left", -10, 10, 0.01).onChange(valuesChanger);
+			gui.add(effectController, "monster_top", -5, 5, 0.01).onChange(valuesChanger);
+			gui.add(effectController, "video", ['vr_style_s', '100m', 'lol']).onChange(valuesChanger);
+			gui.add(effectController, "cubemapMode").onChange(valuesChanger);
+			gui.add(effectController, "text").onChange(valuesChanger);
+			gui.add(effectController, "bg_play/pause");
+			gui.add(effectController, "stream_panda");
+
+
+			$(gui.domElement).on('touchstart,touchend,touchmove', function(event) {
+				console.log(event)
+				event.stopPropagation();
+			});
+			// $(gui.domElement).on('mousemove',function(event){
+			//   event.stopPropagation();
+			// });
+			// gui.close();
+		}
+		$(setupGui);
+		skybox = getContentVideo();
+		scene.add(skybox);
+
+
+		var raycaster = new THREE.Raycaster();
+		var mouse = new THREE.Vector2();
+
+		var select = false;
+		var playing = false;
+
+		function onMouseUp(event) {
+
+			// calculate mouse position in normalized device coordinates
+			// (-1 to +1) for both components
+
+			mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+			mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+			select = true;
+		}
+
+		window.addEventListener('mouseup', onMouseUp, false);
+
+		// Create a VR manager helper to enter and exit VR mode.
+		var params = {
+			hideButton: false, // Default: false.
+			isUndistorted: false // Default: false.
+		};
+		var manager = new WebVRManager(renderer, effect, params);
+
+
+		// Kick off animation loop
+		requestAnimationFrame(animate);
+
+		window.addEventListener('resize', onResize, true);
+		window.addEventListener('vrdisplaypresentchange', onResize, true);
+
+		// Request animation frame loop function
+		var lastRender = 0;
+
+		function animate(timestamp) {
+			var delta = Math.min(timestamp - lastRender, 500);
+			lastRender = timestamp;
+
+			// Update VR headset position and apply to camera.
+			controls.update();
+
+			// dae_x-=0.01;
+			if (dae) {
+				dae.position.x = dae_x;
+				dae.position.y = dae_y;
+			}
+
+			// update the picking ray with the camera and mouse position  
+			raycaster.setFromCamera(mouse, camera);
+
+			// calculate objects intersecting the picking ray
+			var intersects = raycaster.intersectObjects(scene.children);
+
+			if (select) {
+				select = false;
+				for (var i = 0; i < intersects.length; i++) {
+					var object = intersects[i].object;
+					if (object.data) {
+						playRoom(object.data);
+					}
+				}
+			}
+
+			var delta = clock.getDelta();
+			// animate Collada model
+			THREE.AnimationHandler.update(delta);
+			mixer.update(delta);
+			// Render the scene through the manager.
+			manager.render(scene, camera, timestamp);
+
+			requestAnimationFrame(animate);
+		}
+
+		function onResize(e) {
+			effect.setSize(window.innerWidth, window.innerHeight);
+			camera.aspect = window.innerWidth / window.innerHeight;
+			camera.updateProjectionMatrix();
+		}
+
+		var display;
+
+		// Get the HMD, and if we're dealing with something that specifies
+		// stageParameters, rearrange the scene.
+		function setupStage() {
+			// navigator.getVRDisplays().then(function(displays) {
+			//   if (displays.length > 0) {
+			//     display = displays[0];
+			//     if (display.stageParameters) {
+			//       setStageDimensions(display.stageParameters);
+			//     }
+			//   }
+			// });
+		}
+
+		function setStageDimensions(stage) {
+			// Make the skybox fit the stage.
+			var material = skybox.material;
+			scene.remove(skybox);
+
+			// Size the skybox according to the size of the actual stage.
+			var geometry = new THREE.BoxGeometry(stage.sizeX, boxSize, stage.sizeZ);
+			skybox = new THREE.Mesh(geometry, material);
+
+			// Place it on the floor.
+			skybox.position.y = boxSize / 2;
+			scene.add(skybox);
+
+		}
+
+		//show fps
+		// var stats = new Stats();
+		// stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
+		// document.body.appendChild( stats.dom );
+
+		// function fps() {
+
+		//     stats.begin();
+
+		//     // monitored code goes here
+
+		//     stats.end();
+
+		//     requestAnimationFrame( fps );
+
+		// }
+
+		// requestAnimationFrame( fps );
+
+		function playRoom(room) {
+			console.log(room);
+			var url = "/u/room.api.m.panda.tv/index.php?method=room.shareapi&roomid=" + room.id;
+			$.getJSON(url, '', function(json) {
+				var urlVideo = json.data.videoinfo.address;
+				urlVideo = urlVideo.replace('http:/', '/u');
+				VRhls.loadSource(urlVideo);
+				VRhls.attachMedia(video2);
+			});
+		}
+	</script>
+
+	<script src="src/hls.min.js"></script>
+	<script>
+		var VRhls;
+		if (Hls.isSupported()) {
+			function playVideo(video) {
+				var texture = new THREE.VideoTexture(video);
+				texture.minFilter = THREE.LinearFilter;
+				texture.magFilter = THREE.LinearFilter;
+				texture.format = THREE.RGBFormat;
+
+				texture.wrapS = THREE.ClampToEdgeWrapping;
+				texture.wrapT = THREE.ClampToEdgeWrapping;
+
+				var geometry = new THREE.PlaneGeometry(3, 1.8);
+				var material = new THREE.MeshBasicMaterial({
+					map: texture,
+					color: 0xffffff,
+					side: THREE.DoubleSide
+				});
+				var videoPlane = new THREE.Mesh(geometry, material);
+				videoPlane.position.set(0, controls.userHeight, -1.5);
+				videoPlane.position.x = 0;
+				scene.add(videoPlane);
+			}
+			var video2 = document.getElementById('video2');
+			var hls = new Hls();
+			var VRhls = hls;
+			hls.attachMedia(video2);
+			hls.on(Hls.Events.MANIFEST_PARSED, function() {
+				// video2.play();
+				playVideo(video2);
+			});
+		}
+
+		$(renderer.domElement).on('click', function() {
+			video.play();
+			video2.play();
+			video_content.play();
+		});
+	</script>
+
+</html>

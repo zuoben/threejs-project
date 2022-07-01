@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>朵朵视野-Three.js模拟实现太阳系</title>
+    <link href="./css/index.css" rel="stylesheet">
+    <script type="text/javascript" src="./js/three.min.js"></script>
+    <script type="text/javascript" src="./js/OrbitControls.js"></script>
+</head>
+<body>
+	<ul id="starry-lite">
+		<li><p>太阳：</p><img src="./image/sun_min_bg.png" /></li>
+		<li><p>水星：</p><img src="./image/mercury_min_bg.png" /></li>
+		<li><p>金星：</p><img src="./image/venus_min_bg.png" /></li>
+		<li><p>地球：</p><img src="./image/earth_min_bg.png" /></li>
+		<li><p>火星：</p><img src="./image/spark_min_bg.png" /></li>
+		<li><p>木星：</p><img src="./image/jupiter_min_bg.png" /></li>
+		<li><p>土星：</p><img src="./image/saturn_min_bg.png" /></li>
+		<li><p>天王星：</p><img src="./image/uranus_min_bg.png" /></li>
+		<li><p>海王星：</p><img src="./image/neptune_min_bg.png" /></li>
+	</ul>
+	<div id="starry-frame"></div>
+	</body>
+	<script>
+	    // 渲染器
+	    var renderer = null;
+	    // 相机
+	    var camera = null;
+	    // 场景
+	    var scene = null;
+	    // 中心球体（太阳）
+	    var centerBall = null;
+	    // 中心球体轨道组合体（行星）
+	    var starLites = [];
+	    // 包裹画布dom
+	    var dom = document.getElementById("starry-frame");
+	    // orbitcontrols对象参数
+	    var orbitcontrols = null;
+	    /**
+	     * 返回行星轨道的组合体
+	     * @param starLiteSize 行星的大小
+	     * @param starLiteRadius 行星的旋转半径
+	     * @param rotation 行星组合体的x,y,z三个方向的旋转角度
+	     * @param speed 行星运动速度
+	     * @param imgUrl 行星的贴图
+	     * @param scene 场景
+	     * @returns {{satellite: THREE.Mesh, speed: *}} 卫星组合对象;速度
+	     */
+	    var initSatellite = function (starLiteSize, starLiteRadius, rotation, speed, imgUrl, scene) {
+	 
+	        var track = new THREE.Mesh(new THREE.RingGeometry(starLiteRadius, starLiteRadius + 0.05, 50, 1), new THREE.MeshBasicMaterial());
+	        var centerMesh = new THREE.Mesh(new THREE.SphereGeometry(1, 1, 1), new THREE.MeshLambertMaterial()); //材质设定
+	        var starLite = new THREE.Sprite(new THREE.SpriteMaterial({
+	        	map: THREE.ImageUtils.loadTexture(imgUrl)
+	        }));
+	        starLite.scale.x = starLite.scale.y = starLite.scale.z = starLiteSize;
+	        starLite.position.set(starLiteRadius, 0, 0);
+	 
+	        var pivotPoint = new THREE.Object3D();
+	        pivotPoint.add(starLite);
+	        pivotPoint.add(track);
+	        centerMesh.add(pivotPoint);
+	        centerMesh.rotation.set(rotation.x, rotation.y, rotation.z);
+	        scene.add(centerMesh);
+	        return {starLite: centerMesh, speed: speed};
+	    };
+	 
+	    /**
+	     * 实现球体发光
+	     * @param color 颜色的r,g和b值,比如：“123,123,123”;
+	     * @returns {Element} 返回canvas对象
+	     */
+	    var generateSprite = function (color) {
+	        var canvas = document.createElement('canvas');
+	        canvas.width = 16;
+	        canvas.height = 16;
+	        var context = canvas.getContext('2d');
+	        var gradient = context.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2);
+	        gradient.addColorStop(0, 'rgba(' + color + ',1)');
+	        gradient.addColorStop(0.2, 'rgba(' + color + ',1)');
+	        gradient.addColorStop(0.4, 'rgba(' + color + ',.6)');
+	        gradient.addColorStop(1, 'rgba(0,0,0,0)');
+	        context.fillStyle = gradient;
+	        context.fillRect(0, 0, canvas.width, canvas.height);
+	        return canvas;
+	    };
+	    // 执行函数
+	    var render = function () {
+	        renderer.render(scene, camera);
+	        centerBall.rotation.y -= 0.01;
+	        for (var i = 0; i < starLites.length; i++) {
+	            starLites[i].starLite.rotation.z -= starLites[i].speed;
+	        }
+	    	orbitcontrols.update();
+	        requestAnimationFrame(render);
+	    }
+	    // 初始化函数
+	    var initThree = function () {
+	        // 初始化场景
+	        scene = new THREE.Scene();
+	        // 初始化相机
+	        camera = new THREE.PerspectiveCamera(20, dom.clientWidth / dom.clientHeight, 1, 1000);
+	        // 设置相机位置
+	        camera.position.set(0, 0, 500);
+	        renderer = new THREE.WebGLRenderer({
+	            alpha: true,
+	            antialias: true
+	        });
+	        // 设置窗口尺寸
+	        renderer.setSize(dom.clientWidth, dom.clientHeight);
+	        // 初始化控制器
+	        orbitcontrols = new THREE.OrbitControls(camera,renderer.domElement);
+	        dom.appendChild(renderer.domElement);
+	        // 定义太阳材质
+	        var sunTexture = THREE.ImageUtils.loadTexture('./image/sun_bg.jpg', {}, function () {
+	            renderer.render(scene, camera);
+	        });
+	        // 太阳以及太阳材质设定
+	        centerBall = new THREE.Mesh(new THREE.SphereGeometry(30, 30, 30), new THREE.MeshBasicMaterial({
+	            map: sunTexture
+	        }));
+	        // 添加太阳发光效果
+	        var centerBallLite = new THREE.Sprite(new THREE.SpriteMaterial({
+	            map: new THREE.CanvasTexture(generateSprite('253,111,7')),
+	            blending: THREE.AdditiveBlending
+	        }));
+	        centerBallLite.scale.x = centerBallLite.scale.y = centerBallLite.scale.z = 90;
+	        scene.add(centerBallLite);
+	        scene.add(centerBall);
+	        //添加水星
+	        starLites.push(initSatellite(2, 34, {x: -Math.PI * 0.42, y: Math.PI * 0.02, z: 0}, 0.02, './image/mercury_bg.png', scene));
+	        //添加金星
+	        starLites.push(initSatellite(3, 38, {x: -Math.PI * 0.42, y: Math.PI * 0.02, z: 0}, 0.018, './image/venus_bg.png', scene));
+	        //添加地球
+	        starLites.push(initSatellite(3.2, 42.2, {x: -Math.PI * 0.42, y: Math.PI * 0.02, z: 0}, 0.016, './image/earth_bg.png', scene));
+	        //添加火星
+	        starLites.push(initSatellite(2.5, 47.1, {x: -Math.PI * 0.42, y: Math.PI * 0.02, z: 0}, 0.014, './image/spark_bg.png', scene));
+	        //添加木星
+	        starLites.push(initSatellite(35, 71, {x: -Math.PI * 0.42, y: Math.PI * 0.02, z: 0}, 0.012, './image/jupiter_bg.png', scene));
+	        //添加土星
+	        starLites.push(initSatellite(45, 110, {x: -Math.PI * 0.42, y: Math.PI * 0.02, z: 0}, 0.01, './image/saturn_bg.png', scene));
+	        //添加天王星
+	        starLites.push(initSatellite(17, 158, {x: -Math.PI * 0.42, y: Math.PI * 0.02, z: 0}, 0.008, './image/uranus_bg.png', scene));
+	        //添加海王星
+	        starLites.push(initSatellite(15, 188, {x: -Math.PI * 0.42, y: Math.PI * 0.02, z: 0}, 0.006, './image/neptune_bg.png', scene));
+	        
+	        render();
+	    }
+	    
+	    // 页面资源加载完全执行函数
+	    window.onload = function () {
+	    	initThree()
+	    	aceInitFun()
+	    }
+	    // 窗口resize事件
+	    window.onresize = function () {
+	    	// 重新初始化尺寸
+	        camera.aspect = dom.clientWidth / dom.clientHeight
+	        camera.updateProjectionMatrix()
+	        renderer.setSize(dom.clientWidth, dom.clientHeight)
+	    }
+	</script>
+</html>

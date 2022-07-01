@@ -1,0 +1,55 @@
+/*
+ * The Typekit service used to deliver this font or fonts for use on websites
+ * is provided by Adobe and is subject to these Terms of Use
+ * http://www.adobe.com/products/eulas/tou_typekit. For font license
+ * information, see the list below.
+ *
+ * azo-sans-uber:
+ *   - http://typekit.com/eulas/000000000000000000014a2e
+ * bodoni-urw:
+ *   - http://typekit.com/eulas/00000000000000000001793e
+ * ltc-bodoni-175:
+ *   - http://typekit.com/eulas/00000000000000003b9b21dc
+ *
+ * © 2009-2022 Adobe Systems Incorporated. All Rights Reserved.
+ */
+/*{"last_published":"2019-11-09 07:11:50 UTC"}*/
+
+@font-face {
+	font-family: "ltc-bodoni-175";
+	src: url("1") format("woff2"), url("2") format("woff"), url("3") format("opentype");
+	font-display: auto;
+	font-style: normal;
+	font-weight: 400;
+	font-stretch: normal;
+}
+
+@font-face {
+	font-family: "bodoni-urw";
+	src: url("1") format("woff2"), url("2") format("woff"), url("3") format("opentype");
+	font-display: auto;
+	font-style: normal;
+	font-weight: 400;
+	font-stretch: normal;
+}
+
+@font-face {
+	font-family: "azo-sans-uber";
+	src: url("font") format("opentype");
+	font-display: auto;
+	font-style: normal;
+	font-weight: 400;
+	font-stretch: normal;
+}
+
+.tk-ltc-bodoni-175 {
+	font-family: "ltc-bodoni-175", serif;
+}
+
+.tk-bodoni-urw {
+	font-family: "bodoni-urw", serif;
+}
+
+.tk-azo-sans-uber {
+	font-family: "azo-sans-uber", sans-serif;
+}
