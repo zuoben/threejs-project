@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Threejs实现炫舞</title>
+		<meta charset="utf-8">
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="container"></div>
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "./libs/jsm/three.module.js"
+				}
+			}
+		</script>
+		<script type="module">
+			import * as THREE from 'three';
+
+			import {
+				OrbitControls
+			} from './libs/jsm/OrbitControls.js';
+
+			import {
+				GLTFLoader
+			} from './libs/jsm/GLTFLoader.js';
+
+			import {
+				RGBELoader
+			} from './libs/jsm/RGBELoader.js';
+
+			import {
+				TWEEN
+			} from './libs/jsm/tween.module.min.js';
+
+			import {
+				GUI
+			} from './libs/jsm/lil-gui.module.min.js';
+
+			let camera, scene, renderer, stats, gui;
+
+			let grid;
+			let controls, clock;
+			let mixer;
+			let modelList = [];
+
+			function init() {
+				clock = new THREE.Clock();
+
+				const container = document.getElementById('container');
+
+				renderer = new THREE.WebGLRenderer({
+					antialias: true
+				});
+				renderer.setPixelRatio(window.devicePixelRatio);
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				renderer.outputEncoding = THREE.sRGBEncoding;
+				renderer.shadowMap.enabled = true;
+				container.appendChild(renderer.domElement);
+
+				window.addEventListener('resize', onWindowResize);
+
+				camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 10000);
+				camera.position.set(-2, 2, 6);
+
+				controls = new OrbitControls(camera, container);
+				controls.maxDistance = 50;
+				controls.target.set(0, 1, 0);
+				controls.update();
+
+				scene = new THREE.Scene();
+				scene.background = new THREE.Color(0xe0e0e0);
+				scene.fog = new THREE.Fog(0xe0e0e0, 20, 100);
+
+				grid = new THREE.GridHelper(200, 40, 0x000000, 0x000000);
+				grid.material.opacity = 0.2;
+				grid.material.depthWrite = false;
+				grid.material.transparent = true;
+				scene.add(grid);
+
+				const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444);
+				hemiLight.position.set(0, 20, 0);
+				scene.add(hemiLight);
+
+				const dirLight = new THREE.DirectionalLight(0xffffff);
+				dirLight.position.set(3, 10, 10);
+				dirLight.castShadow = true;
+				dirLight.shadow.camera.top = 2;
+				dirLight.shadow.camera.bottom = -2;
+				dirLight.shadow.camera.left = -2;
+				dirLight.shadow.camera.right = 2;
+				dirLight.shadow.camera.near = 0.1;
+				dirLight.shadow.camera.far = 40;
+				scene.add(dirLight);
+
+				const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2000, 2000), new THREE.MeshPhongMaterial({
+					color: 0x999999,
+					depthWrite: false
+				}));
+				mesh.rotation.x = -Math.PI / 2;
+				scene.add(mesh);
+
+
+				const loader = new GLTFLoader();
+				loader.load('assets/models/Xbot1.glb', function(gltf) {
+					let model = gltf.scene;
+					model.traverse(function(object) {
+						if (object.isMesh) object.castShadow = true;
+					});
+					model.name = "Xbot1"
+					modelList.push(gltf);
+				});
+
+				loader.load('assets/models/Xbot2.glb', function(gltf) {
+					let model = gltf.scene;
+					model.traverse(function(object) {
+						if (object.isMesh) object.castShadow = true;
+					});
+					model.name = "Xbot2"
+					modelList.push(gltf);
+
+					createGUI();
+				});
+			}
+
+			function modelFun(gltf) {
+				scene.traverse(function(object) {
+					if (object instanceof THREE.Group) scene.remove(object);
+				});
+				console.log(scene)
+
+				let model = gltf.scene;
+				scene.add(model);
+				const animations = gltf.animations;
+				mixer = new THREE.AnimationMixer(model);
+				const action = mixer.clipAction(animations[0]);
+				action.play();
+				animate();
+			}
+
+			function createGUI() {
+				const gui = new GUI();
+				var api = {}
+				api["fun1"] = function() {
+					modelFun(modelList[0]);
+				}
+				api["fun2"] = function() {
+					modelFun(modelList[1]);
+				}
+				gui.add(api, 'fun1').name("动作一");
+				gui.add(api, 'fun2').name("动作二");
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize(window.innerWidth, window.innerHeight);
+
+			}
+
+			function animate() {
+				requestAnimationFrame(animate);
+
+				const time = -performance.now() / 1000;
+				controls.update();
+
+				renderer.render(scene, camera);
+				const delta = clock.getDelta();
+				mixer.update(delta);
+				// grid.position.z = -(time) % 1;
+			}
+
+			init();
+
+			// 拾取对象
+			function pickupObjects(event) {
+				// 点击屏幕创建一个向量
+				var raycaster = new THREE.Raycaster();
+				var vector = new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window
+					.innerHeight) * 2 + 1);
+				raycaster.setFromCamera(vector, camera);
+				let intersects = raycaster.intersectObjects(scene.children);
+				// console.log(intersects)
+			}
+			document.addEventListener('click', pickupObjects, false); //监听单击拾取对象初始化球体
+		</script>
+
+	</body>
+</html>
