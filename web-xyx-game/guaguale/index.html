@@ -13,6 +13,8 @@
 		<meta name="browsermode" content="application">
 		<meta name="x5-orientation" content="portrait">
 		<title>刮刮乐</title>
+		<script type="text/javascript" src="../../libs/statistics.js"></script>
+		<script type="text/javascript" src="../../libs/steak.js"></script>
 		<link rel="stylesheet" href="./index.css">
 	</head>
 
@@ -27,18 +29,19 @@
 			overflow-y: hidden;
 			background-image: url(ggbj.jpg);
 		}
-		
+
 		#app {
 			position: relative;
-			top: 50%; /*偏移*/
+			top: 50%;
+			/*偏移*/
 			transform: translateY(-50%);
 		}
-		
+
 		.title {
 			color: #ffe519;
 			padding-top: 20%;
 		}
-	
+
 		.outBox {
 			height: 500px;
 			background-color: #ab0000;
@@ -79,15 +82,15 @@
 	<body>
 		<div id="app" v-show="visible">
 			<el-row type="flex" justify="space-around">
-			  <el-col :span="4" v-for="(index) in 5">
-				 <div class="outBox">
-					<h1 class="title">惊喜刮刮乐</h1>
-					<div id="scratch">
-						<div id="card">{{prizeList[index]}}</div>
-						<img class="guaguaImg" :id="ki(index)" src="./guagua.jpg">
+				<el-col :span="4" v-for="(index) in 5">
+					<div class="outBox">
+						<h1 class="title">惊喜刮刮乐</h1>
+						<div id="scratch">
+							<div id="card">{{prizeList[index]}}</div>
+							<img class="guaguaImg" :id="ki(index)" src="./guagua.jpg">
+						</div>
 					</div>
-				  </div>
-			  </el-col>
+				</el-col>
 			</el-row>
 		</div>
 
@@ -97,35 +100,35 @@
 		<script src="./jquery.eraser.js"></script>
 		<script>
 			new Vue({
-			  el: '#app',
-			  data: function() {
-				return { 
-					visible: false,
-					prizeList: ["谢谢参与", "谢谢参与", "谢谢参与", "带薪退休", "谢谢参与", "谢谢参与"]
+				el: '#app',
+				data: function() {
+					return {
+						visible: false,
+						prizeList: ["谢谢参与", "谢谢参与", "谢谢参与", "带薪退休", "谢谢参与", "谢谢参与"]
+					}
+				},
+				mounted() {
+					for (var i = 1; i < 6; i++) {
+						this.initCard(i);
+					}
+				},
+				created() {
+					this.visible = true;
+				},
+			 methods: {
+					ki: function(i) {
+						return "guaguaImg" + i
+					},
+					initCard(index) {
+						$("#guaguaImg" + index).eraser({
+							"size": 15,
+							completeRatio: .4, //擦到百分之多少清屏
+							completeFunction: function() {
+								$("#guaguaImg" + index).eraser('clear');
+							}
+						});
+					}
 				}
-			  },
-			  mounted() {
-				for(var i = 1; i < 6; i++) {
-					this.initCard(i);
-				}
-			  },
-			  created() {
-				this.visible = true;
-			  },
-			  methods: {
-				  ki: function (i) {
-					  return "guaguaImg" + i
-				  },
-				  initCard(index) {
-					$("#guaguaImg" + index).eraser({
-						"size": 15,
-						completeRatio: .4, //擦到百分之多少清屏
-						completeFunction: function() {
-							$("#guaguaImg" + index).eraser('clear');
-						}
-					});
-				  }
-			  }
 			})
 		</script>
 	</body>
