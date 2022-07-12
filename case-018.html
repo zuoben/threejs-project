@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<script type="text/javascript" src="libs/steak.js"></script>
 		<title>物联网，工厂3D可视化系统，模型展示，防止扒码</title>
 		<meta charset="UTF-8">
 		<meta http-equiv="Pragma" content="no-cache" />
@@ -20,58 +21,6 @@
 	</head>
 	<body>
 		<div id="dom"></div>
-		<script type="text/javascript">
-			document.onkeydown = function(e) {
-				if (e.ctrlKey == true && e.keyCode == 83) {
-					event.preventDefault();
-				}
-				var currentKey = 0,
-					k = e || window.event;
-				currentKey = k.keyCode || k.which || k.charCode;
-				if (currentKey == 123) {
-					window.event.cancelBubble = true;
-					window.event.returnValue = false;
-				}
-			}
-		</script>
-		<script type="text/javascript">
-			((function() {
-				var callbacks = [],
-					timeLimit = 50,
-					open = false;
-				setInterval(loop, 1);
-				return {
-					addListener: function(fn) {
-						callbacks.push(fn);
-					},
-					cancleListenr: function(fn) {
-						callbacks = callbacks.filter(function(v) {
-							return v !== fn;
-						});
-					}
-				}
-
-				function loop() {
-					var startTime = new Date();
-					debugger;
-					if (new Date() - startTime > timeLimit) {
-						if (!open) {
-							callbacks.forEach(function(fn) {
-								fn.call(null);
-							});
-						}
-						open = true;
-						window.stop();
-						alert('大佬别扒了！');
-						document.body.innerHTML = "";
-					} else {
-						open = false;
-					}
-				}
-			})()).addListener(function() {
-				window.location.reload();
-			});
-		</script>
 		<script type="text/javascript">
 			var camera;
 			var renderer;
