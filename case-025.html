@@ -24,12 +24,20 @@
 			var renderer;
 
 			function init() {
+				var urls3 = [
+					'assets/bgImage/skyBox3/posx.jpg',
+					'assets/bgImage/skyBox3/negx.jpg',
+					'assets/bgImage/skyBox3/posy.jpg',
+					'assets/bgImage/skyBox3/negy.jpg',
+					'assets/bgImage/skyBox3/posz.jpg',
+					'assets/bgImage/skyBox3/negz.jpg'
+				];
 				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
 				var scene = new THREE.Scene();
-				var cubeLoader = new THREE.CubeTextureLoader();
 				scene.opacity = 0;
 
 				var cubeLoader = new THREE.CubeTextureLoader();
+				scene.background = cubeLoader.load(urls3);
 				var textureLoader = new THREE.TextureLoader();
 
 				// 创建一个摄像机，它定义了我们正在看的地方
