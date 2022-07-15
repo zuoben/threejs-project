@@ -1,0 +1,128 @@
+studyproject 课题项目
+
+006  c++ 红外图与深度图结合的人脸识别+活体检测
+运行准备:1、Ubuntu C++ 编译dlib库参照文章：Ubuntu下编译C++与python版Dlib库，附新建样例程序（dlib+opencv） 2、数据+模型下载 百度云盘 https://pan.baidu.com/s/1jIoW6BSa5nkGWNipL7sxVQ 其中包括：candidate-face.zip（人脸库：包含29个正面
+2019-01-23 12:00:20
+
+005  C++ warning!warning!warning!
+1、warning: ISO C++ forbids converting a string constant to ‘char*’ [-Wwrite-strings]
+
+char *imgFile = “data/IR_62_78_150_151.jpg”;
+
+分析 ：char *背后的含义是：这个字符串，我要修改它。而传给函数的字面常量是没法被修改的。
+修正：把参数类型修改为const
+2018-12-18 16:37:43
+
+004 人脸深度图活体检测_SVM（Ubuntu+opencv3）
+环境
+
+Ubuntu ，opencv3
+
+数据准备
+
+原始深度图（已标定过人脸位置） 百度云盘 https://pan.baidu.com/s/1Hi85o521oIGaAfDoavOXeA
+使用MATLAB进行数据采集与处理：
+1、运行dataGet_MATLAB/position_process.m，进行深度图片的人脸位置的快速批量标定，鼠标
+2018-11-19 20:57:19
+
+003 C++ 时间类型及相互转换详解 time_t与tm
+时间常见的有两种存储方式:
+time_t :整数类型 用来存储从1970年到现在经过了多少秒
+tm :结构类型 把日期和时间以 C 结构的形式保存，tm 结构的定义如下：
+struct tm {
+int tm_sec; // 秒，正常范围从 0 到 59，但允许至 61
+int tm_min; // 分，范围从 0 到 59
+int tm_hour
+2018-10-25 11:18:28
+
+002 C++ 近红外人脸定位与深度图人脸活体检测（.raw深度图像）
+近红外人脸定位与活体检测 通过深度相机的红外图进行人脸位置定位，传给深度图进行活体检测 注：利用rgb传来的位置对应到深度图上偏差过大，直接利用深度相机产生的红外图像进行人脸位置的确定更加精准。运行
+
+dlib_test.cpp
+ #include <dlib/image_processing/
+2018-10-22 11:35:07
+
+001 matlab 深度图人脸活体检测（.raw深度图像）
+百度云盘 https://pan.baidu.com/s/161xSbayGW7tKg0tKfTW1mw ，PLANE_OR_NOT参数选为 0.2
+
+ 200张人脸深度图.raw文件在face文件夹，200纸张攻击深度图.raw文件在non-face文件夹，人脸位置标注信息在同标题txt文件第一行RAW_PATH = '/home/zhoujie/
+2018-10-22 11:28:26
+
+
+algorithmic 算法
+
+004 matterport mask_rcnn配置运行 Ubuntu Jupyter&pycharm
+mask_rcnn github地址：https://github.com/matterport/Mask_RCNN
+
+一、配置
+
+1、安装 Anconda
+
+Anconda下载地址：https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/
+
+2、创建名为tensorflow的python36环境 conda create -n tensorflow python=3.6 //创建
+2018-12-17 17:00:42
+
+003 Win10+python36+opencv编译配置Dlib（anoconda）实时人脸识别
+win10+python3.6.7+dlib-19.7.0+opencv_python-3.4.4.19
+
+1、anconda下载：https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/
+双击进行安装，中途会弹出命令行一定不能关掉 
+
+2、打开Anconda Prompt，创建python36环境
+conda create -n py36 python=3.6 
+2018-12-13 18:08:37
+
+002 Ubuntu下编译C++与python版Dlib库，附新建样例程序
+下载Dlib 进入官网：http://dlib.net/ ，点击左下角Download dlib ver.19.16 ，下载后解压。安装cmake 运行 sudo apt-get install cmake 安装cmake ，如果提醒需要apt-get update，那就先sudo apt-get update，然后再执行 sudo apt-get install cmake 1. Python 编译
+2018-11-30 16:55:00
+
+001 python 人脸识别（含训练人脸库）Ubuntu+dlib+opencv
+Face_Recognition_dlib
+
+环境
+
+Ubuntu 16.04
+opencv 3.0 for python3.6 pip install opencv-python
+dlib 19.16
+模型下载
+
+人脸关键点检测器 predictor_path="shape_predictor_68_face_landmarks.dat
+人脸识别模型 face_rec_model_path = "dlib_face_recognition_resnet_model_v1.dat
+2018-11-29 18:50:47
+
+
+webprogram web开发
+
+004 微信小程序 西交二手交易信息
+西交二手交易平台，与学校 NetID账号对接，只有在进行认证后才能发布信息及获得完整的联系方式，这样有效保证了二手交易物品信息的可靠性，同时简化了传统的注册和认证等操作。“西交二手易信息”小程序中共有5个一级tab ，分别是“公告牌 ”、“旧物 ”、“发布 ”、“旧 书
+2019-02-16 19:55:14
+
+003 一步步配置腾讯云服务器Ubuntu 通过域名访问自己的网页tomcat
+STEP1:购买云服务器+域名
+
+购买学生优惠套餐 10元/月：https://cloud.tencent.com/act/campus?fromSource=gwzcw.1088196.1088196.1088196
+系统选ubuntu，购买3个月加购域名共38元（3个月以下没法添加域名解析），买了域名以后可以直接通过域名访问 
+收到服务器信息
+2019-01-24 18:52:55
+
+002 利用浏览器本地存储localStorage进行换肤 
+刷新页面，界面效果依然不会改变。点击选择相应的颜色，字体后，添加本地存储localStorage.color_style和localStorage.font_style，用添加的本地存储样式覆盖掉现有的样式，在页面头部添加的js保证刷新跳转后页面样式不变。
+
+本地存储localStorage 相关知识
+
+1、简介
+localStorage
+2019-01-24 12:21:02
+
+001 微信小程序 人脸追踪+人脸识别+视频上传 页面
+调用的百度人脸识别api，免费账户就可以，虽然有QPS限制但对于自己学习使用是足够的。
+
+自己的access_token获取看这里：http://ai.baidu.com/docs#/Face-Detect-V3/top 在手机端的主页效果，第二个即为演示图上传的视频 更新：改了识别结果显示方式，增加了多人识别
+2019-01-17 12:23:19
+
+
+three
+
+001 Three.js+tween.js 基础(一)
+2019-01-26 11:08:36

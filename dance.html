@@ -2,8 +2,8 @@
 <html lang="en">
 	<head>
 		<title>Threejs实现炫舞</title>
-		<script type="text/javascript" src="libs/statistics.js"></script>
-		<script type="text/javascript" src="libs/steak.js"></script>
+		<!-- <script type="text/javascript" src="libs/statistics.js"></script> -->
+		<!-- <script type="text/javascript" src="libs/steak.js"></script> -->
 		<meta charset="utf-8">
 		<style>
 			body {
@@ -29,8 +29,8 @@
 			} from './libs/jsm/OrbitControls.js';
 
 			import {
-				GLTFLoader
-			} from './libs/jsm/GLTFLoader.js';
+				FBXLoader
+			} from './libs/jsm/FBXLoader.js';
 
 			import {
 				RGBELoader
@@ -107,41 +107,49 @@
 				mesh.rotation.x = -Math.PI / 2;
 				scene.add(mesh);
 
+				loaderFbx('assets/models/Xbot.fbx', true);
+				loaderFbx('assets/models/Xbot1.fbx');
+				loaderFbx('assets/models/Xbot2.fbx');
+				loaderFbx('assets/models/Xbot3.fbx');
+				loaderFbx('assets/models/Xbot4.fbx');
+				createGUI();
+			}
 
-				const loader = new GLTFLoader();
-				loader.load('assets/models/Xbot1.glb', function(gltf) {
-					let model = gltf.scene;
-					model.traverse(function(object) {
+			function loaderFbx(url, bool) {
+				const loader = new FBXLoader();
+				loader.load(url, function(object) {
+					object.traverse(function(object) {
 						if (object.isMesh) object.castShadow = true;
 					});
-					model.name = "Xbot1"
-					modelList.push(gltf);
-				});
-
-				loader.load('assets/models/Xbot2.glb', function(gltf) {
-					let model = gltf.scene;
-					model.traverse(function(object) {
-						if (object.isMesh) object.castShadow = true;
-					});
-					model.name = "Xbot2"
-					modelList.push(gltf);
-
-					createGUI();
+					object.scale.set(0.01, 0.01, 0.01);
+					// object.name = "Xbot4"
+					modelList.push(object);
+					
+					if(bool) {
+						modelFun(modelList[0], 0);
+					}
 				});
 			}
 
-			function modelFun(gltf) {
-				scene.traverse(function(object) {
-					if (object instanceof THREE.Group) scene.remove(object);
+			function modelFun(model, num) {
+				scene.traverse(function(obj) {
+					if (obj instanceof THREE.Group) scene.remove(obj);
 				});
-				console.log(scene)
+				// console.log(model)
 
-				let model = gltf.scene;
 				scene.add(model);
-				const animations = gltf.animations;
 				mixer = new THREE.AnimationMixer(model);
-				const action = mixer.clipAction(animations[0]);
+				// mixer.addEventListener('loop', function(e) {
+				// 	modelFun(modelList[0]);
+				// });
+				mixer.addEventListener('finished', function(e) {
+					modelFun(modelList[0], 0);
+				});
+				const action = mixer.clipAction(model.animations[num]);
 				action.play();
+				action.setLoop(THREE.LoopOnce);
+				// console.log(action.getClip())
+
 				animate();
 			}
 
@@ -149,13 +157,21 @@
 				const gui = new GUI();
 				var api = {}
 				api["fun1"] = function() {
-					modelFun(modelList[0]);
+					modelFun(modelList[1], 0);
 				}
 				api["fun2"] = function() {
-					modelFun(modelList[1]);
+					modelFun(modelList[2], 0);
+				}
+				api["fun3"] = function() {
+					modelFun(modelList[3], 0);
+				}
+				api["fun4"] = function() {
+					modelFun(modelList[4], 1);
 				}
 				gui.add(api, 'fun1').name("动作一");
 				gui.add(api, 'fun2').name("动作二");
+				gui.add(api, 'fun3').name("动作三");
+				gui.add(api, 'fun4').name("动作四");
 			}
 
 			function onWindowResize() {

@@ -1,0 +1,231 @@
+.meta {
+  font-size: 14px;
+  line-height: 36px;
+  position: relative;
+  margin: 8% 0 0;
+  padding: 8% 0 0;
+  top:50px;
+}
+
+.article-title {
+  color: #46474b;
+}
+
+.time {
+  color: #AAB2BD;
+  font-size: 90%;
+}
+
+.meta::before {
+  content: '';
+  background: #434A54;
+  width: 80px;
+  height: 2px;
+  position: absolute;
+  top: 0;
+  left: -40px;
+}
+
+.meta main{
+  font-size: 1rem;
+  margin: 2rem 0;
+}
+
+.meta main p:after{
+  content: '…';
+}
+
+.article-title h2:hover{
+  color: #50a4e4;
+}
+
+
+article:first-child::before{
+  display:none;
+}
+
+article:first-child{
+  padding: 0;
+}
+.reade_more {
+  text-align: center;
+  margin: 12% 0;
+  top:20px;
+  position: relative;
+}
+
+span.page-numbers  {
+  display: inline-block;
+  border-radius: 2px;
+  margin: 0 .6%;
+  padding: 0.5% 2.6%;
+  color: #fff;
+  background: #50a4e4;
+}
+
+.page-numbers{  
+  display: inline-block;
+  border-radius: 2px;
+  margin: 0 .6%;
+  padding: 0.5% 2.6%;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.1) inset;
+  background: #F5F7FA;
+  transition: .3s;
+}
+
+.page-numbers:hover{
+  color: #fff;
+  background: #50a4e4;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.setting_tool {
+  position: fixed;
+  bottom: 38%;
+  right: 0;
+  width: 36px;
+  box-shadow: 0 0 2px rgba(0,0,0,.1);
+  z-index: 99;
+  background: #fff;
+}
+
+.setting_tool a {
+  font-size: 1rem;
+  text-align: center;
+  line-height: 36px;
+  width: 36px;
+  height: 36px;
+  display: block;
+  cursor: pointer;
+  background: #fff;
+}
+
+i {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+
+div.c {
+  display: block;
+  height: 100px;
+  bottom: -64px;
+  z-index: -2;
+}
+
+div.c ul {
+  text-align: center;
+  padding: 4px 0;
+  font-size: 12px;
+}
+
+div.c li.color {
+  display: inline-block;
+  width: 50px;
+  border-radius: 99px;
+  margin: 0 2px;
+  background: #fff;
+  color: #3274ff;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.1) inset;
+  height: 28px;
+  line-height: 28px;
+}
+
+div.c li.color.sepia {
+  background: #eae0be;
+  color: #704214;
+}
+
+div.c li.color.night {
+  background: #393f56;
+  color: #bdcadb;
+}
+
+div.c li.hr {
+  display: block;
+  width: 100%;
+  height: 1px;
+  background: rgba(0,0,0,.06);
+  margin: 8% 0 6%;
+}
+
+div.c li.font {
+  display: inline-block;
+  width: 50px;
+  font-size: 16px;
+  line-height: 20px;
+  margin: 0 16px;
+  font-family: sans-serif;
+}
+
+div.c li.font.serif {
+  font-family: serif;
+}
+
+.setting_tool div {
+  display: none;
+  position: absolute;
+  width: 200px;
+  right: 100%;
+  background: #fff;
+  padding: 10px;
+  box-shadow: 0 0 2px rgba(0,0,0,.1);
+}
+
+.fixed {
+  position: fixed;
+  z-index: 101;
+  top: 0;
+  left: 0;
+  right: 0;
+  box-shadow: 0 2px 3px rgba(170, 178, 189, 0.2);
+  line-height: 3rem;
+  height: 3rem;
+  color: #AAB2BD;
+  font-size: .9rem;
+  background: #fff;
+}
+
+.fixed-title {
+  float: left;
+  display: block;
+  font-size: 20px;
+  color: #434A54;
+  font-weight: bold;
+  position: absolute;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  margin: 0;
+}
+
+.fixed-menus {
+  float: right;
+  display: block;
+}
+
+.fixed-menus .menu {
+  padding: 0;
+  margin: 0;
+}
+
+.fixed-menus ul li a:after{
+  top: 1.5rem;
+}
+
+div.c ul li{
+  cursor: pointer;
+}
+
+div.c ul li.font:hover{
+  font-weight: bold;
+}
+

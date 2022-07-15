@@ -1,0 +1,1374 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/title.jpg?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/title.jpg?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/title.jpg?v=5.1.4">
+
+
+
+
+
+
+  <meta name="keywords" content="活体检测,近红外人脸定位,SVM,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="ZhouJie's Blog" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="环境Ubuntu ，opencv3   数据准备原始深度图（已标定过人脸位置） 百度云盘：https://pan.baidu.com/s/1Hi85o521oIGaAfDoavOXeA使用MATLAB进行数据采集与处理：">
+<meta name="keywords" content="活体检测,近红外人脸定位,SVM">
+<meta property="og:type" content="article">
+<meta property="og:title" content="人脸深度图活体检测_SVM（Ubuntu+opencv3）">
+<meta property="og:url" content="http://yoursite.com/2018/11/19/4/index.html">
+<meta property="og:site_name" content="ZhouJie&#39;s Blog">
+<meta property="og:description" content="环境Ubuntu ，opencv3   数据准备原始深度图（已标定过人脸位置） 百度云盘：https://pan.baidu.com/s/1Hi85o521oIGaAfDoavOXeA使用MATLAB进行数据采集与处理：">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20181119203439282.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20181119205230390.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70">
+<meta property="og:updated_time" content="2019-12-18T03:57:50.325Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="人脸深度图活体检测_SVM（Ubuntu+opencv3）">
+<meta name="twitter:description" content="环境Ubuntu ，opencv3   数据准备原始深度图（已标定过人脸位置） 百度云盘：https://pan.baidu.com/s/1Hi85o521oIGaAfDoavOXeA使用MATLAB进行数据采集与处理：">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20181119203439282.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/11/19/4/">
+
+
+
+
+
+  <title>人脸深度图活体检测_SVM（Ubuntu+opencv3） | ZhouJie's Blog</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?8adfb1a1130406391d41d87803ca8802";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+    <a href="https://github.com/zj19941113/zj19941113.github.io" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ZhouJie's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">向阳而生</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/11/19/4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ZhouJie">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/zj.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZhouJie's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">人脸深度图活体检测_SVM（Ubuntu+opencv3）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-19T20:57:19+08:00">
+                2018-11-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/深度相机/" itemprop="url" rel="index">
+                    <span itemprop="name">深度相机</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C/" itemprop="url" rel="index">
+                    <span itemprop="name">C++</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/python-机器学习/" itemprop="url" rel="index">
+                    <span itemprop="name">python/机器学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018/11/19/4/" class="leancloud_visitors" data-flag-title="人脸深度图活体检测_SVM（Ubuntu+opencv3）">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="环境"><a href="#环境" class="headerlink" title="环境"></a>环境</h1><p>Ubuntu ，opencv3  </p>
+<h1 id="数据准备"><a href="#数据准备" class="headerlink" title="数据准备"></a>数据准备</h1><p>原始深度图（已标定过人脸位置） 百度云盘：<a href="https://pan.baidu.com/s/1Hi85o521oIGaAfDoavOXeA" target="_blank" rel="noopener">https://pan.baidu.com/s/1Hi85o521oIGaAfDoavOXeA</a><br>使用MATLAB进行数据采集与处理：</p>
+<a id="more"></a>
+<p>1、运行dataGet_MATLAB/position_process.m，进行深度图片的人脸位置的快速批量标定，鼠标框出人脸位置，自动生成同名包含位置信息的txt文件。（百度云盘中已包含人脸位置信息，可跳过此步）</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">clc</span><br><span class="line">clear</span><br><span class="line">RAW_PATH = <span class="string">'/home/zhoujie/liveness detection/zjraw/face/'</span>;</span><br><span class="line">file =dir([RAW_PATH ,<span class="string">'*.raw'</span>]);</span><br><span class="line"><span class="keyword">for</span> num=<span class="number">1</span>:<span class="built_in">length</span>(file)</span><br><span class="line">f1 = fopen([RAW_PATH,file(num).name], <span class="string">'r'</span>);</span><br><span class="line">data0 = fread(f1, <span class="string">'uint16'</span>);</span><br><span class="line">fclose(f1);</span><br><span class="line">img1 = <span class="built_in">reshape</span>(data0, <span class="number">400</span>, <span class="number">345</span>);</span><br><span class="line">dep_img = img1';</span><br><span class="line">imshow(dep_img,[<span class="number">350</span>,<span class="number">800</span>]); </span><br><span class="line">mouse=imrect; </span><br><span class="line">pos=getPosition(mouse)<span class="comment">% x1 y1 w h </span></span><br><span class="line">pos=<span class="built_in">round</span>(pos);</span><br><span class="line">txtname = strrep(file(num).name,<span class="string">'.raw'</span>,<span class="string">'.txt'</span>);</span><br><span class="line">fp=fopen([RAW_PATH,txtname],<span class="string">'a'</span>);</span><br><span class="line">fprintf(fp,<span class="string">'%i %i %i %i\n'</span>,pos); </span><br><span class="line">fclose(fp);</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>2、运行dataGet_MATLAB/faceGet_process.m，进行人脸深度图的批量处理 ，需提前新建/data/face与/data/non-face空文件夹用来存放生成的正负训练样本</p>
+<figure class="highlight matlab"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line">clc</span><br><span class="line">clear</span><br><span class="line">RAW_PATH = <span class="string">'/home/zhoujie/liveness detection/zjraw/face/'</span>;</span><br><span class="line">jpg_path = <span class="string">'/home/zhoujie/liveness detection/svm/data/face/'</span>;</span><br><span class="line">file =dir([RAW_PATH ,<span class="string">'*.raw'</span>]);</span><br><span class="line"><span class="keyword">for</span> <span class="built_in">j</span>=<span class="number">1</span>:<span class="built_in">length</span>(file)</span><br><span class="line">    <span class="keyword">try</span></span><br><span class="line">        f1 = fopen([RAW_PATH,file(<span class="built_in">j</span>).name], <span class="string">'r'</span>);</span><br><span class="line">        txtname = strrep(file(<span class="built_in">j</span>).name,<span class="string">'.raw'</span>,<span class="string">'.txt'</span>);</span><br><span class="line">        [par1,par2,par3,par4] = textread([RAW_PATH,txtname],<span class="string">'%d%d%d%d'</span>,<span class="number">1</span>);</span><br><span class="line">        data0 = fread(f1, <span class="string">'uint16'</span>);</span><br><span class="line">        fclose(f1);</span><br><span class="line">        img1 = <span class="built_in">reshape</span>(data0, <span class="number">400</span>, <span class="number">345</span>);</span><br><span class="line">        dep_img = img1';</span><br><span class="line">        <span class="keyword">try</span></span><br><span class="line">            face = dep_img(par2 :par2 +par4<span class="number">-2</span>,par1 :par1 + par3<span class="number">-2</span>);</span><br><span class="line">        <span class="keyword">catch</span></span><br><span class="line">             <span class="keyword">if</span> par2 +par4<span class="number">-2</span> &gt;<span class="number">345</span></span><br><span class="line">                 face_height = <span class="number">345</span>;</span><br><span class="line">             <span class="keyword">else</span></span><br><span class="line">                 face_height = par2 +par4<span class="number">-2</span>;</span><br><span class="line">             <span class="keyword">end</span></span><br><span class="line">             <span class="keyword">if</span> par1 +par3<span class="number">-2</span> &gt;<span class="number">400</span></span><br><span class="line">                face_weight = <span class="number">400</span>;</span><br><span class="line">             <span class="keyword">else</span></span><br><span class="line">                face_weight = par1 +par3<span class="number">-2</span>;</span><br><span class="line">             <span class="keyword">end</span></span><br><span class="line">             face = dep_img(par2 :face_height,par1 :face_weight);</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        [m,n]=<span class="built_in">size</span>(face);</span><br><span class="line">         faceData = <span class="built_in">reshape</span>(face, <span class="number">1</span>, m*n);</span><br><span class="line">         faceData(<span class="built_in">find</span>(faceData==<span class="number">0</span>))=[];</span><br><span class="line">         able = <span class="number">0</span>;total = <span class="number">0</span>;</span><br><span class="line">         <span class="keyword">for</span> <span class="built_in">i</span> =<span class="number">1</span>:<span class="number">1000</span></span><br><span class="line">             num = randperm(<span class="built_in">length</span>(faceData),<span class="number">1</span>);</span><br><span class="line">             facePlane = faceData(num);</span><br><span class="line">             distance = <span class="built_in">abs</span>([<span class="number">-1</span>,faceData(num)]*[faceData;<span class="built_in">ones</span>(<span class="number">1</span>,<span class="built_in">length</span>(faceData))]);</span><br><span class="line">             total=sum(distance&lt;<span class="number">30</span>); </span><br><span class="line">             <span class="keyword">if</span> total&gt;able           </span><br><span class="line">                able=total;</span><br><span class="line">                bestfacePlane=facePlane;</span><br><span class="line">             <span class="keyword">end</span></span><br><span class="line">         <span class="keyword">end</span></span><br><span class="line">         xmax = bestfacePlane+<span class="number">50</span>;</span><br><span class="line">         xmin = bestfacePlane<span class="number">-50</span>;</span><br><span class="line">         face(<span class="built_in">find</span>(face &gt; xmax ))=xmax; </span><br><span class="line">         face(<span class="built_in">find</span>(face &lt; xmin ))=xmin; </span><br><span class="line">         ymax=<span class="number">255</span>;ymin=<span class="number">0</span>; </span><br><span class="line">         OutImg = <span class="built_in">round</span>((ymax-ymin)*(face-xmin)/(xmax-xmin) + ymin); <span class="comment">%归一化并取整</span></span><br><span class="line">         Outface=uint8(OutImg); </span><br><span class="line">         Outface = imresize(Outface, [<span class="number">40</span> <span class="number">40</span>]);</span><br><span class="line">         jpgname = [jpg_path,num2str(<span class="built_in">j</span>+<span class="number">538</span>),<span class="string">'.jpg'</span>];</span><br><span class="line">         imwrite(Outface,jpgname);      </span><br><span class="line">    <span class="keyword">catch</span></span><br><span class="line">        <span class="built_in">disp</span>(file(<span class="built_in">j</span>).name)</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/20181119203439282.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>新建文件夹data/train_image/1、data/train_image/0、data/test_image/1、data/test_image/0<br>data/face文件夹中的五分之四复制到data/train_image/1，剩下的复制到data/test_image/1<br>data/non-face文件夹中的五分之四复制到data/train_image/0，剩下的复制到data/test_image/0</p>
+<h1 id="模型训练"><a href="#模型训练" class="headerlink" title="模型训练"></a>模型训练</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt; </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span><span class="meta-string">&lt;time.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/highgui/highgui.hpp&gt;  </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/ml/ml.hpp&gt;  </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;dirent.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>; </span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> cv;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> cv::ml;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">getFiles</span><span class="params">( <span class="built_in">string</span> path, <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&amp; files)</span></span>; </span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">get_num</span><span class="params">(<span class="keyword">int</span> num, Mat&amp; trainingImages, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; trainingLabels)</span></span>; </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">    <span class="comment">//获取训练数据 </span></span><br><span class="line">    Mat classes; </span><br><span class="line">    Mat trainingData;</span><br><span class="line">    Mat trainingImages; </span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; trainingLabels;</span><br><span class="line">    get_num(<span class="number">0</span>, trainingImages, trainingLabels);</span><br><span class="line">    get_num(<span class="number">1</span>, trainingImages, trainingLabels);</span><br><span class="line">    </span><br><span class="line">    Mat(trainingImages).copyTo(trainingData); </span><br><span class="line">    trainingData.convertTo(trainingData, CV_32FC1); </span><br><span class="line">    Mat(trainingLabels).copyTo(classes); </span><br><span class="line">	</span><br><span class="line">    <span class="comment">//配置SVM训练器参数 </span></span><br><span class="line">    Ptr&lt;SVM&gt; svm = SVM::create();   </span><br><span class="line">    svm-&gt;setType(SVM::C_SVC);    </span><br><span class="line">    svm-&gt;setKernel(SVM::LINEAR); </span><br><span class="line">    </span><br><span class="line">    Ptr&lt;TrainData&gt; tData =TrainData::create(trainingData, ROW_SAMPLE, classes);</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">"SVM: start train ..."</span> &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">clock_t</span> start,finish;</span><br><span class="line">    <span class="keyword">double</span> totaltime;</span><br><span class="line">    start=clock();</span><br><span class="line"></span><br><span class="line">    svm-&gt;trainAuto(tData);  </span><br><span class="line">    svm-&gt;save(<span class="string">"svm.xml"</span>);</span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;<span class="string">"SVM: TRAIN SUCCESS !"</span>&lt;&lt;<span class="built_in">endl</span>; </span><br><span class="line">    finish=clock();</span><br><span class="line">    totaltime=(<span class="keyword">double</span>)(finish-start)/CLOCKS_PER_SEC;</span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;<span class="string">"TRAIN TIME : "</span>&lt;&lt;totaltime&lt;&lt;<span class="string">" S ！"</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line">    <span class="comment">// getchar(); </span></span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>; </span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">getFiles</span><span class="params">( <span class="built_in">string</span> path, <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&amp; files )</span> </span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">    DIR *dir;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">dirent</span> *<span class="title">ptr</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((dir=opendir(path.c_str())) == <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">		perror(<span class="string">"Open path error..."</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> ((ptr=readdir(dir)) != <span class="literal">NULL</span>) </span><br><span class="line">    &#123; </span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">strcmp</span>(ptr-&gt;d_name,<span class="string">"."</span>)==<span class="number">0</span> || <span class="built_in">strcmp</span>(ptr-&gt;d_name,<span class="string">".."</span>)==<span class="number">0</span>) <span class="comment">///current dir OR parrent dir </span></span><br><span class="line">            <span class="keyword">continue</span>; </span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(ptr-&gt;d_type == <span class="number">8</span>) <span class="comment">///file </span></span><br><span class="line">            &#123;</span><br><span class="line">                files.push_back(ptr-&gt;d_name); </span><br><span class="line">            &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(ptr-&gt;d_type == <span class="number">10</span>) <span class="comment">///link file </span></span><br><span class="line">            &#123;<span class="keyword">continue</span>; &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(ptr-&gt;d_type == <span class="number">4</span>) <span class="comment">///dir </span></span><br><span class="line">        &#123; </span><br><span class="line">            files.push_back(ptr-&gt;d_name); </span><br><span class="line">        &#125; </span><br><span class="line">    &#125; </span><br><span class="line">    closedir(dir);</span><br><span class="line">    sort(files.begin(), files.end());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">get_num</span><span class="params">(<span class="keyword">int</span> num, Mat&amp; trainingImages, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt;&amp; trainingLabels)</span> </span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">    <span class="built_in">string</span> numpath = <span class="string">"/home/zhoujie/liveness detection/svm/data/train_image/"</span>;</span><br><span class="line">    <span class="keyword">char</span> char_num[<span class="number">2</span>];</span><br><span class="line">    <span class="built_in">sprintf</span>(char_num,<span class="string">"%d"</span>,num);</span><br><span class="line">    <span class="built_in">string</span> str_num = char_num;</span><br><span class="line">    <span class="built_in">string</span> str = numpath + str_num;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">char</span>* filePath = str.data();</span><br><span class="line">    <span class="built_in">string</span> base;</span><br><span class="line">    <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; files;</span><br><span class="line">    getFiles(filePath, files); </span><br><span class="line">    <span class="keyword">int</span> number = files.size(); </span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; number;i++) </span><br><span class="line">    &#123; </span><br><span class="line">        <span class="comment">// cout &lt;&lt; "*************************** n = " &lt;&lt; i &lt;&lt; " ************************************ "&lt;&lt; endl; </span></span><br><span class="line">        base = str + <span class="string">"/"</span> + files[i];</span><br><span class="line">        Mat SrcImage=imread(base.c_str()); </span><br><span class="line">        SrcImage= SrcImage.reshape(<span class="number">1</span>, <span class="number">1</span>); </span><br><span class="line">        <span class="comment">// cout &lt;&lt; SrcImage &lt;&lt; endl; </span></span><br><span class="line">        trainingImages.push_back(SrcImage); </span><br><span class="line">        trainingLabels.push_back(num); </span><br><span class="line">    &#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行 svm_train.cpp  </p>
+<blockquote>
+<p>g++ svm_train.cpp `pkg-config –cflags –libs opencv` -o svm_train<br>./ svm_train   </p>
+</blockquote>
+<p>生成的SVM模型存储在根目录的svm.xml中</p>
+<h1 id="模型测试"><a href="#模型测试" class="headerlink" title="模型测试"></a>模型测试</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;  </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/highgui/highgui.hpp&gt;  </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;opencv2/ml/ml.hpp&gt;  </span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;dirent.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>; </span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> cv; </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">getFiles</span><span class="params">( <span class="built_in">string</span> path, <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&amp; files )</span></span>; </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span> </span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> num = <span class="number">0</span>; num &lt; <span class="number">2</span>; num ++) </span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">int</span> response;</span><br><span class="line">        <span class="keyword">int</span> result = <span class="number">0</span>; </span><br><span class="line">        <span class="keyword">float</span> accuracy;</span><br><span class="line">        <span class="built_in">string</span> numpath = <span class="string">"/home/zhoujie/liveness detection/svm/data/test_image/"</span>;</span><br><span class="line">        <span class="keyword">char</span> char_num[<span class="number">2</span>];</span><br><span class="line">        <span class="built_in">sprintf</span>(char_num,<span class="string">"%d"</span>,num);</span><br><span class="line">        <span class="built_in">string</span> str_num = char_num;</span><br><span class="line">        <span class="built_in">string</span> str = numpath + str_num;</span><br><span class="line">        <span class="keyword">const</span> <span class="keyword">char</span>* filePath = str.data();</span><br><span class="line">        <span class="built_in">string</span> base;</span><br><span class="line">        <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt; files; </span><br><span class="line">        getFiles(filePath, files ); </span><br><span class="line">        <span class="keyword">int</span> number = files.size(); </span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt;<span class="string">"文件夹"</span>&lt;&lt; num &lt;&lt;<span class="string">" 共有测试图片 "</span> &lt;&lt;number &lt;&lt;<span class="string">" 张"</span>&lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">        Ptr&lt;ml::SVM&gt;svm = ml::SVM::load(<span class="string">"svm.xml"</span>);</span><br><span class="line">    </span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>;i &lt; number;i++) </span><br><span class="line">        &#123; </span><br><span class="line">            base = str + <span class="string">"/"</span> + files[i];</span><br><span class="line">            Mat inMat = imread(base.c_str()); </span><br><span class="line">            Mat p = inMat.reshape(<span class="number">1</span>, <span class="number">1</span>); </span><br><span class="line">            p.convertTo(p, CV_32FC1); </span><br><span class="line">            response = (<span class="keyword">int</span>)svm-&gt;predict(p);  <span class="comment">// 核心代码，将检测的图片的标签返回回来，结果保存在response中</span></span><br><span class="line">            <span class="comment">// cout &lt;&lt; "识别的数字为：" &lt;&lt; response &lt;&lt; endl;</span></span><br><span class="line">            <span class="keyword">if</span> (response == num) </span><br><span class="line">            &#123; </span><br><span class="line">                result++; </span><br><span class="line">            &#125; </span><br><span class="line">	 <span class="comment">// else</span></span><br><span class="line">	 <span class="comment">// &#123;</span></span><br><span class="line">	 <span class="comment">//	 cout &lt;&lt; base.c_str() &lt;&lt; " ERROR ! " &lt;&lt; endl;</span></span><br><span class="line">         <span class="comment">// &#125;</span></span><br><span class="line">         &#125; </span><br><span class="line">        accuracy = result*<span class="number">1.0</span>/number;</span><br><span class="line">        <span class="built_in">cout</span> &lt;&lt; <span class="string">"识别正确 "</span> &lt;&lt; result &lt;&lt;<span class="string">" 张，准确率： "</span>&lt;&lt; accuracy &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>; </span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">getFiles</span><span class="params">( <span class="built_in">string</span> path, <span class="built_in">vector</span>&lt;<span class="built_in">string</span>&gt;&amp; files )</span> </span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">    DIR *dir;</span><br><span class="line">	<span class="class"><span class="keyword">struct</span> <span class="title">dirent</span> *<span class="title">ptr</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((dir=opendir(path.c_str())) == <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">		perror(<span class="string">"Open path error..."</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> ((ptr=readdir(dir)) != <span class="literal">NULL</span>) </span><br><span class="line">    &#123; </span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">strcmp</span>(ptr-&gt;d_name,<span class="string">"."</span>)==<span class="number">0</span> || <span class="built_in">strcmp</span>(ptr-&gt;d_name,<span class="string">".."</span>)==<span class="number">0</span>) <span class="comment">///current dir OR parrent dir </span></span><br><span class="line">            <span class="keyword">continue</span>; </span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(ptr-&gt;d_type == <span class="number">8</span>) <span class="comment">///file </span></span><br><span class="line">            &#123;</span><br><span class="line">                files.push_back(ptr-&gt;d_name); </span><br><span class="line">            &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(ptr-&gt;d_type == <span class="number">10</span>) <span class="comment">///link file </span></span><br><span class="line">           &#123; </span><br><span class="line">		<span class="keyword">continue</span>; </span><br><span class="line">	   &#125;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span>(ptr-&gt;d_type == <span class="number">4</span>) <span class="comment">///dir </span></span><br><span class="line">           &#123; </span><br><span class="line">                files.push_back(ptr-&gt;d_name); </span><br><span class="line">           &#125; </span><br><span class="line">    &#125; </span><br><span class="line">    closedir(dir);</span><br><span class="line">    sort(files.begin(), files.end());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>运行 svm_test.cpp  </p>
+<blockquote>
+<p>g++ svm_test.cpp `pkg-config –cflags –libs opencv` -o svm_test<br>./ svm_test   </p>
+</blockquote>
+<h1 id="运行结果"><a href="#运行结果" class="headerlink" title="运行结果"></a>运行结果</h1><p><img src="https://img-blog.csdnimg.cn/20181119205230390.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>项目地址 ：<a href="https://github.com/zj19941113/FaceLivenessDetection_SVM" target="_blank" rel="noopener">https://github.com/zj19941113/FaceLivenessDetection_SVM</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/活体检测/" rel="tag"><i class="fa fa-tag"></i> 活体检测</a>
+          
+            <a href="/tags/近红外人脸定位/" rel="tag"><i class="fa fa-tag"></i> 近红外人脸定位</a>
+          
+            <a href="/tags/SVM/" rel="tag"><i class="fa fa-tag"></i> SVM</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/10/25/3/" rel="next" title="C++ 时间类型及相互转换详解 time_t与tm">
+                <i class="fa fa-chevron-left"></i> C++ 时间类型及相互转换详解 time_t与tm
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/11/29/5/" rel="prev" title="Ubuntu+dlib+opencv摄像头实时人脸识别（含训练人脸库）">
+                Ubuntu+dlib+opencv摄像头实时人脸识别（含训练人脸库） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      
+        <div id="gitment-container"></div>
+      
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/zj.png" alt="ZhouJie">
+            
+              <p class="site-author-name" itemprop="name">ZhouJie</p>
+              <p class="site-description motion-element" itemprop="description">C++ / 后台开发 / Three</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">33</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">63</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/zj19941113" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:1601584358@qq.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/ffcjjhv" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-link"></i>CSDN</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://zhoujie1994.cn/my" target="_blank" title="主页">
+                      
+                        <i class="fa fa-fw fa-link"></i>主页</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#环境"><span class="nav-text">环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据准备"><span class="nav-text">数据准备</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#模型训练"><span class="nav-text">模型训练</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#模型测试"><span class="nav-text">模型测试</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#运行结果"><span class="nav-text">运行结果</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ZhouJie</span>
+
+  
+</div>
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">陕ICP备19000649号-1</span>
+</div>
+
+<!--
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+-->
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+<!-- LOCAL: You can save these files to your site and update links -->
+    
+        
+        <!-- <link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"> -->
+        <!-- <script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script> -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/theme-next/theme-next-gitment@1/default.css">
+        <script src="https://cdn.jsdelivr.net/gh/theme-next/theme-next-gitment@1/gitment.browser.js"></script>
+    
+<!-- END LOCAL -->
+
+    
+      <style>
+        a.gitment-editor-footer-tip { display: none; }
+        .gitment-container.gitment-footer-container { display: none; }
+      </style>
+    
+
+    
+      <script type="text/javascript">
+      function renderGitment(){
+        var gitment = new Gitment({
+            id: '1542632239000', 
+            owner: 'zj19941113',
+            repo: 'zj19941113.github.io',
+            
+            oauth: {
+            
+            
+                client_secret: '5fc128c4f5668afe365fee33ddae3d01045bd156',
+            
+                client_id: 'b8b1ba34016a28be9e53'
+            }});
+        gitment.render('gitment-container');
+      }
+
+      
+      renderGitment();
+      
+      </script>
+    
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("4zBHAlw9o2CSjEpTr7lklGEu-gzGzoHsz", "Q0URB4zACHWCSynicJioTJan");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

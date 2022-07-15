@@ -1,0 +1,138 @@
+body{
+  color: #656D78;
+  margin: 0px;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  font: 1rem/1.5 "lucida grande", "lucida sans unicode", lucida, helvetica, "PingFang SC", "Hiragino Sans GB", "STHeiti Light", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+}
+
+.header {
+  margin: 0 0 6rem;
+  padding: 4rem 0 2rem 0;
+  position: relative;
+  /* color: #656D78; */
+  font-size: .99rem;
+  
+  
+}
+
+.fullname {
+  color: #46474b;
+  margin: 0;
+  
+}
+
+.menu{
+  white-space: nowrap;
+  overflow-y: hidden;
+  margin: 1rem 0;
+  padding: 1rem 0;
+  /* line-height: 1rem; */
+}
+
+.menu-item {
+  display: inline-block;
+  margin: 0 1rem 0 0;
+  position: relative;
+  font-family: sans-serif;
+}
+
+.current-menu-item{
+  color: #50a4e4;
+}
+
+.menu .menu-item a:hover{
+  color: #50a4e4;
+}
+
+a {
+  color: inherit;
+  text-decoration:none;
+}
+
+.menu li a:after {
+  content: '';
+  width: 2px;
+  height: 2px;
+  background: #AAB2BD;
+  position: absolute;
+  right: -.7rem;
+  top: .8rem;
+  margin: -1px;
+} 
+
+ul li:last-child a:after{
+  display:none;
+}
+
+.infos {
+  line-height: 3rem;
+  color: #AAB2BD;
+  font-size: .9rem;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+}
+
+.infos:before,.infos:after {
+  content: '';
+  width: 100%;
+  height: 1px;
+  background: #E6E9ED;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 1;
+}
+
+.infos:before {
+  top: 0;
+}
+
+.container {
+  max-width: 780px;
+  width: 96%;
+  margin: 0 auto;
+  padding: 0 2%;
+  position: relative;
+}
+
+section.container {
+  z-index: 100;
+}
+
+.placard {
+  white-space: nowrap;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.footer {
+  position: relative;
+  z-index: 9;
+  line-height: 2rem;
+  font-size: .9rem;
+  padding: 0 0 1rem 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 -1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.footmenu {
+  text-align: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08);
+  padding: .5rem 0;
+  margin-bottom: 1rem;
+}
+
+.content-foot{
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 85%;
+  /* font: inherit; */
+  vertical-align: baseline;
+}
+
+

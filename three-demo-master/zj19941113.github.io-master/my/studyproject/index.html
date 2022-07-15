@@ -1,0 +1,189 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+   
+<head>
+    <meta charset="UTF-8" />
+    <meta name="author" content="zhoujie">
+
+    <script src="../js/jquery-3.3.1.js"></script>
+    <script src="../js/index2.js"></script>
+
+    <link href="../css/index.css" type="text/css" rel="stylesheet">
+    <link href="../css/index2.css" type="text/css" rel="stylesheet">
+
+    <link rel="stylesheet" href="../scr/caomei1.2.8/style.css">
+
+    <script> 
+        if(localStorage.color_style) $('head').append("<style class='color-style'>" + localStorage.color_style + "</style>");
+        if(localStorage.font_style) $('head').append("<style class='font-style'>" + localStorage.font_style + "</style>"); 
+    </script>
+
+    <link rel="icon" href="../scr/title.jpg" type="image/x-icon"/> 
+    <title>一些笔记 &ndash; 个人技术博客网站</title>
+
+</head>
+<body>
+<!-- Header -->
+<header class="header" id="header">
+    <section class="container">
+            <h1 class="fullname">一些笔记</h1>
+        <!-- <div style="display: block;"></div> -->
+        <nav>
+            <ul class="menu">
+                <li class="menu-item"><a href="https://zhoujie1994.cn/my/">首页</a></li>
+                <li class="menu-item"><a class="current-menu-item" href="https://zhoujie1994.cn/my/studyproject">课题项目</a></li>
+                <li class="menu-item"><a href="https://zhoujie1994.cn/my/algorithmic">算法</a></li>
+                <li class="menu-item"><a href="https://zhoujie1994.cn/my/webprogram">WEB开发</a></li>
+                <li class="menu-item"><a href="https://zhoujie1994.cn/my/three">THREE</a></li>
+            </ul>
+        </nav>    
+    </section>
+    
+    <section class="infos" >
+        <div class="container">
+            <div class="fixed" style="display:none;">
+                <div class="container">
+                <h2 class="fixed-title" >一些笔记</h2>
+                <div class="fixed-menus" >
+                    <ul class="menu">
+                            <li class="menu-item"><a href="https://zhoujie1994.cn/my/">首页</a></li>
+                            <li class="menu-item"><a class="current-menu-item" href="https://zhoujie1994.cn/my/studyproject">课题项目</a></li>
+                            <li class="menu-item"><a href="https://zhoujie1994.cn/my/algorithmic">算法</a></li>
+                            <li class="menu-item"><a href="https://zhoujie1994.cn/my/webprogram">WEB开发</a></li>
+                            <li class="menu-item"><a href="https://zhoujie1994.cn/my/three">THREE</a></li>
+                    </ul>
+                </div>
+                </div>
+            </div>
+
+            <div class="placard">
+                Merry Christmas !             
+            </div>
+        </div>
+    </section>
+</header>
+
+
+    <!-- Post List -->
+    <section >
+        <div class="container" id="articles"  >
+            <div class="post-list">
+                    <article class="meta" >
+                        <header>
+                            <a class="article-title" href="https://zhoujie1994.cn/my/studyproject/006.html" ><h2 >c++ 红外图与深度图结合的人脸识别+活体检测</h2></a>
+                        </header>
+                        <main>
+                            <p itemprop="articleBody">运行准备:1、Ubuntu C++ 编译dlib库参照文章：Ubuntu下编译C++与python版Dlib库，附新建样例程序（dlib+opencv） 2、数据+模型下载 百度云盘 https://pan.baidu.com/s/1jIoW6BSa5nkGWNipL7sxVQ 其中包括：candidate-face.zip（人脸库：包含29个正面
+                            </p>
+                        </main>
+                        <footer>
+                            <span class="time">2019-01-23 12:00:20 发布</span>
+                                             
+                        </footer>
+                    </article>
+                                
+                    <article class="meta" >
+                        <header>
+                            <a class="article-title" href="https://zhoujie1994.cn/my/studyproject/005.html" ><h2 >C++ warning!warning!warning!</h2></a>
+                        </header>
+                        <main>
+                            <p >1、warning: ISO C++ forbids converting a string constant to ‘char*’ [-Wwrite-strings] char *imgFile = “data/IR_62_78_150_151.jpg”; 分析 ：char *背后的含义是：这个字符串，我要修改它。而传给函数的字面常量是没法被修改的。修正：把参数类型修改为const                                                       
+                            </p>
+                        </main>
+                        <footer>
+                            <span class="time">2018-12-18 16:37:43 发布</span>                   
+                        </footer>
+                    </article>   
+                    
+                    <article class="meta" >
+                        <header>
+                            <a class="article-title" href="https://zhoujie1994.cn/my/studyproject/004.html" ><h2 >人脸深度图活体检测_SVM（Ubuntu+opencv3）</h2></a>
+                        </header>
+                        <main>
+                            <p >环境 Ubuntu ，opencv3 数据准备 原始深度图（已标定过人脸位置） 百度云盘 https://pan.baidu.com/s/1Hi85o521oIGaAfDoavOXeA 使用MATLAB进行数据采集与处理：1、运行dataGet_MATLAB/position_process.m，进行深度图片的人脸位置的快速批量标定，鼠标                                                       
+                            </p>
+                        </main>
+                        <footer>
+                            <span class="time">2018-11-19 20:57:19 发布</span>                   
+                        </footer>
+                    </article>  
+
+                    <article class="meta" >
+                        <header>
+                            <a class="article-title" href="https://zhoujie1994.cn/my/studyproject/003.html" ><h2 >C++ 时间类型及相互转换详解 time_t与tm</h2></a>
+                        </header>
+                        <main>
+                            <p >时间常见的有两种存储方式: time_t :整数类型 用来存储从1970年到现在经过了多少秒 tm :结构类型 把日期和时间以 C 结构的形式保存，tm 结构的定义如下：struct tm { int tm_sec; // 秒，正常范围从 0 到 59，但允许至 61 int tm_min; // 分，范围从 0 到 59 int tm_hour                                                       
+                            </p>
+                        </main>
+                        <footer>
+                            <span class="time">2018-10-25 11:18:28 发布</span>                   
+                        </footer>
+                    </article>  
+
+                    <article class="meta" >
+                        <header>
+                            <a class="article-title" href="https://zhoujie1994.cn/my/studyproject/002.html" ><h2 >C++ 近红外人脸定位与深度图人脸活体检测（.raw深度图像）</h2></a>
+                        </header>
+                        <main>
+                            <p >近红外人脸定位与活体检测 通过深度相机的红外图进行人脸位置定位，传给深度图进行活体检测 注：利用rgb传来的位置对应到深度图上偏差过大，直接利用深度相机产生的红外图像进行人脸位置的确定更加精准。运行 dlib_test.cpp #include dlib/image_processing                                                      
+                            </p>
+                        </main>
+                        <footer>
+                            <span class="time">2018-10-22 11:35:07 发布</span>                   
+                        </footer>
+                    </article>  
+
+                    <article class="meta" >
+                        <header>
+                            <a class="article-title" href="https://zhoujie1994.cn/my/studyproject/001.html" ><h2 >matlab 深度图人脸活体检测（.raw深度图像）</h2></a>
+                        </header>
+                        <main>
+                            <p >百度云盘 https://pan.baidu.com/s/161xSbayGW7tKg0tKfTW1mw ，PLANE_OR_NOT参数选为 0.2 200张人脸深度图.raw文件在face文件夹，200纸张攻击深度图.raw文件在non-face文件夹，人脸位置标注信息在同标题txt文件第一行RAW_PATH = '/home/zhoujie/                                                       
+                            </p>
+                        </main>
+                        <footer>
+                            <span class="time">2018-10-22 11:28:26 发布</span>                   
+                        </footer>
+                    </article> 
+
+
+                <nav class="reade_more">
+                    <span class='page-numbers current'>1</span> 
+                    <!-- <a class='page-numbers' href='https://www.zhoujie1994.cn' title='第 2 页'>2</a> 
+                    <a class='page-numbers' href='https://www.zhoujie1994.cn' title='最后页'>3</a> 
+                    <a class='page-numbers' href='https://www.zhoujie1994.cn' title='下一页'>»</a>                  -->
+                </nav>
+            </div>
+        </div>
+    </section>
+
+
+
+<footer class="footer">
+	<section class="container">
+        <div class="footmenu"></div>
+        <p>
+            <span class="content-foot">&copy; 2018 <a href="https://www.zhoujie1994.cn">周洁个人博客</a> . 陕ICP备19000649号-1</span>
+            <!-- <span class='right'> <a href="" target="_blank"></a></span> -->
+        </p>
+	</section>
+</footer>
+
+<div class="setting_tool iconfont">
+    <a class="back2top" style="display:none;"><i class="czs-arrow-up-l"></i></a>
+    <a class="socolor"><i class="czs-clothes-l"></i></a>
+    <div class="c">
+        <ul>
+            <li class="color undefined">默认</li>
+            <li class="color sepia">护眼</li>
+            <li class="color night">夜晚</li>
+            <li class="hr"></li>
+            <li class="font serif">Serif</li>
+            <li class="font sans">Sans</li>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>

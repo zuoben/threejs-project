@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/title.jpg?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/title.jpg?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/title.jpg?v=5.1.4">
+
+
+
+
+
+
+  <meta name="keywords" content="活体检测,C++,近红外人脸定位,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="ZhouJie's Blog" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="通过深度相机的红外图进行人脸位置定位，传给深度图进行活体检测注：利用rgb传来的位置对应到深度图上偏差过大，直接利用深度相机产生的红外图像进行人脸位置的确定更加精准。">
+<meta name="keywords" content="活体检测,C++,近红外人脸定位">
+<meta property="og:type" content="article">
+<meta property="og:title" content="C++ 近红外人脸定位与深度图人脸活体检测（.raw深度图像）">
+<meta property="og:url" content="http://yoursite.com/2018/10/22/2/index.html">
+<meta property="og:site_name" content="ZhouJie&#39;s Blog">
+<meta property="og:description" content="通过深度相机的红外图进行人脸位置定位，传给深度图进行活体检测注：利用rgb传来的位置对应到深度图上偏差过大，直接利用深度相机产生的红外图像进行人脸位置的确定更加精准。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20181204145758796.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://raw.githubusercontent.com/zj19941113/Face-Liveness_detection/master/images/2018-10-19%2011-55-09%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zj19941113/Face-Liveness_detection/master/images/2018-10-19%2011-58-47%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE.png">
+<meta property="og:updated_time" content="2019-12-18T03:56:22.534Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="C++ 近红外人脸定位与深度图人脸活体检测（.raw深度图像）">
+<meta name="twitter:description" content="通过深度相机的红外图进行人脸位置定位，传给深度图进行活体检测注：利用rgb传来的位置对应到深度图上偏差过大，直接利用深度相机产生的红外图像进行人脸位置的确定更加精准。">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20181204145758796.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/10/22/2/">
+
+
+
+
+
+  <title>C++ 近红外人脸定位与深度图人脸活体检测（.raw深度图像） | ZhouJie's Blog</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?8adfb1a1130406391d41d87803ca8802";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+    <a href="https://github.com/zj19941113/zj19941113.github.io" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ZhouJie's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">向阳而生</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/22/2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ZhouJie">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/zj.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZhouJie's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">C++ 近红外人脸定位与深度图人脸活体检测（.raw深度图像）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-22T11:35:07+08:00">
+                2018-10-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/深度相机/" itemprop="url" rel="index">
+                    <span itemprop="name">深度相机</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C/" itemprop="url" rel="index">
+                    <span itemprop="name">C++</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2018/10/22/2/" class="leancloud_visitors" data-flag-title="C++ 近红外人脸定位与深度图人脸活体检测（.raw深度图像）">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>通过深度相机的红外图进行人脸位置定位，传给深度图进行活体检测<br>注：利用rgb传来的位置对应到深度图上偏差过大，直接利用深度相机产生的红外图像进行人脸位置的确定更加精准。</p>
+<a id="more"></a>
+<h2 id="运行"><a href="#运行" class="headerlink" title="运行"></a>运行</h2><p>dlib_test.cpp</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;dlib/image_processing/frontal_face_detector.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;dlib/gui_widgets.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;dlib/image_io.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;time.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;math.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdbool.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> dlib;</span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 函数声明 */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> *<span class="title">face_location</span><span class="params">(<span class="keyword">char</span> *imgFile)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">liveness_detection</span><span class="params">(<span class="keyword">char</span> *DeepFile, <span class="keyword">int</span> rec_face[<span class="number">4</span>])</span></span>;  </span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> IMG_HEIGHT =  <span class="number">720</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> IMG_WIDTH =  <span class="number">1280</span>;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">char</span> *imgFile = <span class="string">"/home/zhoujie/cProject/dlib_test/0001_IR_frontface.jpg"</span>;</span><br><span class="line">	<span class="keyword">int</span> *rec_face;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* 调用函数得到人脸位置 */</span></span><br><span class="line">    <span class="comment">// Eg:rec_face = &#123;157 ,66 ,172 ,198 &#125;, 行取66：66+198,列取157：157+172</span></span><br><span class="line">	rec_face = face_location(imgFile);</span><br><span class="line"></span><br><span class="line">	<span class="comment">//深度图与红外图是水平翻转的</span></span><br><span class="line">	rec_face[<span class="number">0</span>] = IMG_WIDTH - rec_face[<span class="number">0</span>] -rec_face[<span class="number">2</span>]; </span><br><span class="line">    </span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; rec_face[<span class="number">0</span>] &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; rec_face[<span class="number">1</span>] &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; rec_face[<span class="number">2</span>] &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; rec_face[<span class="number">3</span>] &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">char</span> *DeepFile = <span class="string">"/home/zhoujie/cProject/dlib_test/raw_0001_frontface.raw"</span>;</span><br><span class="line">	<span class="keyword">bool</span> IS_FACE;</span><br><span class="line"></span><br><span class="line">	<span class="comment">/* 调用函数判断是否为活体 */</span></span><br><span class="line">    IS_FACE = liveness_detection( DeepFile, rec_face);</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"RESULT : %d\n"</span>, IS_FACE);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">delete</span> rec_face;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">/* 函数 输出人脸位置 */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> *<span class="title">face_location</span><span class="params">(<span class="keyword">char</span>* imgFile)</span></span></span><br><span class="line"><span class="function"></span>&#123;  </span><br><span class="line">    <span class="keyword">int</span> *rec_face = <span class="keyword">new</span> <span class="keyword">int</span>[<span class="number">4</span>];</span><br><span class="line"></span><br><span class="line">    frontal_face_detector detector = get_frontal_face_detector();</span><br><span class="line"></span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">"processing image "</span> &lt;&lt; imgFile &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">clock_t</span> start,finish;</span><br><span class="line">    <span class="keyword">double</span> totaltime;</span><br><span class="line">    start=clock();</span><br><span class="line"></span><br><span class="line">    array2d&lt;<span class="keyword">unsigned</span> <span class="keyword">char</span>&gt; img;</span><br><span class="line">    load_image(img, imgFile);</span><br><span class="line">    </span><br><span class="line">    <span class="built_in">std</span>::<span class="built_in">vector</span>&lt;rectangle&gt; dets = detector(img);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">cout</span> &lt;&lt; <span class="string">"Number of faces detected: "</span> &lt;&lt; dets.size() &lt;&lt; <span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">    rec_face[<span class="number">0</span>] = dets[<span class="number">0</span>].left();</span><br><span class="line">    rec_face[<span class="number">1</span>] = dets[<span class="number">0</span>].top();</span><br><span class="line">    rec_face[<span class="number">2</span>] = dets[<span class="number">0</span>].right() - dets[<span class="number">0</span>].left() + <span class="number">1</span>;</span><br><span class="line">    rec_face[<span class="number">3</span>] = dets[<span class="number">0</span>].bottom() - dets[<span class="number">0</span>].top() + <span class="number">1</span>;</span><br><span class="line"></span><br><span class="line">    finish=clock();</span><br><span class="line">    totaltime=(<span class="keyword">double</span>)(finish-start)/CLOCKS_PER_SEC;</span><br><span class="line">    <span class="built_in">cout</span>&lt;&lt;<span class="string">"\n此程序的运行时间为"</span>&lt;&lt;totaltime&lt;&lt;<span class="string">"秒！"</span>&lt;&lt;<span class="built_in">endl</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// delete rec_face;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span>  rec_face;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 函数判断是否为活体 */</span></span><br><span class="line"><span class="function"><span class="keyword">bool</span> <span class="title">liveness_detection</span><span class="params">(<span class="keyword">char</span> *DeepFile, <span class="keyword">int</span> rec_face[<span class="number">4</span>])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">int</span> ITER = <span class="number">10000</span>; <span class="comment">// 随机取点次数</span></span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">float</span> PLANE_OR_NOT = <span class="number">0.1</span>; <span class="comment">// 判断是否为平面的分界线</span></span><br><span class="line">	<span class="keyword">const</span> <span class="keyword">int</span> SIGMA = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">typedef</span> <span class="keyword">unsigned</span> <span class="keyword">short</span> UNIT16;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">// 从.raw读取二进制16位数据到MatDATA</span></span><br><span class="line">	UNIT16 MatDATA[IMG_HEIGHT*IMG_WIDTH];</span><br><span class="line">	FILE *fp = <span class="literal">NULL</span>;</span><br><span class="line">	fp = fopen( DeepFile, <span class="string">"rb"</span> );</span><br><span class="line">    fread(MatDATA,<span class="keyword">sizeof</span>(UNIT16),IMG_HEIGHT*IMG_WIDTH,fp);</span><br><span class="line">	fclose(fp);</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">int</span> n = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">int</span> i,j;</span><br><span class="line">	<span class="keyword">int</span> COL = rec_face[<span class="number">0</span>],ROW = rec_face[<span class="number">1</span>],FACE_WIDTH = rec_face[<span class="number">2</span>],FACE_HEIGHT = rec_face[<span class="number">3</span>]; <span class="comment">//位置信息</span></span><br><span class="line">	<span class="comment">// txt :157 66 172 198 , 取行66：66+198,列取157：157+172</span></span><br><span class="line">	<span class="keyword">int</span> faceno0_num = FACE_HEIGHT*FACE_WIDTH <span class="number">-1</span>; </span><br><span class="line">	<span class="keyword">int</span> FaceDATA[<span class="number">3</span>][<span class="number">160000</span>];</span><br><span class="line">	n = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span>(i = <span class="number">1</span>;i&lt; FACE_HEIGHT+<span class="number">1</span>;i++)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">for</span>(j= <span class="number">1</span>;j&lt; FACE_WIDTH+<span class="number">1</span>;j++) </span><br><span class="line">			&#123; </span><br><span class="line">				<span class="keyword">if</span> (MatDATA[IMG_WIDTH*(ROW+i<span class="number">-2</span>)+COL+j<span class="number">-2</span>] == <span class="number">0</span>)</span><br><span class="line">				&#123;</span><br><span class="line">					faceno0_num -= <span class="number">1</span>; <span class="comment">// 非零深度点个数为 faceno0_num+1</span></span><br><span class="line">					<span class="keyword">continue</span>;</span><br><span class="line">				&#125;</span><br><span class="line">				FaceDATA[<span class="number">1</span>][n] = i;</span><br><span class="line">				FaceDATA[<span class="number">0</span>][n] = j; </span><br><span class="line">				FaceDATA[<span class="number">2</span>][n] = MatDATA[IMG_WIDTH*(ROW+i<span class="number">-2</span>)+COL+j<span class="number">-2</span>];</span><br><span class="line">				n += <span class="number">1</span>;</span><br><span class="line">			&#125; </span><br><span class="line">		&#125; </span><br><span class="line">	</span><br><span class="line">	<span class="keyword">int</span> pretotal = <span class="number">0</span>;  <span class="comment">// 符合拟合模型的数据的个数</span></span><br><span class="line">	<span class="keyword">int</span> x[<span class="number">3</span>],y[<span class="number">3</span>],z[<span class="number">3</span>];  <span class="comment">// 随机取三个点 </span></span><br><span class="line">	srand((<span class="keyword">unsigned</span>)time(<span class="literal">NULL</span>));</span><br><span class="line">	<span class="keyword">float</span> a,b,c;  <span class="comment">// 拟合平面方程 z=ax+by+c</span></span><br><span class="line">	<span class="comment">// float besta,bestb,bestc;  // 最佳参数</span></span><br><span class="line">	<span class="keyword">int</span> rand_num[<span class="number">3</span>];</span><br><span class="line">	<span class="keyword">float</span> check,distance;</span><br><span class="line">	<span class="keyword">int</span> total = <span class="number">0</span>;</span><br><span class="line">	<span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; ITER; i++)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">do</span>&#123;</span><br><span class="line">			rand_num[<span class="number">0</span>] = <span class="built_in">std</span>::rand()%faceno0_num; </span><br><span class="line">			rand_num[<span class="number">1</span>] = <span class="built_in">std</span>::rand()%faceno0_num; </span><br><span class="line">			rand_num[<span class="number">2</span>] = <span class="built_in">std</span>::rand()%faceno0_num; </span><br><span class="line">		&#125;<span class="keyword">while</span>(rand_num[<span class="number">0</span>] == rand_num[<span class="number">1</span>] || rand_num[<span class="number">0</span>] == rand_num[<span class="number">2</span>] || rand_num[<span class="number">1</span>] == rand_num[<span class="number">2</span>]);</span><br><span class="line">		<span class="keyword">for</span>(n = <span class="number">0</span>; n &lt; <span class="number">3</span>; n++ )</span><br><span class="line">		&#123;</span><br><span class="line">			x[n] = FaceDATA[<span class="number">0</span>][rand_num[n]];</span><br><span class="line">			y[n] = FaceDATA[<span class="number">1</span>][rand_num[n]];</span><br><span class="line">			z[n] = FaceDATA[<span class="number">2</span>][rand_num[n]];</span><br><span class="line">			<span class="comment">// printf("%d,%d,%d,%d\n", x[n],y[n],z[n],n);</span></span><br><span class="line">		&#125;</span><br><span class="line">		check = (x[<span class="number">0</span>]-x[<span class="number">1</span>])*(y[<span class="number">0</span>]-y[<span class="number">2</span>]) - (x[<span class="number">0</span>]-x[<span class="number">2</span>])*(y[<span class="number">0</span>]-y[<span class="number">1</span>]);</span><br><span class="line">		<span class="keyword">if</span> ( check == <span class="number">0</span>)  <span class="comment">// 防止提示浮点数例外 (核心已转储)</span></span><br><span class="line">		&#123;</span><br><span class="line">			i -= <span class="number">1</span>;</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		a = ( (z[<span class="number">0</span>]-z[<span class="number">1</span>])*(y[<span class="number">0</span>]-y[<span class="number">2</span>]) - (z[<span class="number">0</span>]-z[<span class="number">2</span>])*(y[<span class="number">0</span>]-y[<span class="number">1</span>]) )/( (x[<span class="number">0</span>]-x[<span class="number">1</span>])*(y[<span class="number">0</span>]-y[<span class="number">2</span>]) - (x[<span class="number">0</span>]-x[<span class="number">2</span>])*(y[<span class="number">0</span>]-y[<span class="number">1</span>]) );</span><br><span class="line">        <span class="keyword">if</span> (y[<span class="number">0</span>] == y[<span class="number">2</span>])  <span class="comment">// 防止提示浮点数例外 (核心已转储)</span></span><br><span class="line">		&#123;</span><br><span class="line">			i -= <span class="number">1</span>;</span><br><span class="line">			<span class="keyword">continue</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		b = ((z[<span class="number">0</span>] - z[<span class="number">2</span>]) - a * (x[<span class="number">0</span>] - x[<span class="number">2</span>]))/(y[<span class="number">0</span>]-y[<span class="number">2</span>]);</span><br><span class="line">        c = z[<span class="number">0</span>]- a * x[<span class="number">0</span>] - b * y[<span class="number">0</span>];</span><br><span class="line">		<span class="comment">// printf("%f,%f,%f\n",a,b,c);</span></span><br><span class="line">		total = <span class="number">0</span>;</span><br><span class="line">		<span class="keyword">for</span>(n = <span class="number">0</span>; n &lt; faceno0_num +<span class="number">1</span> ; n++ )</span><br><span class="line">		&#123;</span><br><span class="line">			distance = <span class="built_in">fabs</span>(a*FaceDATA[<span class="number">0</span>][n] + b*FaceDATA[<span class="number">1</span>][n] - <span class="number">1</span>*FaceDATA[<span class="number">2</span>][n] + c*<span class="number">1</span>);</span><br><span class="line">			<span class="keyword">if</span> (distance &lt; SIGMA)</span><br><span class="line">			&#123;</span><br><span class="line">				total +=<span class="number">1</span>;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// printf("%d,%f,%d\n",i,distance,total);</span></span><br><span class="line">		<span class="keyword">if</span> (total &gt; pretotal)  <span class="comment">// 找到符合拟合平面数据最多的拟合平面</span></span><br><span class="line">        &#123;</span><br><span class="line">			pretotal=total;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">float</span> pretotal_ary = pretotal *<span class="number">1.0</span>/ faceno0_num ;</span><br><span class="line">	<span class="built_in">printf</span>(<span class="string">"%d,%f\n"</span>, pretotal,pretotal_ary);</span><br><span class="line">	<span class="keyword">bool</span> IS_FACE;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (pretotal_ary &lt; PLANE_OR_NOT)</span><br><span class="line">	&#123;</span><br><span class="line">		IS_FACE =  <span class="literal">true</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		IS_FACE = <span class="literal">false</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span>  IS_FACE;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Ubuntu下编译Dlib库参考这里 <a href="https://blog.csdn.net/ffcjjhv/article/details/84660869" target="_blank" rel="noopener">https://blog.csdn.net/ffcjjhv/article/details/84660869</a><br>修改CMakeLists.txt相应路径<br><code>cmake .</code><br><code>make</code><br><code>./dlib_test</code>  </p>
+<h2 id="运行结果"><a href="#运行结果" class="headerlink" title="运行结果"></a>运行结果</h2><p><img src="https://img-blog.csdnimg.cn/20181204145758796.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>项目地址：<a href="https://github.com/zj19941113/Face-Liveness_detection" target="_blank" rel="noopener">https://github.com/zj19941113/Face-Liveness_detection</a></p>
+<h3 id="活检部分原理"><a href="#活检部分原理" class="headerlink" title="活检部分原理"></a>活检部分原理</h3><p>Func_liveness_detection.c</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;dirent.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;string.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;time.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;math.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdbool.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> IMG_HEIGHT =  <span class="number">345</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> IMG_WIDTH =  <span class="number">400</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> ITER = <span class="number">10000</span>; <span class="comment">// 随机取点次数</span></span><br><span class="line"><span class="keyword">const</span> <span class="keyword">float</span> PLANE_OR_NOT = <span class="number">0.1</span>; <span class="comment">// 判断是否为平面的分界线</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="keyword">unsigned</span> <span class="keyword">short</span> UNIT16;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">readFileList</span><span class="params">(<span class="keyword">char</span> *basePath)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    DIR *dir;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">dirent</span> *<span class="title">ptr</span>;</span> </span><br><span class="line">    <span class="keyword">char</span> base[<span class="number">8</span>]; </span><br><span class="line">    <span class="keyword">char</span> title[<span class="number">4</span>];</span><br><span class="line">    <span class="keyword">char</span> *p=<span class="string">".raw"</span>; <span class="comment">//需要的子串;</span></span><br><span class="line">    <span class="keyword">char</span> *p2=<span class="string">".txt"</span>;</span><br><span class="line">    <span class="keyword">char</span> *padd=<span class="string">"/"</span>;</span><br><span class="line">    <span class="keyword">int</span> len;</span><br><span class="line">    <span class="keyword">char</span> Deepfile_raw[<span class="number">100</span>];</span><br><span class="line">    <span class="keyword">char</span> Deepfile_txt[<span class="number">100</span>];</span><br><span class="line"></span><br><span class="line">    UNIT16 MatDATA[IMG_HEIGHT*IMG_WIDTH];</span><br><span class="line">    FILE *fp = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">int</span> DeepDATA[<span class="number">3</span>][IMG_HEIGHT*IMG_WIDTH];</span><br><span class="line">    <span class="keyword">int</span> length;</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="keyword">int</span> i,j;</span><br><span class="line">    FILE *fp2 = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">char</span> buf[<span class="number">20</span>];</span><br><span class="line">    <span class="keyword">char</span> *ptr2;</span><br><span class="line">    <span class="keyword">int</span> rec_face[<span class="number">4</span>];</span><br><span class="line">    <span class="keyword">int</span> COL ,ROW ,FACE_WIDTH ,FACE_HEIGHT ; </span><br><span class="line">    <span class="keyword">int</span> FaceDATA[<span class="number">3</span>][<span class="number">40000</span>];</span><br><span class="line">    <span class="keyword">int</span> faceno0_num ;</span><br><span class="line">    <span class="keyword">int</span> sigma = <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">int</span> pretotal;  <span class="comment">// 符合拟合模型的数据的个数</span></span><br><span class="line">    <span class="keyword">int</span> x[<span class="number">3</span>],y[<span class="number">3</span>],z[<span class="number">3</span>];  <span class="comment">// 随机取三个点 </span></span><br><span class="line">    <span class="keyword">float</span> a,b,c;  <span class="comment">// 拟合平面方程 z=ax+by+c</span></span><br><span class="line">    <span class="comment">// float besta,bestb,bestc;  // 最佳参数</span></span><br><span class="line">    <span class="keyword">int</span> rand_num[<span class="number">3</span>];</span><br><span class="line">    <span class="keyword">float</span> check,distance;</span><br><span class="line">    <span class="keyword">int</span> total;</span><br><span class="line"> </span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> ((dir=opendir(basePath)) == <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        perror(<span class="string">"Open dir error..."</span>);</span><br><span class="line">        <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span> ((ptr=readdir(dir)) != <span class="literal">NULL</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">strcpy</span>(base, ptr-&gt;d_name);</span><br><span class="line">        <span class="keyword">if</span>(<span class="built_in">strstr</span>(base,p)) </span><br><span class="line">        &#123;</span><br><span class="line">            len = <span class="built_in">strlen</span>(base);</span><br><span class="line">            <span class="built_in">memset</span>(title, <span class="string">'\0'</span>, <span class="keyword">sizeof</span>(title));</span><br><span class="line">            <span class="built_in">strncpy</span>(title, base, len <span class="number">-4</span>);</span><br><span class="line">            <span class="built_in">strcpy</span>(Deepfile_raw, basePath);</span><br><span class="line">            <span class="built_in">strcat</span>(Deepfile_raw, padd);</span><br><span class="line">            <span class="built_in">strcat</span>(Deepfile_raw, title);</span><br><span class="line">            <span class="built_in">strcpy</span>(Deepfile_txt, Deepfile_raw);</span><br><span class="line">            <span class="built_in">strcat</span>(Deepfile_raw, p);</span><br><span class="line">            <span class="built_in">strcat</span>(Deepfile_txt, p2);</span><br><span class="line">            <span class="comment">// printf("%s\n",Deepfile_raw); </span></span><br><span class="line">            <span class="comment">// printf("%s\n",Deepfile_txt); </span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 从.raw读取二进制16位数据到MatDATA </span></span><br><span class="line">            fp = fopen( Deepfile_raw, <span class="string">"rb"</span> );</span><br><span class="line">            fread(MatDATA,<span class="keyword">sizeof</span>(UNIT16),IMG_HEIGHT*IMG_WIDTH,fp);</span><br><span class="line">            fclose(fp);</span><br><span class="line">            <span class="comment">// length = sizeof(MatDATA) / sizeof(UNIT16); </span></span><br><span class="line">            <span class="comment">// printf("数组的长度为: %d\n",length); //length 应为IMG_HEIGHT*IMG_WIDTH</span></span><br><span class="line">            n = <span class="number">0</span>;</span><br><span class="line">            <span class="comment">// DeepDATA三行分别为深度图行数，列数，深度信息</span></span><br><span class="line">            <span class="keyword">for</span>(i=<span class="number">1</span>;i&lt; IMG_HEIGHT+<span class="number">1</span> ;i++)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">for</span>(j=<span class="number">1</span>;j&lt; IMG_WIDTH+<span class="number">1</span> ;j++) </span><br><span class="line">                    &#123; </span><br><span class="line">                        DeepDATA[<span class="number">0</span>][n] = i;</span><br><span class="line">                        DeepDATA[<span class="number">1</span>][n] = j;</span><br><span class="line">                        DeepDATA[<span class="number">2</span>][n] = MatDATA[n];</span><br><span class="line">                        n += <span class="number">1</span>;</span><br><span class="line">                    &#125; </span><br><span class="line">                &#125; </span><br><span class="line">            <span class="comment">// int test1 = 110194 ;</span></span><br><span class="line">            <span class="comment">// printf("%d,%d,%d\n",DeepDATA[0][test1],DeepDATA[1][test1],DeepDATA[2][test1]);	</span></span><br><span class="line">            </span><br><span class="line">            <span class="comment">// FaceDATA为深度图DeepDATA裁剪后且去除零深度信息后的人脸部分</span></span><br><span class="line">            n = <span class="number">0</span>;</span><br><span class="line">            fp2 = fopen(Deepfile_txt, <span class="string">"r"</span>);</span><br><span class="line">            fgets(buf, <span class="number">20</span>, fp2);</span><br><span class="line">            <span class="comment">// printf("%s\n", buf );</span></span><br><span class="line">            ptr2 = strtok(buf, <span class="string">" "</span>);</span><br><span class="line">            <span class="keyword">for</span>(n = <span class="number">0</span>; n &lt; <span class="number">4</span>; n++)</span><br><span class="line">            &#123;</span><br><span class="line">                rec_face[n] = atoi(ptr2);</span><br><span class="line">                ptr2 = strtok(<span class="literal">NULL</span>, <span class="string">" "</span>);</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">            fclose(fp2);</span><br><span class="line">            COL = rec_face[<span class="number">0</span>],ROW = rec_face[<span class="number">1</span>],FACE_WIDTH = rec_face[<span class="number">2</span>],FACE_HEIGHT = rec_face[<span class="number">3</span>]; <span class="comment">//位置信息</span></span><br><span class="line">            <span class="comment">// txt :157 66 172 198 , 取行66：66+198,列取157：157+172</span></span><br><span class="line">            faceno0_num = FACE_HEIGHT*FACE_WIDTH <span class="number">-1</span>; </span><br><span class="line">            n = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">for</span>(i = <span class="number">1</span>;i&lt; FACE_HEIGHT+<span class="number">1</span>;i++)</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="keyword">for</span>(j= <span class="number">1</span>;j&lt; FACE_WIDTH+<span class="number">1</span>;j++) </span><br><span class="line">                    &#123; </span><br><span class="line">                        <span class="keyword">if</span> (MatDATA[IMG_WIDTH*(ROW+i<span class="number">-2</span>)+COL+j<span class="number">-2</span>] == <span class="number">0</span>)</span><br><span class="line">                        &#123;</span><br><span class="line">                            faceno0_num -= <span class="number">1</span>; <span class="comment">// 非零深度点个数为 faceno0_num+1</span></span><br><span class="line">                            <span class="keyword">continue</span>;</span><br><span class="line">                        &#125;</span><br><span class="line">                        FaceDATA[<span class="number">1</span>][n] = i;</span><br><span class="line">                        FaceDATA[<span class="number">0</span>][n] = j; </span><br><span class="line">                        FaceDATA[<span class="number">2</span>][n] = MatDATA[IMG_WIDTH*(ROW+i<span class="number">-2</span>)+COL+j<span class="number">-2</span>];</span><br><span class="line">                        n += <span class="number">1</span>;</span><br><span class="line">                    &#125; </span><br><span class="line">                &#125; </span><br><span class="line">            <span class="comment">// int test = 6804;  </span></span><br><span class="line">            <span class="comment">// printf("%d,%d,%d,%d\n",test,FaceDATA[0][test],FaceDATA[1][test],FaceDATA[2][test]);	</span></span><br><span class="line">            </span><br><span class="line">            srand((<span class="keyword">unsigned</span>)time(<span class="literal">NULL</span>));</span><br><span class="line">            pretotal = <span class="number">0</span>;</span><br><span class="line">            total = <span class="number">0</span>;</span><br><span class="line">            <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; ITER; i++)</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">do</span>&#123;</span><br><span class="line">                    rand_num[<span class="number">0</span>] = rand()%faceno0_num; </span><br><span class="line">                    rand_num[<span class="number">1</span>] = rand()%faceno0_num; </span><br><span class="line">                    rand_num[<span class="number">2</span>] = rand()%faceno0_num; </span><br><span class="line">                &#125;<span class="keyword">while</span>(rand_num[<span class="number">0</span>] == rand_num[<span class="number">1</span>] || rand_num[<span class="number">0</span>] == rand_num[<span class="number">2</span>] || rand_num[<span class="number">1</span>] == rand_num[<span class="number">2</span>]);</span><br><span class="line">                <span class="keyword">for</span>(n = <span class="number">0</span>; n &lt; <span class="number">3</span>; n++ )</span><br><span class="line">                &#123;</span><br><span class="line">                    x[n] = FaceDATA[<span class="number">0</span>][rand_num[n]];</span><br><span class="line">                    y[n] = FaceDATA[<span class="number">1</span>][rand_num[n]];</span><br><span class="line">                    z[n] = FaceDATA[<span class="number">2</span>][rand_num[n]];</span><br><span class="line">                    <span class="comment">// printf("%d,%d,%d,%d\n", x[n],y[n],z[n],n);</span></span><br><span class="line">                &#125;</span><br><span class="line">                check = (x[<span class="number">0</span>]-x[<span class="number">1</span>])*(y[<span class="number">0</span>]-y[<span class="number">2</span>]) - (x[<span class="number">0</span>]-x[<span class="number">2</span>])*(y[<span class="number">0</span>]-y[<span class="number">1</span>]);</span><br><span class="line">                <span class="keyword">if</span> ( check == <span class="number">0</span>)  <span class="comment">// 防止提示浮点数例外 (核心已转储)</span></span><br><span class="line">                &#123;</span><br><span class="line">                    i -= <span class="number">1</span>;</span><br><span class="line">                    <span class="keyword">continue</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                a = ( (z[<span class="number">0</span>]-z[<span class="number">1</span>])*(y[<span class="number">0</span>]-y[<span class="number">2</span>]) - (z[<span class="number">0</span>]-z[<span class="number">2</span>])*(y[<span class="number">0</span>]-y[<span class="number">1</span>]) )*<span class="number">1.0</span>/( (x[<span class="number">0</span>]-x[<span class="number">1</span>])*(y[<span class="number">0</span>]-y[<span class="number">2</span>]) - (x[<span class="number">0</span>]-x[<span class="number">2</span>])*(y[<span class="number">0</span>]-y[<span class="number">1</span>]) );</span><br><span class="line">                <span class="keyword">if</span> (y[<span class="number">0</span>] == y[<span class="number">2</span>])  <span class="comment">// 防止提示浮点数例外 (核心已转储)</span></span><br><span class="line">                &#123;</span><br><span class="line">                    i -= <span class="number">1</span>;</span><br><span class="line">                    <span class="keyword">continue</span>;</span><br><span class="line">                &#125;</span><br><span class="line">                b = ((z[<span class="number">0</span>] - z[<span class="number">2</span>]) - a * (x[<span class="number">0</span>] - x[<span class="number">2</span>]))*<span class="number">1.0</span>/(y[<span class="number">0</span>]-y[<span class="number">2</span>]);</span><br><span class="line">                c = z[<span class="number">0</span>]- a * x[<span class="number">0</span>] - b * y[<span class="number">0</span>];</span><br><span class="line">                <span class="comment">// printf("%f,%f,%f\n",a,b,c);</span></span><br><span class="line">                total = <span class="number">0</span>;</span><br><span class="line">                <span class="keyword">for</span>(n = <span class="number">0</span>; n &lt; faceno0_num +<span class="number">1</span> ; n++ )</span><br><span class="line">                &#123;</span><br><span class="line">                    distance = <span class="built_in">fabs</span>(a*FaceDATA[<span class="number">0</span>][n] + b*FaceDATA[<span class="number">1</span>][n] - <span class="number">1</span>*FaceDATA[<span class="number">2</span>][n] + c*<span class="number">1</span>);</span><br><span class="line">                    <span class="keyword">if</span> (distance &lt; sigma)</span><br><span class="line">                    &#123;</span><br><span class="line">                        total +=<span class="number">1</span>;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="comment">// printf("%d,%f,%d\n",i,distance,total);</span></span><br><span class="line">                <span class="keyword">if</span> (total &gt; pretotal)  <span class="comment">// 找到符合拟合平面数据最多的拟合平面</span></span><br><span class="line">                &#123;</span><br><span class="line">                    pretotal=total;</span><br><span class="line">                    <span class="comment">// besta = a;</span></span><br><span class="line">                    <span class="comment">// bestb = b;</span></span><br><span class="line">                    <span class="comment">// bestc = c;</span></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">float</span> pretotal_ary = pretotal *<span class="number">1.0</span>/ faceno0_num ;</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"pretotal = %d,_ary = %f,"</span>,pretotal,pretotal_ary);</span><br><span class="line">            <span class="built_in">printf</span>(<span class="string">"%s"</span>,base);</span><br><span class="line">            <span class="keyword">bool</span> IS_FACE;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (pretotal_ary&gt;PLANE_OR_NOT)</span><br><span class="line">            &#123;</span><br><span class="line">                IS_FACE =  <span class="literal">false</span>;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">"不是人脸\n"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">            &#123;</span><br><span class="line">                IS_FACE = <span class="literal">true</span>;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">"是人脸\n"</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;  </span><br><span class="line">    &#125;</span><br><span class="line">    closedir(dir);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    DIR *dir;</span><br><span class="line">    <span class="keyword">char</span> *basePath = <span class="string">"/home/zhoujie/liveness detection/raw文件/non-face"</span>;</span><br><span class="line">    readFileList(basePath);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>github地址：<a href="https://github.com/zj19941113/Face-Liveness_detection" target="_blank" rel="noopener">https://github.com/zj19941113/Face-Liveness_detection</a><br>上面这个项目使用的数据集标定的不太准，PLANE_OR_NOT参数选为 0.1</p>
+<p>这个数据集是自己标定的，数量较少但是比较准确： <a href="https://pan.baidu.com/s/161xSbayGW7tKg0tKfTW1mw" target="_blank" rel="noopener">https://pan.baidu.com/s/161xSbayGW7tKg0tKfTW1mw</a> ，PLANE_OR_NOT参数选为 0.2</p>
+<p>快速鼠标标定深度图人脸位置： <a href="https://blog.csdn.net/ffcjjhv/article/details/83270002" target="_blank" rel="noopener">https://blog.csdn.net/ffcjjhv/article/details/83270002</a></p>
+<p><img src="https://raw.githubusercontent.com/zj19941113/Face-Liveness_detection/master/images/2018-10-19%2011-55-09%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE.png" alt></p>
+<p><img src="https://raw.githubusercontent.com/zj19941113/Face-Liveness_detection/master/images/2018-10-19%2011-58-47%E5%B1%8F%E5%B9%95%E6%88%AA%E5%9B%BE.png" alt></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/活体检测/" rel="tag"><i class="fa fa-tag"></i> 活体检测</a>
+          
+            <a href="/tags/C/" rel="tag"><i class="fa fa-tag"></i> C++</a>
+          
+            <a href="/tags/近红外人脸定位/" rel="tag"><i class="fa fa-tag"></i> 近红外人脸定位</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/10/22/1/" rel="next" title="matlab 深度图人脸活体检测（.raw深度图像）">
+                <i class="fa fa-chevron-left"></i> matlab 深度图人脸活体检测（.raw深度图像）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/10/25/3/" rel="prev" title="C++ 时间类型及相互转换详解 time_t与tm">
+                C++ 时间类型及相互转换详解 time_t与tm <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      
+        <div id="gitment-container"></div>
+      
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/zj.png" alt="ZhouJie">
+            
+              <p class="site-author-name" itemprop="name">ZhouJie</p>
+              <p class="site-description motion-element" itemprop="description">C++ / 后台开发 / Three</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">33</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">63</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/zj19941113" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:1601584358@qq.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/ffcjjhv" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-link"></i>CSDN</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://zhoujie1994.cn/my" target="_blank" title="主页">
+                      
+                        <i class="fa fa-fw fa-link"></i>主页</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#运行"><span class="nav-text">运行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#运行结果"><span class="nav-text">运行结果</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#活检部分原理"><span class="nav-text">活检部分原理</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ZhouJie</span>
+
+  
+</div>
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">陕ICP备19000649号-1</span>
+</div>
+
+<!--
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+-->
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+<!-- LOCAL: You can save these files to your site and update links -->
+    
+        
+        <!-- <link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"> -->
+        <!-- <script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script> -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/theme-next/theme-next-gitment@1/default.css">
+        <script src="https://cdn.jsdelivr.net/gh/theme-next/theme-next-gitment@1/gitment.browser.js"></script>
+    
+<!-- END LOCAL -->
+
+    
+      <style>
+        a.gitment-editor-footer-tip { display: none; }
+        .gitment-container.gitment-footer-container { display: none; }
+      </style>
+    
+
+    
+      <script type="text/javascript">
+      function renderGitment(){
+        var gitment = new Gitment({
+            id: '1540179307000', 
+            owner: 'zj19941113',
+            repo: 'zj19941113.github.io',
+            
+            oauth: {
+            
+            
+                client_secret: '5fc128c4f5668afe365fee33ddae3d01045bd156',
+            
+                client_id: 'b8b1ba34016a28be9e53'
+            }});
+        gitment.render('gitment-container');
+      }
+
+      
+      renderGitment();
+      
+      </script>
+    
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("4zBHAlw9o2CSjEpTr7lklGEu-gzGzoHsz", "Q0URB4zACHWCSynicJioTJan");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,135 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+   
+<head>
+    <meta charset="UTF-8" />
+    <meta name="author" content="zhoujie">
+
+    <script src="../js/jquery-3.3.1.js"></script>
+    <script src="../js/index2.js"></script>
+
+    <link href="../css/index.css" type="text/css" rel="stylesheet">
+    <link href="../css/index2.css" type="text/css" rel="stylesheet">
+    <link href="../css/index3.css" type="text/css" rel="stylesheet">
+    <link rel="stylesheet" href="../scr/caomei1.2.8/style.css">
+    <link rel="stylesheet" href="../js/editor.md-master/css/editormd.preview.css" />
+
+    <!--引入md js文件-->
+    <script src="../js/editor.md-master/lib/marked.min.js"></script>
+    <script src="../js/editor.md-master/lib/prettify.min.js"></script>
+    <script src="../js/editor.md-master/lib/raphael.min.js"></script>
+    <script src="../js/editor.md-master/lib/underscore.min.js"></script>
+    <script src="../js/editor.md-master/lib/sequence-diagram.min.js"></script>
+    <script src="../js/editor.md-master/lib/flowchart.min.js"></script>
+    <script src="../js/editor.md-master/lib/jquery.flowchart.min.js"></script>
+    <script src="../js/editor.md-master/editormd.js"></script>
+
+    <script type="text/javascript">
+        $(function() {
+            var testEditormdView, testEditormdView2;
+            $.get("001.md", function(markdown) {
+                testEditormdView = editormd.markdownToHTML("test-editormd-view", {
+                    // previewTheme    : dark,
+                    markdown        : markdown ,//+ "\r\n" + $("#append-test").text(),
+                    htmlDecode      : "style,script,iframe",  // you can filter tags decode
+                    tocm            : true,    // Using [TOCM]
+                    emoji           : true,
+                    taskList        : true,
+                    tex             : true,  // 默认不解析
+                    flowChart       : true,  // 默认不解析
+                    sequenceDiagram : true,  // 默认不解析
+                });
+            });
+        });
+    </script>
+    
+    <script> 
+        if(localStorage.color_style) $('head').append("<style class='color-style'>" + localStorage.color_style + "</style>");
+        if(localStorage.font_style) $('head').append("<style class='font-style'>" + localStorage.font_style + "</style>"); 
+    </script>
+
+    <link rel="icon" href="../scr/title.jpg" type="image/x-icon"/> 
+    <title>微信小程序 人脸追踪+人脸识别+视频上传 页面</title>
+
+</head>
+<body>
+<!-- Header -->
+<header class="header" id="header" >
+    <section class="container">
+            <h1 class="fullname">微信小程序 人脸追踪+人脸识别+视频上传 页面</h1>
+        <!-- <div style="display: block;"></div> -->
+        <nav>
+            <ul class="menu">
+                <li class="menu-item"><a href="https://zhoujie1994.cn/my/">首页</a></li>
+                <li class="menu-item"><a href="https://zhoujie1994.cn/my/studyproject">课题项目</a></li>
+                <li class="menu-item"><a href="https://zhoujie1994.cn/my/algorithmic">算法</a></li>
+                <li class="menu-item"><a class="current-menu-item" href="https://zhoujie1994.cn/my/webprogram">WEB开发</a></li>
+                <li class="menu-item"><a href="https://zhoujie1994.cn/my/three">THREE</a></li>
+            </ul>
+        </nav>    
+    </section>
+    
+    <section class="infos" >
+        <div class="container">
+            <div class="fixed" style="display:none;">
+                <div class="container">
+                <h2 class="fixed-title" >微信小程序 人脸追踪+人脸识别+视频上传 页面</h2>
+                <div class="fixed-menus" >
+                    <ul class="menu">
+                            <li class="menu-item">2019-01-17 12:23:19</li>
+                    </ul>
+                </div>
+                </div>
+            </div>
+
+            <div class="placard">
+                2019-01-17 12:23:19      
+            </div>
+        </div>
+    </section>
+</header>
+
+
+    <!-- Post List -->
+    <section >
+        <div class="container" id="articles"  >
+            <div id="test-editormd-view" style="padding:0;font-size: 16px;">
+                <textarea style="display:none;" name="test-editormd-markdown-doc"></textarea>
+            </div>
+
+            <nav class="nearby">
+                <div class="aligntop" style="margin-bottom:0"><a href="https://zhoujie1994.cn/my/webprogram/002.html" >利用浏览器本地存储localStorage进行换肤 </a></div>
+                <!-- <div class="alignbottom"><a href="https://zhoujie1994.cn/my/webprogram/005.html">美化WordPress插入到文章中的相册</a></div> -->
+            </nav>
+        </div>
+    </section>
+
+
+
+<footer class="footer">
+	<section class="container">
+        <div class="footmenu"></div>
+        <p>
+            <span class="content-foot">&copy; 2018 <a href="https://www.zhoujie1994.cn">周洁个人博客</a> . 陕ICP备19000649号-1</span>
+            <!-- <span class='right'> <a href="" target="_blank"></a></span> -->
+        </p>
+	</section>
+</footer>
+
+<div class="setting_tool iconfont">
+    <a class="back2top" style="display:none;"><i class="czs-arrow-up-l"></i></a>
+    <a class="socolor"><i class="czs-clothes-l"></i></a>
+    <div class="c">
+        <ul>
+            <li class="color undefined">默认</li>
+            <li class="color sepia">护眼</li>
+            <li class="color night">夜晚</li>
+            <li class="hr"></li>
+            <li class="font serif">Serif</li>
+            <li class="font sans">Sans</li>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,163 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+   
+<head>
+    <meta charset="UTF-8" />
+    <meta name="author" content="zhoujie">
+
+    <script src="../js/jquery-3.3.1.js"></script>
+    <script src="../js/index2.js"></script>
+
+    <link href="../css/index.css" type="text/css" rel="stylesheet">
+    <link href="../css/index2.css" type="text/css" rel="stylesheet">
+
+    <link rel="stylesheet" href="../scr/caomei1.2.8/style.css">
+
+    <script> 
+        if(localStorage.color_style) $('head').append("<style class='color-style'>" + localStorage.color_style + "</style>");
+        if(localStorage.font_style) $('head').append("<style class='font-style'>" + localStorage.font_style + "</style>"); 
+    </script>
+
+    <link rel="icon" href="../scr/title.jpg" type="image/x-icon"/> 
+    <title>一些笔记 &ndash; 个人技术博客网站</title>
+
+</head>
+<body>
+<!-- Header -->
+<header class="header" id="header">
+    <section class="container">
+            <h1 class="fullname">一些笔记</h1>
+        <!-- <div style="display: block;"></div> -->
+        <nav>
+            <ul class="menu">
+                <li class="menu-item"><a href="https://zhoujie1994.cn/my/">首页</a></li>
+                <li class="menu-item"><a href="https://zhoujie1994.cn/my/studyproject">课题项目</a></li>
+                <li class="menu-item"><a href="https://zhoujie1994.cn/my/algorithmic">算法</a></li>
+                <li class="menu-item"><a class="current-menu-item" href="https://zhoujie1994.cn/my/webprogram">WEB开发</a></li>
+                <li class="menu-item"><a href="https://zhoujie1994.cn/my/three">THREE</a></li>
+            </ul>
+        </nav>    
+    </section>
+    
+    <section class="infos" >
+        <div class="container">
+            <div class="fixed" style="display:none;">
+                <div class="container">
+                <h2 class="fixed-title" >一些笔记</h2>
+                <div class="fixed-menus" >
+                    <ul class="menu">
+                            <li class="menu-item"><a href="https://zhoujie1994.cn/my/">首页</a></li>
+                            <li class="menu-item"><a href="https://zhoujie1994.cn/my/studyproject">课题项目</a></li>
+                            <li class="menu-item"><a href="https://zhoujie1994.cn/my/algorithmic">算法</a></li>
+                            <li class="menu-item"><a class="current-menu-item" href="https://zhoujie1994.cn/my/webprogram">WEB开发</a></li>
+                            <li class="menu-item"><a href="https://zhoujie1994.cn/my/three">THREE</a></li>
+                    </ul>
+                </div>
+                </div>
+            </div>
+
+            <div class="placard">
+                Merry Christmas !             
+            </div>
+        </div>
+    </section>
+</header>
+
+
+    <!-- Post List -->
+    <section >
+        <div class="container" id="articles"  >
+            <div class="post-list">
+                    <article class="meta" >
+                        <header>
+                            <a class="article-title" href="https://zhoujie1994.cn/my/webprogram/004.html" ><h2 >微信小程序 西交二手交易信息</h2></a>
+                        </header>
+                        <main>
+                            <p itemprop="articleBody">西交二手交易平台，与学校 NetID账号对接，只有在进行认证后才能发布信息及获得完整的联系方式，这样有效保证了二手交易物品信息的可靠性，同时简化了传统的注册和认证等操作。“西交二手易信息”小程序中共有5个一级tab ，分别是“公告牌 ”、“旧物 ”、“发布 ”、“旧 书     
+                            </p>
+                        </main>
+                        <footer>
+                            <span class="time">2019-02-16 19:55:14 发布</span>
+                                                
+                        </footer>
+                    </article>
+
+                    <article class="meta" >
+                        <header>
+                            <a class="article-title" href="https://zhoujie1994.cn/my/webprogram/003.html" ><h2 >一步步配置腾讯云服务器Ubuntu 通过域名访问自己的网页tomcat</h2></a>
+                        </header>
+                        <main>
+                            <p itemprop="articleBody">STEP1:购买云服务器+域名 购买学生优惠套餐 10元/月：https://cloud.tencent.com/act/campus?fromSource=gwzcw.1088196.1088196.1088196 系统选ubuntu，购买3个月加购域名共38元（3个月以下没法添加域名解析），买了域名以后可以直接通过域名访问 收到服务器信息
+                            </p>
+                        </main>
+                        <footer>
+                            <span class="time">2019-01-24 18:52:55 发布</span>
+                                             
+                        </footer>
+                    </article>
+                                
+                    <article class="meta" >
+                        <header>
+                            <a class="article-title" href="https://zhoujie1994.cn/my/webprogram/002.html" ><h2 >利用浏览器本地存储localStorage进行换肤</h2></a>
+                        </header>
+                        <main>
+                            <p >刷新页面，界面效果依然不会改变。点击选择相应的颜色，字体后，添加本地存储localStorage.color_style和localStorage.font_style，用添加的本地存储样式覆盖掉现有的样式，在页面头部添加的js保证刷新跳转后页面样式不变。本地存储localStorage 相关知识 1、简介 localStorage                                                 
+                            </p>
+                        </main>
+                        <footer>
+                            <span class="time">2019-01-24 12:21:02 发布</span>                   
+                        </footer>
+                    </article>   
+                   
+                    <article class="meta" >
+                        <header>
+                            <a class="article-title" href="https://zhoujie1994.cn/my/webprogram/001.html" ><h2 >微信小程序 人脸追踪+人脸识别+视频上传 页面</h2></a>
+                        </header>
+                        <main>
+                            <p >调用的百度人脸识别api，免费账户就可以，虽然有QPS限制但对于自己学习使用是足够的。自己的access_token获取看这里：http://ai.baidu.com/docs#/Face-Detect-V3/top 在手机端的主页效果，第二个即为演示图上传的视频 更新：改了识别结果显示方式，增加了多人识别                                                       
+                            </p>
+                        </main>
+                        <footer>
+                            <span class="time">2019-01-17 12:23:19 发布</span>                   
+                        </footer>
+                    </article>   
+
+                <nav class="reade_more">
+                    <span class='page-numbers current'>1</span> 
+                    <!-- <a class='page-numbers' href='https://www.zhoujie1994.cn' title='第 2 页'>2</a> 
+                    <a class='page-numbers' href='https://www.zhoujie1994.cn' title='最后页'>3</a> 
+                    <a class='page-numbers' href='https://www.zhoujie1994.cn' title='下一页'>»</a>                  -->
+                </nav>
+            </div>
+        </div>
+    </section>
+
+
+
+<footer class="footer">
+	<section class="container">
+        <div class="footmenu"></div>
+        <p>
+            <span class="content-foot">&copy; 2018 <a href="https://www.zhoujie1994.cn">周洁个人博客</a> . 陕ICP备19000649号-1</span>
+            <!-- <span class='right'> <a href="" target="_blank"></a></span> -->
+        </p>
+	</section>
+</footer>
+
+<div class="setting_tool iconfont">
+    <a class="back2top" style="display:none;"><i class="czs-arrow-up-l"></i></a>
+    <a class="socolor"><i class="czs-clothes-l"></i></a>
+    <div class="c">
+        <ul>
+            <li class="color undefined">默认</li>
+            <li class="color sepia">护眼</li>
+            <li class="color night">夜晚</li>
+            <li class="hr"></li>
+            <li class="font serif">Serif</li>
+            <li class="font sans">Sans</li>
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>

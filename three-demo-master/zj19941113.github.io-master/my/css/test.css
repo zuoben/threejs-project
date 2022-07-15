@@ -1,0 +1,19 @@
+.huyan{color:#361e07,#704214, #b38a60,#a98c51,#eae0be,#f3eacb;}
+
+.article-title h2:hover{color:#361e07}.fixed{box-shadow:0 2px 3px #a98c511a}body,.fullname,.article-title,.fixed-title,.fixed, h2,.content-foot{background:#f3eacb;color:#704214}.menu .menu-item a:hover{color:#704214}.menu .menu-item a,a{color: #b38a60; }.placard,.content-foot a,footer .time{color:#a98c51}.infos:before,.infos:after{background: #eae0be;}span.page-numbers,a.page-numbers{box-shadow: 0 0 0 1px #a98c51 inset;background:#f3eacb;color:#a98c51;}span.current,a.page-numbers:hover{background: #704214;color:white}
+.nearby{box-shadow: 0 1px 0 #b38a60,0 -1px 0 #b38a60;}
+.nearby div.aligntop a:hover,.content-foot a:hover,.nearby div.alignbottom a:hover{color:#704214}
+
+.editormd-html-preview{background:#f3eacb;color:#704214}
+.markdown-body a {color:#b38a60}
+.markdown-body a:hover {color:#704214}
+
+.yewan{color:white,#bdcadb, #666e8e,#666e8e,#393f56,#1c1f2b;}
+
+.article-title h2:hover{color:white}.fixed{box-shadow:0 2px 3px rgba(0,0,0,0.2)}body,.fullname,.article-title,.fixed-title,.fixed, h2,.content-foot{background:#1c1f2b;color:#bdcadb}.menu .menu-item a:hover{color:#bdcadb}.menu .menu-item a,a{color: #666e8e; }.menu .menu-item a:after{background: #666e8e;}.placard,.content-foot a,footer .time{color:#666e8e}.infos:before,.infos:after{background: #393f56;}span.page-numbers,a.page-numbers{box-shadow:none;background:#393f56;color:#bdcadb;}span.current,a.page-numbers:hover{background: #666e8e;color:#bdcadb;}.setting_tool a,.setting_tool div{background: #393f56;color: #bdcadb}
+.nearby{box-shadow: 0 1px 0 #393f56,0 -1px 0 #393f56;}
+.nearby div.aligntop a:hover,.content-foot a:hover,.nearby div.alignbottom a:hover{color:#bdcadb}
+
+.editormd-html-preview{background:#1c1f2b;color:#bdcadb}
+.markdown-body a {color:#666e8e}
+.markdown-body a:hover {color:#bdcadb}

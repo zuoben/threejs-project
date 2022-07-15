@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/title.jpg?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/title.jpg?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/title.jpg?v=5.1.4">
+
+
+
+
+
+
+  <meta name="keywords" content="三维重建,DynamicFusion,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="ZhouJie's Blog" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="介绍DynamicFusion构建了一个可以实时重建 非刚性变形 动态场景 的系统，随着新的数据融合进模型当中，模型得到降噪、细节更加精细。">
+<meta name="keywords" content="三维重建,DynamicFusion">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DynamicFusion在ubuntu16.04+显卡GT740+cuda8.0上的实现">
+<meta property="og:url" content="http://yoursite.com/2019/04/09/14/index.html">
+<meta property="og:site_name" content="ZhouJie&#39;s Blog">
+<meta property="og:description" content="介绍DynamicFusion构建了一个可以实时重建 非刚性变形 动态场景 的系统，随着新的数据融合进模型当中，模型得到降噪、细节更加精细。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190409152447293.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190409155616337.JPG?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190409161619534.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190409162225446.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190409171511176.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190409174954238.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190409175454360.JPG?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190409180512255.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190409180742100.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20190409181625827.gif">
+<meta property="og:updated_time" content="2019-12-18T04:13:14.533Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="DynamicFusion在ubuntu16.04+显卡GT740+cuda8.0上的实现">
+<meta name="twitter:description" content="介绍DynamicFusion构建了一个可以实时重建 非刚性变形 动态场景 的系统，随着新的数据融合进模型当中，模型得到降噪、细节更加精细。">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20190409152447293.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/04/09/14/">
+
+
+
+
+
+  <title>DynamicFusion在ubuntu16.04+显卡GT740+cuda8.0上的实现 | ZhouJie's Blog</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?8adfb1a1130406391d41d87803ca8802";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+    <a href="https://github.com/zj19941113/zj19941113.github.io" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ZhouJie's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">向阳而生</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/04/09/14/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ZhouJie">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/zj.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZhouJie's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">DynamicFusion在ubuntu16.04+显卡GT740+cuda8.0上的实现</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-09T18:10:06+08:00">
+                2019-04-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/深度相机/" itemprop="url" rel="index">
+                    <span itemprop="name">深度相机</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C/" itemprop="url" rel="index">
+                    <span itemprop="name">C++</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2019/04/09/14/" class="leancloud_visitors" data-flag-title="DynamicFusion在ubuntu16.04+显卡GT740+cuda8.0上的实现">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p><img src="https://img-blog.csdnimg.cn/20190409152447293.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>DynamicFusion构建了一个可以实时重建 非刚性变形 动态场景 的系统，随着新的数据融合进模型当中，模型得到降噪、细节更加精细。</p>
+<a id="more"></a>
+<p>论文地址：<a href="http://grail.cs.washington.edu/projects/dynamicfusion/papers/DynamicFusion.pdf" target="_blank" rel="noopener">http://grail.cs.washington.edu/projects/dynamicfusion/papers/DynamicFusion.pdf</a><br>GitHub地址：<a href="https://github.com/mihaibujanca/dynamicfusion" target="_blank" rel="noopener">https://github.com/mihaibujanca/dynamicfusion</a><br>注意：这个项目是对论文的复现，但是目前<code>尚未准确复现论文内容</code>，运行速度仍然有待优化，10s/frame不满足实时运行，建议转换成离线数据，再进行运行。</p>
+<p>这里记录DynamicFusion在ubuntu16.04+显卡GT740+cuda8.0上的实现。（虽然可以实现，但是GT740真的是太慢慢慢慢了…电脑是刚重装完系统的机子）</p>
+<h1 id="1、驱动与cuda安装"><a href="#1、驱动与cuda安装" class="headerlink" title="1、驱动与cuda安装"></a>1、驱动与cuda安装</h1><h2 id="（1）驱动安装"><a href="#（1）驱动安装" class="headerlink" title="（1）驱动安装"></a>（1）驱动安装</h2><h3 id="a-驱动下载"><a href="#a-驱动下载" class="headerlink" title="a.驱动下载"></a>a.驱动下载</h3><p>#查看显卡型号</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">lspci | grep -i nvidia</span><br></pre></td></tr></table></figure>
+
+<p>nvidia官网 <a href="https://www.geforce.cn/drivers" target="_blank" rel="noopener">https://www.geforce.cn/drivers</a> 搜索显卡型号对应的驱动，下载（别用最新的）后放到home文件夹<br><img src="https://img-blog.csdnimg.cn/20190409155616337.JPG?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h3 id="b-禁用nouveau驱动"><a href="#b-禁用nouveau驱动" class="headerlink" title="b.禁用nouveau驱动"></a>b.禁用nouveau驱动</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo gedit /etc/modprobe.d/blacklist.conf</span><br></pre></td></tr></table></figure>
+
+<p>在文本最后添加：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">blacklist nouveau</span><br><span class="line">options nouveau modeset=<span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<p>然后执行：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo update-initramfs -u</span><br></pre></td></tr></table></figure>
+
+<p>重启后，屏幕分辨率可能不对不用管，命令行执行：<code>lsmod | grep nouveau</code> ，如果没有屏幕输出，说明禁用nouveau成功。</p>
+<h3 id="c-禁用X-Window服务"><a href="#c-禁用X-Window服务" class="headerlink" title="c.禁用X-Window服务"></a>c.禁用X-Window服务</h3><p><code>#注意：这会关闭图形界面，提前用手机或者笔记本看下面的步骤</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo service lightdm stop</span><br></pre></td></tr></table></figure>
+
+<p>按<code>Ctrl-Alt+F1</code>进入命令行界面，输入用户名和密码登录。</p>
+<h3 id="d-命令行安装驱动"><a href="#d-命令行安装驱动" class="headerlink" title="d.命令行安装驱动"></a>d.命令行安装驱动</h3><p>#给驱动run文件赋予执行权限：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo chmod +x NVIDIA-Linux-x86_64<span class="number">-384.59</span>.run</span><br></pre></td></tr></table></figure>
+
+<p>#后面的参数不可省略：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo ./NVIDIA-Linux-x86_64<span class="number">-384.59</span>.run –no-opengl-files</span><br></pre></td></tr></table></figure>
+
+<p>按照提示安装，回车确定，成功安装后在命令行输入：<code>sudo service lightdm start</code>，恢复到图形界面，此时屏幕分辨率恢复正常，重启。</p>
+<h3 id="e-驱动测试"><a href="#e-驱动测试" class="headerlink" title="e.驱动测试"></a>e.驱动测试</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo nvidia-smi</span><br></pre></td></tr></table></figure>
+
+<p>若列出GPU的信息列表，表示驱动安装成功。<br><img src="https://img-blog.csdnimg.cn/20190409161619534.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h2 id="（2）cuda7-5安装"><a href="#（2）cuda7-5安装" class="headerlink" title="（2）cuda7.5安装"></a>（2）cuda7.5安装</h2><p>cuda7.5可以使用命令行安装，到了cuda8.0以及往上就不行了</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install nvidia-cuda-dev nvidia-cuda-toolkit nvidia-nsight nvidia-prime</span><br></pre></td></tr></table></figure>
+
+<p>等待安装完成后，输入<code>nvcc -V</code>，检查是否安装成功。<br><img src="https://img-blog.csdnimg.cn/20190409162225446.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h1 id="2、环境配置"><a href="#2、环境配置" class="headerlink" title="2、环境配置"></a>2、环境配置</h1><p>下载DynamicFusion代码：<a href="https://github.com/mihaibujanca/dynamicfusion" target="_blank" rel="noopener">https://github.com/mihaibujanca/dynamicfusion</a><br>整个配置过程参考dynamicfusion-master/build.sh 文件（不要直接运行build.sh会有各种报错）</p>
+<h2 id="（1）apt-get-install-依赖安装"><a href="#（1）apt-get-install-依赖安装" class="headerlink" title="（1）apt-get install 依赖安装"></a>（1）apt-get install 依赖安装</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install cmake libvtk5-dev libsuitesparse-dev liblapack-dev --fix-missing</span><br><span class="line">sudo apt-get install libblas-dev libgtk2<span class="number">.0</span>-dev pkg-config libopenni-dev --fix-missing</span><br><span class="line">sudo apt-get install libusb<span class="number">-1.0</span><span class="number">-0</span>-dev wget zip clang --fix-missing</span><br></pre></td></tr></table></figure>
+
+<h2 id="（2）安装gflags、glog、Eigen、Ceres"><a href="#（2）安装gflags、glog、Eigen、Ceres" class="headerlink" title="（2）安装gflags、glog、Eigen、Ceres"></a>（2）安装gflags、glog、Eigen、Ceres</h2><p>进入<code>dynamicfusion-master</code>文件夹的<code>上一目录</code></p>
+<h3 id="安装gflags、glog、Eigen"><a href="#安装gflags、glog、Eigen" class="headerlink" title="安装gflags、glog、Eigen"></a>安装gflags、glog、Eigen</h3><p>#安装 gflags</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git clone https:<span class="comment">//github.com/gflags/gflags.git</span></span><br><span class="line">cd gflags</span><br><span class="line">mkdir -p build/ &amp;&amp; cd build</span><br><span class="line">cmake .. &amp;&amp; make </span><br><span class="line">cd ../../</span><br></pre></td></tr></table></figure>
+
+<p>#安装 glog</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">git clone https:<span class="comment">//github.com/google/glog.git</span></span><br><span class="line">cd glog</span><br><span class="line">mkdir -p build/ &amp;&amp; cd build/</span><br><span class="line">cmake .. &amp;&amp; make</span><br><span class="line">cd ../../</span><br></pre></td></tr></table></figure>
+
+<p>#安装 Eigen 3.3.4</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">wget http:<span class="comment">//bitbucket.org/eigen/eigen/get/3.3.4.tar.gz</span></span><br><span class="line">tar -xf <span class="number">3.3</span><span class="number">.4</span>.tar.gz</span><br><span class="line">cd eigen-eigen<span class="number">-5</span>a0156e40feb</span><br><span class="line">mkdir -p build &amp;&amp; cd build</span><br><span class="line">cmake ..</span><br><span class="line">sudo make install</span><br><span class="line">cd ../../</span><br></pre></td></tr></table></figure>
+
+<h3 id="配置ceres-solver"><a href="#配置ceres-solver" class="headerlink" title="配置ceres-solver"></a>配置ceres-solver</h3><p>#下载ceres-solver：<a href="https://github.com/ceres-solver/ceres-solver" target="_blank" rel="noopener">https://github.com/ceres-solver/ceres-solver</a> 并解压到<code>dynamicfusion-master文件夹的上一目录</code> ，将ceres-solver-master重命名为<code>ceres-solver</code></p>
+<p>#配置 Ceres</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cd ceres-solver</span><br><span class="line">mkdir -p build/ &amp;&amp; cd build/</span><br><span class="line">cmake ..</span><br><span class="line">make -j4</span><br><span class="line">sudo make install</span><br><span class="line">cd ../../</span><br></pre></td></tr></table></figure>
+
+<h2 id="（3）安装OpenCV-2-4-13"><a href="#（3）安装OpenCV-2-4-13" class="headerlink" title="（3）安装OpenCV 2.4.13"></a>（3）安装OpenCV 2.4.13</h2><p>注：opencv的下载过程非常非常慢，建议前天晚上下载，第二天再接着配置</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">git clone https:<span class="comment">//github.com/opencv/opencv</span></span><br><span class="line">cd opencv/</span><br><span class="line">git checkout <span class="number">2.4</span><span class="number">.13</span><span class="number">.3</span></span><br><span class="line">mkdir -p build &amp;&amp; cd build</span><br><span class="line">cmake -DWITH_VTK=ON -DBUILD_opencv_calib3d=ON -DBUILD_opencv_imgproc=ON -DWITH_CUDA=OFF ..</span><br><span class="line">make -j4</span><br><span class="line">sudo make install</span><br><span class="line">cd ../../</span><br></pre></td></tr></table></figure>
+
+<h2 id="（4）安装Boost"><a href="#（4）安装Boost" class="headerlink" title="（4）安装Boost"></a>（4）安装Boost</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">wget https:<span class="comment">//dl.bintray.com/boostorg/release/1.64.0/source/boost_1_64_0.tar.gz</span></span><br><span class="line">tar -xf boost_1_64_0.tar.gz</span><br><span class="line">cd boost_1_64_0</span><br><span class="line">sudo ./bootstrap.sh</span><br><span class="line">./b2</span><br><span class="line">sudo ./b2 install</span><br><span class="line">cd ..</span><br></pre></td></tr></table></figure>
+
+<p>删除掉无用的压缩包，最终目录如图<br><img src="https://img-blog.csdnimg.cn/20190409171511176.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h1 id="3、代码修改与dataset获取"><a href="#3、代码修改与dataset获取" class="headerlink" title="3、代码修改与dataset获取"></a>3、代码修改与dataset获取</h1><h2 id="（1）配置deps-terra"><a href="#（1）配置deps-terra" class="headerlink" title="（1）配置deps/terra"></a>（1）配置deps/terra</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cd dynamicfusion-master/deps</span><br><span class="line">wget https:<span class="comment">//github.com/zdevito/terra/releases/download/release-2016-03-25/terra-Linux-x86_64-332a506.zip</span></span><br><span class="line">unzip terra-Linux-x86_64<span class="number">-332</span>a506.zip</span><br><span class="line">rm terra-Linux-x86_64<span class="number">-332</span>a506.zip</span><br><span class="line">mv terra-Linux-x86_64<span class="number">-332</span>a506 terra</span><br></pre></td></tr></table></figure>
+
+<h2 id="（2）配置deps-Opt"><a href="#（2）配置deps-Opt" class="headerlink" title="（2）配置deps/Opt"></a>（2）配置deps/Opt</h2><p>#下载Opt：<a href="https://github.com/niessner/Opt/tree/c6012e7e4c67fa3bea96161ba24fe88a2b79deed" target="_blank" rel="noopener">https://github.com/niessner/Opt/tree/c6012e7e4c67fa3bea96161ba24fe88a2b79deed</a> ，并解压到deps，重命名为Opt</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cd Opt/API/</span><br><span class="line">make -j4</span><br></pre></td></tr></table></figure>
+
+<h2 id="（3）修改kfusion-src-warp-field-cpp"><a href="#（3）修改kfusion-src-warp-field-cpp" class="headerlink" title="（3）修改kfusion/src/warp_field.cpp"></a>（3）修改kfusion/src/warp_field.cpp</h2><p>为了解决之后运行代码会出现的报错</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">.../dynamicfusion/kfusion/src/warp_field.cpp:<span class="number">158</span>:<span class="number">10</span>: error: ‘<span class="class"><span class="keyword">struct</span> <span class="title">ceres</span>:</span>:Solver::Options’ has no member named ‘num_threads_used’</span><br><span class="line">options.num_threads_used = <span class="number">8</span>;</span><br></pre></td></tr></table></figure>
+
+<p>将第157行<code>options.num_linear_solver_threads = 8;</code>注释掉</p>
+<h2 id="（4）dataset下载"><a href="#（4）dataset下载" class="headerlink" title="（4）dataset下载"></a>（4）dataset下载</h2><p>下载地址 <a href="https://www.dropbox.com/sh/qgy2n9bmioofqnj/AABUnT7pi2ECpxSi80EmXOXna?dl=0" target="_blank" rel="noopener">https://www.dropbox.com/sh/qgy2n9bmioofqnj/AABUnT7pi2ECpxSi80EmXOXna?dl=0</a> （给的数据挺多的，如果网站上不去可以下载我传到百度云的数据，只传了作为demo的umbrella_data.zip）</p>
+<p>umbrella_data.zip下载链接：<a href="https://pan.baidu.com/s/1PRf7-xl5vgj2SUQVNiuk-g" target="_blank" rel="noopener">https://pan.baidu.com/s/1PRf7-xl5vgj2SUQVNiuk-g</a>  ，提取码：25s1<br>下载后放置到dynamicfusion-master文件夹中，运行</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p data/umbrella/depth</span><br><span class="line">mkdir -p data/umbrella/color</span><br><span class="line"></span><br><span class="line">mv umbrella_data.zip data/umbrella</span><br><span class="line">cd data/umbrella</span><br><span class="line">unzip umbrella_data.zip</span><br><span class="line">rm *.txt</span><br><span class="line">mv *color*.png color/</span><br><span class="line">mv *depth*.png depth/</span><br><span class="line">rm umbrella_data.zip</span><br></pre></td></tr></table></figure>
+
+<h1 id="4、运行"><a href="#4、运行" class="headerlink" title="4、运行"></a>4、运行</h1><h2 id="（1）编译"><a href="#（1）编译" class="headerlink" title="（1）编译"></a>（1）编译</h2><p>进入dynamicfusion-master文件夹，运行</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p build &amp;&amp; cd build</span><br><span class="line">cmake -DOpenCV_DIR=~/opencv/build -DBOOST_ROOT=~/boost_1_64_0/ -DOPENNI_INCLUDE_DIR=/usr/include/ni -DOpenCV_FOUND=TRUE ..</span><br><span class="line">make -j4</span><br></pre></td></tr></table></figure>
+
+<h2 id="（2）运行与报错"><a href="#（2）运行与报错" class="headerlink" title="（2）运行与报错"></a>（2）运行与报错</h2><p>进入dynamicfusion-master文件夹，运行</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./build/bin/dynamicfusion data/umbrella</span><br></pre></td></tr></table></figure>
+
+<p>运行后报错 <code>llvm: No such file or directory</code> ,查看这里：<a href="https://github.com/mihaibujanca/dynamicfusion/issues/54" target="_blank" rel="noopener">https://github.com/mihaibujanca/dynamicfusion/issues/54</a><br>升级cuda7.5到8.0能够解决</p>
+<h2 id="（3）升级cuda7-5到8-0"><a href="#（3）升级cuda7-5到8-0" class="headerlink" title="（3）升级cuda7.5到8.0"></a>（3）升级cuda7.5到8.0</h2><h3 id="卸载cuda7-5"><a href="#卸载cuda7-5" class="headerlink" title="卸载cuda7.5"></a>卸载cuda7.5</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get autoremove nvidia-cuda-toolkit</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/20190409174954238.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h3 id="安装cuda8-0"><a href="#安装cuda8-0" class="headerlink" title="安装cuda8.0"></a>安装cuda8.0</h3><p>#下载cuda8.0：<a href="https://developer.nvidia.com/cuda-80-ga2-download-archive" target="_blank" rel="noopener">https://developer.nvidia.com/cuda-80-ga2-download-archive</a><br><img src="https://img-blog.csdnimg.cn/20190409175454360.JPG?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p>#安装依赖</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install freeglut3-dev build-essential libx11-dev libxmu-dev libxi-dev libgl1-mesa-glx libglu1-mesa libglu1-mesa-dev</span><br></pre></td></tr></table></figure>
+
+<p>#安装cuda8.0</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo chmod <span class="number">777</span> cuda_8<span class="number">.0</span><span class="number">.61</span>_375<span class="number">.26</span>_linux.run </span><br><span class="line">sudo ./cuda_8<span class="number">.0</span><span class="number">.61</span>_375<span class="number">.26</span>_linux.run</span><br></pre></td></tr></table></figure>
+
+<p>执行后会先出现一个声明，需要阅读到100%才会开始安装，直接ctr+c跳过<br>按照提示输入回答就行，位置全部选择默认，注：<code>第二个选择是否安装nvidia驱动时，一定要选择否</code><br>安装完依赖后，如果仍然提示</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Installing the CUDA Toolkit in /usr/local/cuda<span class="number">-8.0</span> … </span><br><span class="line">Missing recommended library: libXmu.so</span><br></pre></td></tr></table></figure>
+
+<p>不用管</p>
+<p>#添加环境变量</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo gedit ~/.bashrc</span><br></pre></td></tr></table></figure>
+
+<p>将以下内容写入到~/.bashrc尾部：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> PATH=/usr/local/cuda<span class="number">-8.0</span>/bin$&#123;PATH:+:$&#123;PATH&#125;&#125;</span><br><span class="line"><span class="keyword">export</span> LD_LIBRARY_PATH=/usr/local/cuda<span class="number">-8.0</span>/lib64$&#123;LD_LIBRARY_PATH:+:$&#123;LD_LIBRARY_PATH&#125;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>重启后，输入<code>nvcc --version</code> 测试是否安装成功<br><img src="https://img-blog.csdnimg.cn/20190409180512255.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<h2 id="（4）运行与结果"><a href="#（4）运行与结果" class="headerlink" title="（4）运行与结果"></a>（4）运行与结果</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install nvidia-cuda-dev nvidia-cuda-toolkit nvidia-nsight nvidia-prime</span><br></pre></td></tr></table></figure>
+
+<p>#编译<br>进入dynamicfusion-master文件夹，运行</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p build &amp;&amp; cd build</span><br><span class="line">cmake -DOpenCV_DIR=~/opencv/build -DBOOST_ROOT=~/boost_1_64_0/ -DOPENNI_INCLUDE_DIR=/usr/include/ni -DOpenCV_FOUND=TRUE ..</span><br><span class="line">make -j4</span><br></pre></td></tr></table></figure>
+
+<p>#运行<br>进入dynamicfusion-master文件夹，运行</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./build/bin/dynamicfusion data/umbrella</span><br></pre></td></tr></table></figure>
+
+<p>#结果<br><img src="https://img-blog.csdnimg.cn/20190409180742100.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"><br>DynamicFusion效果（项目视频）：<br><img src="https://img-blog.csdnimg.cn/20190409181625827.gif" alt="在这里插入图片描述"><br>视频地址：<a href="https://www.youtube.com/watch?v=i1eZekcc_lM" target="_blank" rel="noopener">https://www.youtube.com/watch?v=i1eZekcc_lM</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/三维重建/" rel="tag"><i class="fa fa-tag"></i> 三维重建</a>
+          
+            <a href="/tags/DynamicFusion/" rel="tag"><i class="fa fa-tag"></i> DynamicFusion</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/03/11/13/" rel="next" title="刷题汇总（一）leetcode 精选50题 JavaScript答案总结">
+                <i class="fa fa-chevron-left"></i> 刷题汇总（一）leetcode 精选50题 JavaScript答案总结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/12/21/" rel="prev" title="BundleFusion在win10+vs2013+cuda8.0上的实现">
+                BundleFusion在win10+vs2013+cuda8.0上的实现 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      
+        <div id="gitment-container"></div>
+      
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/zj.png" alt="ZhouJie">
+            
+              <p class="site-author-name" itemprop="name">ZhouJie</p>
+              <p class="site-description motion-element" itemprop="description">C++ / 后台开发 / Three</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">33</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">63</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/zj19941113" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:1601584358@qq.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/ffcjjhv" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-link"></i>CSDN</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://zhoujie1994.cn/my" target="_blank" title="主页">
+                      
+                        <i class="fa fa-fw fa-link"></i>主页</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#介绍"><span class="nav-text">介绍</span></a></li></ol><li class="nav-item nav-level-1"><a class="nav-link" href="#1、驱动与cuda安装"><span class="nav-text">1、驱动与cuda安装</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#（1）驱动安装"><span class="nav-text">（1）驱动安装</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#a-驱动下载"><span class="nav-text">a.驱动下载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#b-禁用nouveau驱动"><span class="nav-text">b.禁用nouveau驱动</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#c-禁用X-Window服务"><span class="nav-text">c.禁用X-Window服务</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#d-命令行安装驱动"><span class="nav-text">d.命令行安装驱动</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#e-驱动测试"><span class="nav-text">e.驱动测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#（2）cuda7-5安装"><span class="nav-text">（2）cuda7.5安装</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2、环境配置"><span class="nav-text">2、环境配置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#（1）apt-get-install-依赖安装"><span class="nav-text">（1）apt-get install 依赖安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#（2）安装gflags、glog、Eigen、Ceres"><span class="nav-text">（2）安装gflags、glog、Eigen、Ceres</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装gflags、glog、Eigen"><span class="nav-text">安装gflags、glog、Eigen</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置ceres-solver"><span class="nav-text">配置ceres-solver</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#（3）安装OpenCV-2-4-13"><span class="nav-text">（3）安装OpenCV 2.4.13</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#（4）安装Boost"><span class="nav-text">（4）安装Boost</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3、代码修改与dataset获取"><span class="nav-text">3、代码修改与dataset获取</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#（1）配置deps-terra"><span class="nav-text">（1）配置deps/terra</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#（2）配置deps-Opt"><span class="nav-text">（2）配置deps/Opt</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#（3）修改kfusion-src-warp-field-cpp"><span class="nav-text">（3）修改kfusion/src/warp_field.cpp</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#（4）dataset下载"><span class="nav-text">（4）dataset下载</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4、运行"><span class="nav-text">4、运行</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#（1）编译"><span class="nav-text">（1）编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#（2）运行与报错"><span class="nav-text">（2）运行与报错</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#（3）升级cuda7-5到8-0"><span class="nav-text">（3）升级cuda7.5到8.0</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#卸载cuda7-5"><span class="nav-text">卸载cuda7.5</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#安装cuda8-0"><span class="nav-text">安装cuda8.0</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#（4）运行与结果"><span class="nav-text">（4）运行与结果</span></a></li></ol></li></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ZhouJie</span>
+
+  
+</div>
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">陕ICP备19000649号-1</span>
+</div>
+
+<!--
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+-->
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+<!-- LOCAL: You can save these files to your site and update links -->
+    
+        
+        <!-- <link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"> -->
+        <!-- <script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script> -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/theme-next/theme-next-gitment@1/default.css">
+        <script src="https://cdn.jsdelivr.net/gh/theme-next/theme-next-gitment@1/gitment.browser.js"></script>
+    
+<!-- END LOCAL -->
+
+    
+      <style>
+        a.gitment-editor-footer-tip { display: none; }
+        .gitment-container.gitment-footer-container { display: none; }
+      </style>
+    
+
+    
+      <script type="text/javascript">
+      function renderGitment(){
+        var gitment = new Gitment({
+            id: '1554804606000', 
+            owner: 'zj19941113',
+            repo: 'zj19941113.github.io',
+            
+            oauth: {
+            
+            
+                client_secret: '5fc128c4f5668afe365fee33ddae3d01045bd156',
+            
+                client_id: 'b8b1ba34016a28be9e53'
+            }});
+        gitment.render('gitment-container');
+      }
+
+      
+      renderGitment();
+      
+      </script>
+    
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("4zBHAlw9o2CSjEpTr7lklGEu-gzGzoHsz", "Q0URB4zACHWCSynicJioTJan");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

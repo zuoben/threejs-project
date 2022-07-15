@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/title.jpg?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/title.jpg?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/title.jpg?v=5.1.4">
+
+
+
+
+
+
+  <meta name="keywords" content="C++,Leetcode,多线程,Shell,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="ZhouJie's Blog" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="题目来源 leetcode 多线程 / Shell 相关：刷题汇总（一）leetcode 精选50题 JavaScript答案总结刷题汇总（二）剑指Offer 66题 C++答案总结刷题汇总（三）leetcode 精选50题 C++答案总结刷题汇总（四）技术类编程题汇总 C++刷题汇总（五）leetcode 热题 HOT 100 C++ 答案总结 这篇文章使用 POSIX 编写多线程 C++ 程序">
+<meta name="keywords" content="C++,Leetcode,多线程,Shell">
+<meta property="og:type" content="article">
+<meta property="og:title" content="刷题汇总（六）leetcode 多线程 &#x2F; Shell">
+<meta property="og:url" content="http://yoursite.com/2019/12/17/33/index.html">
+<meta property="og:site_name" content="ZhouJie&#39;s Blog">
+<meta property="og:description" content="题目来源 leetcode 多线程 / Shell 相关：刷题汇总（一）leetcode 精选50题 JavaScript答案总结刷题汇总（二）剑指Offer 66题 C++答案总结刷题汇总（三）leetcode 精选50题 C++答案总结刷题汇总（四）技术类编程题汇总 C++刷题汇总（五）leetcode 热题 HOT 100 C++ 答案总结 这篇文章使用 POSIX 编写多线程 C++ 程序">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20191212164536598.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70">
+<meta property="og:updated_time" content="2019-12-18T04:25:50.464Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="刷题汇总（六）leetcode 多线程 &#x2F; Shell">
+<meta name="twitter:description" content="题目来源 leetcode 多线程 / Shell 相关：刷题汇总（一）leetcode 精选50题 JavaScript答案总结刷题汇总（二）剑指Offer 66题 C++答案总结刷题汇总（三）leetcode 精选50题 C++答案总结刷题汇总（四）技术类编程题汇总 C++刷题汇总（五）leetcode 热题 HOT 100 C++ 答案总结 这篇文章使用 POSIX 编写多线程 C++ 程序">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/20191212164536598.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":true,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2019/12/17/33/">
+
+
+
+
+
+  <title>刷题汇总（六）leetcode 多线程 / Shell | ZhouJie's Blog</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?8adfb1a1130406391d41d87803ca8802";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+    <a href="https://github.com/zj19941113/zj19941113.github.io" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewbox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"/><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"/><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"/></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">ZhouJie's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">向阳而生</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>
+            
+            搜索
+          </a>
+        </li>
+      
+    </ul>
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/17/33/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="ZhouJie">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/zj.png">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="ZhouJie's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">刷题汇总（六）leetcode 多线程 / Shell</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-12-17T21:55:52+08:00">
+                2019-12-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/C/" itemprop="url" rel="index">
+                    <span itemprop="name">C++</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/后台开发/" itemprop="url" rel="index">
+                    <span itemprop="name">后台开发</span>
+                  </a>
+                </span>
+
+                
+                
+                  ， 
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/CodeCode/" itemprop="url" rel="index">
+                    <span itemprop="name">CodeCode</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+             <span id="/2019/12/17/33/" class="leancloud_visitors" data-flag-title="刷题汇总（六）leetcode 多线程 / Shell">
+               <span class="post-meta-divider">|</span>
+               <span class="post-meta-item-icon">
+                 <i class="fa fa-eye"></i>
+               </span>
+               
+                 <span class="post-meta-item-text">阅读次数&#58;</span>
+               
+                 <span class="leancloud-visitors-count"></span>
+             </span>
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="题目来源"><a href="#题目来源" class="headerlink" title="题目来源"></a>题目来源</h3><p> <a href="https://leetcode-cn.com/problemset/all/" target="_blank" rel="noopener">leetcode 多线程 / Shell</a></p>
+<p>相关：<br><a href="https://blog.csdn.net/ffcjjhv/article/details/88409676" target="_blank" rel="noopener">刷题汇总（一）leetcode 精选50题 JavaScript答案总结</a><br><a href="https://blog.csdn.net/ffcjjhv/article/details/96879804" target="_blank" rel="noopener">刷题汇总（二）剑指Offer 66题 C++答案总结</a><br><a href="https://blog.csdn.net/ffcjjhv/article/details/100104411" target="_blank" rel="noopener">刷题汇总（三）leetcode 精选50题 C++答案总结</a><br><a href="https://blog.csdn.net/ffcjjhv/article/details/103195691" target="_blank" rel="noopener">刷题汇总（四）技术类编程题汇总 C++</a><br><a href="https://blog.csdn.net/ffcjjhv/article/details/103381516" target="_blank" rel="noopener">刷题汇总（五）leetcode 热题 HOT 100 C++ 答案总结</a></p>
+<p>这篇文章使用 POSIX 编写多线程 C++ 程序。POSIX Threads 或 Pthreads 提供的 API 可在多种类 Unix POSIX 系统上可用，比如 FreeBSD、NetBSD、GNU/Linux、Mac OS X 和 Solaris。</p>
+<a id="more"></a>
+
+<blockquote>
+<p>知识点1：创建线程/终止线程</p>
+</blockquote>
+<p> #include &lt;pthread.h&gt;<br>pthread_create (thread, attr, start_routine, arg)<br>pthread_exit (status) </p>
+<blockquote>
+<p>使用 -lpthread 库编译：<br>$ g++ test.cpp -lpthread -o test.o</p>
+</blockquote>
+<h1 id="多线程"><a href="#多线程" class="headerlink" title="多线程"></a>多线程</h1><h2 id="1、按序打印"><a href="#1、按序打印" class="headerlink" title="1、按序打印"></a>1、按序打印</h2><p>我们提供了一个类：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public class Foo &#123;</span><br><span class="line">  public void one() &#123; print(&quot;one&quot;); &#125;</span><br><span class="line">  public void two() &#123; print(&quot;two&quot;); &#125;</span><br><span class="line">  public void three() &#123; print(&quot;three&quot;); &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>三个不同的线程将会共用一个 Foo 实例。</p>
+<p>线程 A 将会调用 one() 方法<br>线程 B 将会调用 two() 方法<br>线程 C 将会调用 three() 方法<br>请设计修改程序，以确保 two() 方法在 one() 方法之后被执行，three() 方法在 two() 方法之后被执行。</p>
+<p>示例 1:</p>
+<p>输入: [1,2,3]<br>输出: “onetwothree”<br>解释:<br>有三个线程会被异步启动。<br>输入 [1,2,3] 表示线程 A 将会调用 one() 方法，线程 B 将会调用 two() 方法，线程 C 将会调用 three() 方法。<br>正确的输出是 “onetwothree”。<br>示例 2:</p>
+<p>输入: [1,3,2]<br>输出: “onetwothree”<br>解释:<br>输入 [1,3,2] 表示线程 A 将会调用 one() 方法，线程 B 将会调用 three() 方法，线程 C 将会调用 two() 方法。<br>正确的输出是 “onetwothree”。</p>
+<p>注意:</p>
+<p>尽管输入中的数字似乎暗示了顺序，但是我们并不保证线程在操作系统中的调度顺序。<br>你看到的输入格式主要是为了确保测试的全面性。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;semaphore.h&gt;</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Foo</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">sem_t</span> t1, t2, t3;</span><br><span class="line"></span><br><span class="line">    Foo() &#123;</span><br><span class="line">        sem_init(&amp;t1,<span class="number">0</span>,<span class="number">1</span>);</span><br><span class="line">        sem_init(&amp;t2,<span class="number">0</span>,<span class="number">0</span>);</span><br><span class="line">        sem_init(&amp;t3,<span class="number">0</span>,<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">first</span><span class="params">(function&lt;<span class="keyword">void</span>()&gt; printFirst)</span> </span>&#123;</span><br><span class="line">        sem_wait(&amp;t1);</span><br><span class="line">        <span class="comment">// printFirst() outputs "first". Do not change or remove this line.</span></span><br><span class="line">        printFirst();</span><br><span class="line">        sem_post(&amp;t2);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">second</span><span class="params">(function&lt;<span class="keyword">void</span>()&gt; printSecond)</span> </span>&#123;</span><br><span class="line">        sem_wait(&amp;t2);</span><br><span class="line">        <span class="comment">// printSecond() outputs "second". Do not change or remove this line.</span></span><br><span class="line">        printSecond();</span><br><span class="line">        sem_post(&amp;t3);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">third</span><span class="params">(function&lt;<span class="keyword">void</span>()&gt; printThird)</span> </span>&#123;</span><br><span class="line">        sem_wait(&amp;t3);</span><br><span class="line">        <span class="comment">// printThird() outputs "third". Do not change or remove this line.</span></span><br><span class="line">        printThird();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>知识点2：信号量</p>
+</blockquote>
+<p>#include &lt;semaphore.h&gt;<br>int sem_init(sem_t *sem, int pshared, unsigned int val); // 初始化信号量<br>int sem_wait(sem_t *sem); // 信号量减1<br>int sem_post(sem_t *sem); // 信号量加1<br>int sem_destory(sem_t *sem); // 销毁信号量</p>
+<h2 id="2、交替打印FooBar"><a href="#2、交替打印FooBar" class="headerlink" title="2、交替打印FooBar"></a>2、交替打印FooBar</h2><p>我们提供一个类：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">class FooBar &#123;</span><br><span class="line">  public void foo() &#123;</span><br><span class="line">    for (int i = 0; i &lt; n; i++) &#123;</span><br><span class="line">      print(&quot;foo&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  public void bar() &#123;</span><br><span class="line">    for (int i = 0; i &lt; n; i++) &#123;</span><br><span class="line">      print(&quot;bar&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>两个不同的线程将会共用一个 FooBar 实例。其中一个线程将会调用 foo() 方法，另一个线程将会调用 bar() 方法。</p>
+<p>请设计修改程序，以确保 “foobar” 被输出 n 次。</p>
+<p>示例 1:</p>
+<p>输入: n = 1<br>输出: “foobar”<br>解释: 这里有两个线程被异步启动。其中一个调用 foo() 方法, 另一个调用 bar() 方法，”foobar” 将被输出一次。<br>示例 2:</p>
+<p>输入: n = 2<br>输出: “foobarfoobar”</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># <span class="meta-keyword">include</span><span class="meta-string">&lt;semaphore.h&gt;</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FooBar</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="keyword">sem_t</span> t1, t2;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    FooBar(<span class="keyword">int</span> n) &#123;</span><br><span class="line">        <span class="keyword">this</span>-&gt;n = n;</span><br><span class="line">        sem_init(&amp;t1,<span class="number">0</span>,<span class="number">1</span>);</span><br><span class="line">        sem_init(&amp;t2,<span class="number">0</span>,<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">(function&lt;<span class="keyword">void</span>()&gt; printFoo)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            sem_wait(&amp;t1);</span><br><span class="line">            <span class="comment">// printFoo() outputs "foo". Do not change or remove this line.</span></span><br><span class="line">        	printFoo();</span><br><span class="line">            sem_post(&amp;t2);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">bar</span><span class="params">(function&lt;<span class="keyword">void</span>()&gt; printBar)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            sem_wait(&amp;t2);</span><br><span class="line">            <span class="comment">// printBar() outputs "bar". Do not change or remove this line.</span></span><br><span class="line">        	printBar();</span><br><span class="line">            sem_post(&amp;t1);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FooBar</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="keyword">pthread_mutex_t</span> t1, t2;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    FooBar(<span class="keyword">int</span> n) &#123;</span><br><span class="line">        <span class="keyword">this</span>-&gt;n = n;</span><br><span class="line">        pthread_mutex_init(&amp;t1,<span class="literal">NULL</span>);</span><br><span class="line">        pthread_mutex_init(&amp;t2,<span class="literal">NULL</span>);</span><br><span class="line">        pthread_mutex_lock(&amp;t2);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">foo</span><span class="params">(function&lt;<span class="keyword">void</span>()&gt; printFoo)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            pthread_mutex_lock(&amp;t1);</span><br><span class="line">            <span class="comment">// printFoo() outputs "foo". Do not change or remove this line.</span></span><br><span class="line">        	printFoo();</span><br><span class="line">            pthread_mutex_unlock(&amp;t2);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">bar</span><span class="params">(function&lt;<span class="keyword">void</span>()&gt; printBar)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; n; i++) &#123;</span><br><span class="line">            pthread_mutex_lock(&amp;t2);</span><br><span class="line">            <span class="comment">// printBar() outputs "bar". Do not change or remove this line.</span></span><br><span class="line">        	printBar();</span><br><span class="line">            pthread_mutex_unlock(&amp;t1);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>知识点3：互斥量<br>pthread_mutex_t sum_mutex; //互斥锁<br>pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER //静态初始化<br>pthread_mutex_init( &amp;sum_mutex, NULL ); //动态初始化 初始化成功返回0<br>pthread_mutex_lock( &amp;sum_mutex ); //加锁<br>pthread_mutex_unlock( &amp;sum_mutex ); //释放锁，供其他线程使用<br>pthread_mutex_destroy( &amp;sum_mutex ); //注销锁</p>
+</blockquote>
+<h2 id="3、打印零与奇偶数"><a href="#3、打印零与奇偶数" class="headerlink" title="3、打印零与奇偶数"></a>3、打印零与奇偶数</h2><p>假设有这么一个类：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">class ZeroEvenOdd &#123;</span><br><span class="line">  public ZeroEvenOdd(int n) &#123; ... &#125;      // 构造函数</span><br><span class="line">  public void zero(printNumber) &#123; ... &#125;  // 仅打印出 0</span><br><span class="line">  public void even(printNumber) &#123; ... &#125;  // 仅打印出 偶数</span><br><span class="line">  public void odd(printNumber) &#123; ... &#125;   // 仅打印出 奇数</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>相同的一个 ZeroEvenOdd 类实例将会传递给三个不同的线程：</p>
+<p>线程 A 将调用 zero()，它只输出 0 。<br>线程 B 将调用 even()，它只输出偶数。<br>线程 C 将调用 odd()，它只输出奇数。<br>每个线程都有一个 printNumber 方法来输出一个整数。请修改给出的代码以输出整数序列 010203040506… ，其中序列的长度必须为 2n。</p>
+<p>示例 1：</p>
+<p>输入：n = 2<br>输出：”0102”<br>说明：三条线程异步执行，其中一个调用 zero()，另一个线程调用 even()，最后一个线程调用odd()。正确的输出为 “0102”。<br>示例 2：</p>
+<p>输入：n = 5<br>输出：”0102030405”</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># <span class="meta-keyword">include</span><span class="meta-string">&lt;semaphore.h&gt;</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ZeroEvenOdd</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="keyword">sem_t</span> t0, t1, t2;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    ZeroEvenOdd(<span class="keyword">int</span> n) &#123;</span><br><span class="line">        <span class="keyword">this</span>-&gt;n = n;</span><br><span class="line">        sem_init(&amp;t0,<span class="number">0</span>,<span class="number">1</span>);</span><br><span class="line">        sem_init(&amp;t1,<span class="number">0</span>,<span class="number">0</span>);</span><br><span class="line">        sem_init(&amp;t2,<span class="number">0</span>,<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// printNumber(x) outputs "x", where x is an integer.</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">zero</span><span class="params">(function&lt;<span class="keyword">void</span>(<span class="keyword">int</span>)&gt; printNumber)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=n;i++)&#123;</span><br><span class="line">            sem_wait(&amp;t0);</span><br><span class="line">            printNumber(<span class="number">0</span>);</span><br><span class="line">            <span class="keyword">if</span>(i%<span class="number">2</span>==<span class="number">1</span>) sem_post(&amp;t1);</span><br><span class="line">            <span class="keyword">else</span> sem_post(&amp;t2);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">even</span><span class="params">(function&lt;<span class="keyword">void</span>(<span class="keyword">int</span>)&gt; printNumber)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">2</span>;i&lt;=n;i+=<span class="number">2</span>)&#123;</span><br><span class="line">            sem_wait(&amp;t2);</span><br><span class="line">            printNumber(i);</span><br><span class="line">            sem_post(&amp;t0);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">odd</span><span class="params">(function&lt;<span class="keyword">void</span>(<span class="keyword">int</span>)&gt; printNumber)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=n;i+=<span class="number">2</span>)&#123;</span><br><span class="line">            sem_wait(&amp;t1);</span><br><span class="line">            printNumber(i);</span><br><span class="line">            sem_post(&amp;t0);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="4、H2O-生成"><a href="#4、H2O-生成" class="headerlink" title="4、H2O 生成"></a>4、H2O 生成</h2><p>现在有两种线程，氢 oxygen 和氧 hydrogen，你的目标是组织这两种线程来产生水分子。</p>
+<p>存在一个屏障（barrier）使得每个线程必须等候直到一个完整水分子能够被产生出来。</p>
+<p>氢和氧线程会被分别给予 releaseHydrogen 和 releaseOxygen 方法来允许它们突破屏障。</p>
+<p>这些线程应该三三成组突破屏障并能立即组合产生一个水分子。</p>
+<p>你必须保证产生一个水分子所需线程的结合必须发生在下一个水分子产生之前。</p>
+<p>换句话说:</p>
+<p>如果一个氧线程到达屏障时没有氢线程到达，它必须等候直到两个氢线程到达。<br>如果一个氢线程到达屏障时没有其它线程到达，它必须等候直到一个氧线程和另一个氢线程到达。<br>书写满足这些限制条件的氢、氧线程同步代码。</p>
+<p>示例 1:</p>
+<p>输入: “HOH”<br>输出: “HHO”<br>解释: “HOH” 和 “OHH” 依然都是有效解。<br>示例 2:</p>
+<p>输入: “OOHHHH”<br>输出: “HHOHHO”<br>解释: “HOHHHO”, “OHHHHO”, “HHOHOH”, “HOHHOH”, “OHHHOH”, “HHOOHH”, “HOHOHH” 和 “OHHOHH” 依然都是有效解。</p>
+<p>限制条件:</p>
+<p>输入字符串的总长将会是 3n, 1 ≤ n ≤ 50；<br>输入字符串中的 “H” 总数将会是 2n；<br>输入字符串中的 “O” 总数将会是 n。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># <span class="meta-keyword">include</span><span class="meta-string">&lt;semaphore.h&gt;</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">H2O</span> &#123;</span></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="keyword">sem_t</span> h_limit, o_limit, h, o;</span><br><span class="line"></span><br><span class="line">    H2O() &#123;</span><br><span class="line">        sem_init(&amp;h_limit,<span class="number">0</span>,<span class="number">2</span>);</span><br><span class="line">        sem_init(&amp;o_limit,<span class="number">0</span>,<span class="number">1</span>);</span><br><span class="line">        sem_init(&amp;h,<span class="number">0</span>,<span class="number">0</span>);</span><br><span class="line">        sem_init(&amp;o,<span class="number">0</span>,<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">hydrogen</span><span class="params">(function&lt;<span class="keyword">void</span>()&gt; releaseHydrogen)</span> </span>&#123;</span><br><span class="line">        sem_wait(&amp;h_limit);</span><br><span class="line">        sem_post(&amp;h);</span><br><span class="line">        sem_wait(&amp;o);</span><br><span class="line">        <span class="comment">// releaseHydrogen() outputs "H". Do not change or remove this line.</span></span><br><span class="line">        releaseHydrogen();</span><br><span class="line">        sem_post(&amp;h_limit);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">oxygen</span><span class="params">(function&lt;<span class="keyword">void</span>()&gt; releaseOxygen)</span> </span>&#123;</span><br><span class="line">        sem_wait(&amp;o_limit);</span><br><span class="line">        sem_post(&amp;o);</span><br><span class="line">        sem_post(&amp;o);</span><br><span class="line">        sem_wait(&amp;h);</span><br><span class="line">        sem_wait(&amp;h);</span><br><span class="line">        <span class="comment">// releaseOxygen() outputs "O". Do not change or remove this line.</span></span><br><span class="line">        releaseOxygen();</span><br><span class="line">        sem_post(&amp;o_limit);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="5、交替打印字符串"><a href="#5、交替打印字符串" class="headerlink" title="5、交替打印字符串"></a>5、交替打印字符串</h2><p>编写一个可以从 1 到 n 输出代表这个数字的字符串的程序，但是：</p>
+<p>如果这个数字可以被 3 整除，输出 “fizz”。<br>如果这个数字可以被 5 整除，输出 “buzz”。<br>如果这个数字可以同时被 3 和 5 整除，输出 “fizzbuzz”。<br>例如，当 n = 15，输出： 1, 2, fizz, 4, buzz, fizz, 7, 8, fizz, buzz, 11, fizz, 13, 14, fizzbuzz。</p>
+<p>假设有这么一个类：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">class FizzBuzz &#123;</span><br><span class="line">  public FizzBuzz(int n) &#123; ... &#125;               // constructor</span><br><span class="line">  public void fizz(printFizz) &#123; ... &#125;          // only output &quot;fizz&quot;</span><br><span class="line">  public void buzz(printBuzz) &#123; ... &#125;          // only output &quot;buzz&quot;</span><br><span class="line">  public void fizzbuzz(printFizzBuzz) &#123; ... &#125;  // only output &quot;fizzbuzz&quot;</span><br><span class="line">  public void number(printNumber) &#123; ... &#125;      // only output the numbers</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>请你实现一个有四个线程的多线程版  FizzBuzz， 同一个 FizzBuzz 实例会被如下四个线程使用：</p>
+<p>线程A将调用 fizz() 来判断是否能被 3 整除，如果可以，则输出 fizz。<br>线程B将调用 buzz() 来判断是否能被 5 整除，如果可以，则输出 buzz。<br>线程C将调用 fizzbuzz() 来判断是否同时能被 3 和 5 整除，如果可以，则输出 fizzbuzz。<br>线程D将调用 number() 来实现输出既不能被 3 整除也不能被 5 整除的数字。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># <span class="meta-keyword">include</span><span class="meta-string">&lt;semaphore.h&gt;</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FizzBuzz</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">int</span> n;</span><br><span class="line">    <span class="keyword">sem_t</span> t0, t3, t5, t35;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    FizzBuzz(<span class="keyword">int</span> n) &#123;</span><br><span class="line">        <span class="keyword">this</span>-&gt;n = n;</span><br><span class="line">        sem_init(&amp;t0,<span class="number">0</span>,<span class="number">1</span>);</span><br><span class="line">        sem_init(&amp;t3,<span class="number">0</span>,<span class="number">0</span>);</span><br><span class="line">        sem_init(&amp;t5,<span class="number">0</span>,<span class="number">0</span>);</span><br><span class="line">        sem_init(&amp;t35,<span class="number">0</span>,<span class="number">0</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// printFizz() outputs "fizz".</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">fizz</span><span class="params">(function&lt;<span class="keyword">void</span>()&gt; printFizz)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=n;i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(i%<span class="number">3</span>==<span class="number">0</span> &amp;&amp; i%<span class="number">5</span>!=<span class="number">0</span>)&#123;</span><br><span class="line">                sem_wait(&amp;t3);</span><br><span class="line">                printFizz();</span><br><span class="line">                sem_post(&amp;t0);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// printBuzz() outputs "buzz".</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">buzz</span><span class="params">(function&lt;<span class="keyword">void</span>()&gt; printBuzz)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=n;i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(i%<span class="number">3</span>!=<span class="number">0</span> &amp;&amp; i%<span class="number">5</span>==<span class="number">0</span>)&#123;</span><br><span class="line">                sem_wait(&amp;t5);</span><br><span class="line">                printBuzz();</span><br><span class="line">                sem_post(&amp;t0);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// printFizzBuzz() outputs "fizzbuzz".</span></span><br><span class="line">	<span class="function"><span class="keyword">void</span> <span class="title">fizzbuzz</span><span class="params">(function&lt;<span class="keyword">void</span>()&gt; printFizzBuzz)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=n;i++)&#123;</span><br><span class="line">            <span class="keyword">if</span>(i%<span class="number">3</span>==<span class="number">0</span> &amp;&amp; i%<span class="number">5</span>==<span class="number">0</span>)&#123;</span><br><span class="line">                sem_wait(&amp;t35);</span><br><span class="line">                printFizzBuzz();</span><br><span class="line">                sem_post(&amp;t0);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// printNumber(x) outputs "x", where x is an integer.</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">number</span><span class="params">(function&lt;<span class="keyword">void</span>(<span class="keyword">int</span>)&gt; printNumber)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">1</span>;i&lt;=n;i++)&#123;</span><br><span class="line">            sem_wait(&amp;t0);</span><br><span class="line">            <span class="keyword">if</span>(i%<span class="number">3</span>!=<span class="number">0</span> &amp;&amp; i%<span class="number">5</span>!=<span class="number">0</span>)&#123;</span><br><span class="line">                printNumber(i);</span><br><span class="line">                sem_post(&amp;t0);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(i%<span class="number">3</span>==<span class="number">0</span> &amp;&amp; i%<span class="number">5</span>!=<span class="number">0</span>)&#123;</span><br><span class="line">                sem_post(&amp;t3);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span> <span class="keyword">if</span>(i%<span class="number">3</span>!=<span class="number">0</span> &amp;&amp; i%<span class="number">5</span>==<span class="number">0</span>)&#123;</span><br><span class="line">                sem_post(&amp;t5);</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">else</span>&#123;</span><br><span class="line">                sem_post(&amp;t35);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h2 id="6、哲学家进餐"><a href="#6、哲学家进餐" class="headerlink" title="6、哲学家进餐"></a>6、哲学家进餐</h2><p>5 个沉默寡言的哲学家围坐在圆桌前，每人面前一盘意面。叉子放在哲学家之间的桌面上。（5 个哲学家，5 根叉子）</p>
+<p>所有的哲学家都只会在思考和进餐两种行为间交替。哲学家只有同时拿到左边和右边的叉子才能吃到面，而同一根叉子在同一时间只能被一个哲学家使用。每个哲学家吃完面后都需要把叉子放回桌面以供其他哲学家吃面。只要条件允许，哲学家可以拿起左边或者右边的叉子，但在没有同时拿到左右叉子时不能进食。</p>
+<p>假设面的数量没有限制，哲学家也能随便吃，不需要考虑吃不吃得下。</p>
+<p>设计一个进餐规则（并行算法）使得每个哲学家都不会挨饿；也就是说，在没有人知道别人什么时候想吃东西或思考的情况下，每个哲学家都可以在吃饭和思考之间一直交替下去。<br><img src="https://img-blog.csdnimg.cn/20191212164536598.png?x-oss-process=image/watermark,type_ZmFuZ3poZW5naGVpdGk,shadow_10,text_aHR0cHM6Ly9ibG9nLmNzZG4ubmV0L2ZmY2pqaHY=,size_16,color_FFFFFF,t_70" alt="在这里插入图片描述"></p>
+<p>问题描述和图片来自维基百科 wikipedia.org</p>
+<p>哲学家从 0 到 4 按 顺时针 编号。请实现函数 void wantsToEat(philosopher, pickLeftFork, pickRightFork, eat, putLeftFork, putRightFork)：</p>
+<p>philosopher 哲学家的编号。<br>pickLeftFork 和 pickRightFork 表示拿起左边或右边的叉子。<br>eat 表示吃面。<br>putLeftFork 和 pickRightFork 表示放下左边或右边的叉子。<br>由于哲学家不是在吃面就是在想着啥时候吃面，所以思考这个方法没有对应的回调。<br>给你 5 个线程，每个都代表一个哲学家，请你使用类的同一个对象来模拟这个过程。在最后一次调用结束之前，可能会为同一个哲学家多次调用该函数。</p>
+<p>示例：</p>
+<p>输入：n = 1<br>输出：[[4,2,1],[4,1,1],[0,1,1],[2,2,1],[2,1,1],[2,0,3],[2,1,2],[2,2,2],[4,0,3],[4,1,2],[0,2,1],[4,2,2],[3,2,1],[3,1,1],[0,0,3],[0,1,2],[0,2,2],[1,2,1],[1,1,1],[3,0,3],[3,1,2],[3,2,2],[1,0,3],[1,1,2],[1,2,2]]<br>解释:<br>n 表示每个哲学家需要进餐的次数。<br>输出数组描述了叉子的控制和进餐的调用，它的格式如下：<br>output[i] = [a, b, c] (3个整数)</p>
+<ul>
+<li>a 哲学家编号。</li>
+<li>b 指定叉子：{1 : 左边, 2 : 右边}.</li>
+<li>c 指定行为：{1 : 拿起, 2 : 放下, 3 : 吃面}。<br>如 [4,2,1] 表示 4 号哲学家拿起了右边的叉子。</li>
+</ul>
+<p>提示：<br>1 &lt;= n &lt;= 60</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># <span class="meta-keyword">include</span><span class="meta-string">&lt;semaphore.h&gt;</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DiningPhilosophers</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">sem_t</span> sem;</span><br><span class="line">    <span class="keyword">pthread_mutex_t</span> mutex[<span class="number">5</span>];</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    DiningPhilosophers() &#123;</span><br><span class="line">        sem_init(&amp;sem,<span class="number">0</span>,<span class="number">4</span>);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">5</span>;i++)&#123;</span><br><span class="line">            pthread_mutex_init(&amp;mutex[i],<span class="literal">NULL</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">// 限定哲学家就餐数量</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">wantsToEat</span><span class="params">(<span class="keyword">int</span> philosopher,</span></span></span><br><span class="line"><span class="function"><span class="params">                    function&lt;<span class="keyword">void</span>()&gt; pickLeftFork,</span></span></span><br><span class="line"><span class="function"><span class="params">                    function&lt;<span class="keyword">void</span>()&gt; pickRightFork,</span></span></span><br><span class="line"><span class="function"><span class="params">                    function&lt;<span class="keyword">void</span>()&gt; eat,</span></span></span><br><span class="line"><span class="function"><span class="params">                    function&lt;<span class="keyword">void</span>()&gt; putLeftFork,</span></span></span><br><span class="line"><span class="function"><span class="params">                    function&lt;<span class="keyword">void</span>()&gt; putRightFork)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">int</span> left = philosopher;</span><br><span class="line">                    <span class="keyword">int</span> right = (philosopher+<span class="number">1</span>)%<span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">                    sem_wait(&amp;sem);</span><br><span class="line">                    pthread_mutex_lock(&amp;mutex[left]);</span><br><span class="line">                    pthread_mutex_lock(&amp;mutex[right]);</span><br><span class="line"></span><br><span class="line">                    pickLeftFork();</span><br><span class="line">                    pickRightFork();</span><br><span class="line"></span><br><span class="line">                    eat();</span><br><span class="line"></span><br><span class="line">                    putLeftFork();</span><br><span class="line">                    putRightFork();</span><br><span class="line"></span><br><span class="line">                    pthread_mutex_unlock(&amp;mutex[left]);</span><br><span class="line">                    pthread_mutex_unlock(&amp;mutex[right]);</span><br><span class="line"></span><br><span class="line">                    sem_post(&amp;sem);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># <span class="meta-keyword">include</span><span class="meta-string">&lt;semaphore.h&gt;</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DiningPhilosophers</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">pthread_mutex_t</span> mutex;</span><br><span class="line">    <span class="keyword">pthread_mutex_t</span> forks_mutex[<span class="number">5</span>];</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    DiningPhilosophers() &#123;</span><br><span class="line">        pthread_mutex_init(&amp;mutex,<span class="literal">NULL</span>);</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">5</span>;i++)&#123;</span><br><span class="line">            pthread_mutex_init(&amp;forks_mutex[i],<span class="literal">NULL</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 同时拿起左右2把叉子</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">wantsToEat</span><span class="params">(<span class="keyword">int</span> philosopher,</span></span></span><br><span class="line"><span class="function"><span class="params">                    function&lt;<span class="keyword">void</span>()&gt; pickLeftFork,</span></span></span><br><span class="line"><span class="function"><span class="params">                    function&lt;<span class="keyword">void</span>()&gt; pickRightFork,</span></span></span><br><span class="line"><span class="function"><span class="params">                    function&lt;<span class="keyword">void</span>()&gt; eat,</span></span></span><br><span class="line"><span class="function"><span class="params">                    function&lt;<span class="keyword">void</span>()&gt; putLeftFork,</span></span></span><br><span class="line"><span class="function"><span class="params">                    function&lt;<span class="keyword">void</span>()&gt; putRightFork)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">int</span> left = philosopher;</span><br><span class="line">                    <span class="keyword">int</span> right = (philosopher+<span class="number">1</span>)%<span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">                    pthread_mutex_lock(&amp;mutex);</span><br><span class="line"></span><br><span class="line">                    pthread_mutex_lock(&amp;forks_mutex[left]);</span><br><span class="line">                    pthread_mutex_lock(&amp;forks_mutex[right]);</span><br><span class="line"></span><br><span class="line">                    pickLeftFork();</span><br><span class="line">                    pickRightFork();</span><br><span class="line"></span><br><span class="line">                    pthread_mutex_unlock(&amp;mutex);</span><br><span class="line"></span><br><span class="line">                    eat();</span><br><span class="line"></span><br><span class="line">                    putLeftFork();</span><br><span class="line">                    putRightFork();</span><br><span class="line"></span><br><span class="line">                    pthread_mutex_unlock(&amp;forks_mutex[left]);</span><br><span class="line">                    pthread_mutex_unlock(&amp;forks_mutex[right]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta"># <span class="meta-keyword">include</span><span class="meta-string">&lt;semaphore.h&gt;</span></span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DiningPhilosophers</span> &#123;</span></span><br><span class="line"><span class="keyword">private</span>:</span><br><span class="line">    <span class="keyword">pthread_mutex_t</span> forks_mutex[<span class="number">5</span>];</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    DiningPhilosophers() &#123;</span><br><span class="line">        <span class="keyword">for</span>(<span class="keyword">int</span> i=<span class="number">0</span>;i&lt;<span class="number">5</span>;i++)&#123;</span><br><span class="line">            pthread_mutex_init(&amp;forks_mutex[i],<span class="literal">NULL</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 一部分哲学家优先去获取其左边的叉子，再去获取其右边的叉子；</span></span><br><span class="line">    <span class="comment">// 再让剩余哲学家优先去获取其右边的叉子，再去获取其左边的叉子</span></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">wantsToEat</span><span class="params">(<span class="keyword">int</span> philosopher,</span></span></span><br><span class="line"><span class="function"><span class="params">                    function&lt;<span class="keyword">void</span>()&gt; pickLeftFork,</span></span></span><br><span class="line"><span class="function"><span class="params">                    function&lt;<span class="keyword">void</span>()&gt; pickRightFork,</span></span></span><br><span class="line"><span class="function"><span class="params">                    function&lt;<span class="keyword">void</span>()&gt; eat,</span></span></span><br><span class="line"><span class="function"><span class="params">                    function&lt;<span class="keyword">void</span>()&gt; putLeftFork,</span></span></span><br><span class="line"><span class="function"><span class="params">                    function&lt;<span class="keyword">void</span>()&gt; putRightFork)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">int</span> left = philosopher;</span><br><span class="line">                    <span class="keyword">int</span> right = (philosopher+<span class="number">1</span>)%<span class="number">5</span>;</span><br><span class="line"></span><br><span class="line">                    <span class="keyword">if</span>(philosopher%<span class="number">2</span> == <span class="number">1</span>)&#123;</span><br><span class="line">                        pthread_mutex_lock(&amp;forks_mutex[left]);</span><br><span class="line">                        pthread_mutex_lock(&amp;forks_mutex[right]);</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span>&#123;</span><br><span class="line">                        pthread_mutex_lock(&amp;forks_mutex[right]);</span><br><span class="line">                        pthread_mutex_lock(&amp;forks_mutex[left]);</span><br><span class="line"></span><br><span class="line">                    &#125;</span><br><span class="line"></span><br><span class="line">                    pickLeftFork();</span><br><span class="line">                    pickRightFork();</span><br><span class="line"></span><br><span class="line">                    eat();</span><br><span class="line"></span><br><span class="line">                    putLeftFork();</span><br><span class="line">                    putRightFork();</span><br><span class="line"></span><br><span class="line">                    pthread_mutex_unlock(&amp;forks_mutex[left]);</span><br><span class="line">                    pthread_mutex_unlock(&amp;forks_mutex[right]);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<h1 id="Shell"><a href="#Shell" class="headerlink" title="Shell"></a>Shell</h1><h2 id="1、统计词频"><a href="#1、统计词频" class="headerlink" title="1、统计词频"></a>1、统计词频</h2><p>写一个 bash 脚本以统计一个文本文件 words.txt 中每个单词出现的频率。</p>
+<p>为了简单起见，你可以假设：</p>
+<p>words.txt只包括小写字母和 ‘ ‘ 。<br>每个单词只由小写字母组成。<br>单词间由一个或多个空格字符分隔。<br>示例:</p>
+<p>假设 words.txt 内容如下：</p>
+<p>the day is sunny the the<br>the sunny is is<br>你的脚本应当输出（以词频降序排列）：</p>
+<p>the 4<br>is 3<br>sunny 2<br>day 1<br>说明:</p>
+<p>不要担心词频相同的单词的排序问题，每个单词出现的频率都是唯一的。<br>你可以使用一行 Unix pipes 实现吗？</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span> Read from the file words.txt and output the word frequency list to stdout.</span><br><span class="line">cat words.txt | xargs -n1 | awk '&#123;data[$1] += 1&#125; END &#123;for(str in data) print data[str],str&#125;' | sort -nr | awk '&#123;print $2, $1&#125;'</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>xargs 用作替换工具，读取输入数据重新格式化后输出<br># cat test.txt<br>a b c d e<br>f g h<br>$ cat test.txt | xargs -n3<br>a b c<br>d e f<br>g h<br>按照数值大小 反向排序<br>$ sort -nr </p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat words.txt | xargs -n1 | awk '&#123;data[$1] += 1&#125; END &#123;for(str in data) print str,data[str]&#125;' | sort -nr -k2</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>将第二列按照数值大小 反向排序<br> $ sort -nr -k2<br> <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat words.txt | awk <span class="string">'&#123;for(i=1;i&lt;=NF;i++) data[$i] += 1&#125; END &#123;for(str in data) print str,data[str]&#125;'</span> | sort -nr -k2</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">'&#123;for(i=1;i&lt;=NF;i++) data[$i] += 1&#125; END &#123;for(str in data) print str,data[str]&#125;'</span> words.txt | sort -nr -k2</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>NF    一条记录的字段的数目<br>NR    已经读出的记录数，就是行号，从1开始</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat words.txt | xargs -n1 | sort | uniq -c | sort -nr | awk '&#123;print $2,$1&#125;'</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>统计各行在文件中出现的次数：<br>$ sort testfile | uniq -c<br>当重复的行并不相邻时，uniq 命令是不起作用的，因此常与sort一起使用</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat words.txt | tr -s ' ' '\n' | sort | uniq -c | sort -nr | awk '&#123;print $2,$1&#125;'</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>空格改为换行符<br> $ tr -s ‘ ‘ ‘\n’<br>缩减连续重复的字符成指定的单个字符</p>
+</blockquote>
+<h2 id="2、有效电话号码"><a href="#2、有效电话号码" class="headerlink" title="2、有效电话号码"></a>2、有效电话号码</h2><p>给定一个包含电话号码列表（一行一个电话号码）的文本文件 file.txt，写一个 bash 脚本输出所有有效的电话号码。</p>
+<p>你可以假设一个有效的电话号码必须满足以下两种格式： (xxx) xxx-xxxx 或 xxx-xxx-xxxx。（x 表示一个数字）</p>
+<p>你也可以假设每行前后没有多余的空格字符。</p>
+<p>示例:</p>
+<p>假设 file.txt 内容如下：</p>
+<p>987-123-4567<br>123 456 7890<br>(123) 456-7890<br>你的脚本应当输出下列有效的电话号码：</p>
+<p>987-123-4567<br>(123) 456-7890</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Read from the file file.txt and output all valid phone numbers to stdout.</span></span><br><span class="line">grep -E <span class="string">"^\([0-9]&#123;3&#125;\) [0-9]&#123;3&#125;-[0-9]&#123;4&#125;$|^[0-9]&#123;3&#125;-[0-9]&#123;3&#125;-[0-9]&#123;4&#125;$"</span> file.txt</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>^ 为匹配输入字符串的开始位置,$ 为匹配输入字符串的结束位置</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk "/^\([0-9]&#123;3&#125;\) [0-9]&#123;3&#125;-[0-9]&#123;4&#125;$|^[0-9]&#123;3&#125;-[0-9]&#123;3&#125;-[0-9]&#123;4&#125;$/" file.txt</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk "/^\([0-9]&#123;3&#125;\) [0-9]&#123;3&#125;-[0-9]&#123;4&#125;$/ || /^[0-9]&#123;3&#125;-[0-9]&#123;3&#125;-[0-9]&#123;4&#125;$/" file.txt</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk "/^(\([0-9]&#123;3&#125;\) |[0-9]&#123;3&#125;-)[0-9]&#123;3&#125;-[0-9]&#123;4&#125;$/" file.txt</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep -P "^(\(\d&#123;3&#125;\) |\d&#123;3&#125;-)\d&#123;3&#125;-\d&#123;4&#125;$" file.txt</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>grep -E主要是用来支持扩展正则表达式 加上-P（使用Perl的正则引擎）在MAC OS下面man grep是没有-P参数的，新的主流正则引擎已经默认加上了-P参数</p>
+</blockquote>
+<h2 id="3、转置文件"><a href="#3、转置文件" class="headerlink" title="3、转置文件"></a>3、转置文件</h2><p>给定一个文件 file.txt，转置它的内容。</p>
+<p>你可以假设每行列数相同，并且每个字段由 ‘ ‘ 分隔.</p>
+<p>示例:</p>
+<p>假设 file.txt 文件内容如下：</p>
+<p>name age<br>alice 21<br>ryan 30<br>应当输出：</p>
+<p>name alice ryan<br>age 21 30</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Read from the file file.txt and print its transposed content to stdout.</span></span><br><span class="line">awk <span class="string">'&#123;for(i=1;i&lt;=NF;i++)if(arr[i])&#123;arr[i]=arr[i]" "$i&#125;else&#123;arr[i]=$i&#125;&#125;END&#123;for(key in arr)print arr[key]&#125;'</span> file.txt</span><br></pre></td></tr></table></figure>
+
+<h2 id="4、第十行"><a href="#4、第十行" class="headerlink" title="4、第十行"></a>4、第十行</h2><p>给定一个文本文件 file.txt，请只打印这个文件中的第十行。</p>
+<p>示例:</p>
+<p>假设 file.txt 有如下内容：</p>
+<p>Line 1<br>Line 2<br>Line 3<br>Line 4<br>Line 5<br>Line 6<br>Line 7<br>Line 8<br>Line 9<br>Line 10<br>你的脚本应当显示第十行：</p>
+<p>Line 10<br>说明:</p>
+<ol>
+<li>如果文件少于十行，你应当输出什么？</li>
+<li>至少有三种不同的解法，请尝试尽可能多的方法来解题。</li>
+</ol>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk 'NR==10' file.txt</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>NR在awk中指行号</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tail -n +10 file.txt | head -1</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>tail -n +10 从第 10 行至文件末尾</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -n '10p' file.txt</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>-n表示只输出匹配行，p表示Print</p>
+</blockquote>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/C/" rel="tag"><i class="fa fa-tag"></i> C++</a>
+          
+            <a href="/tags/Leetcode/" rel="tag"><i class="fa fa-tag"></i> Leetcode</a>
+          
+            <a href="/tags/多线程/" rel="tag"><i class="fa fa-tag"></i> 多线程</a>
+          
+            <a href="/tags/Shell/" rel="tag"><i class="fa fa-tag"></i> Shell</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/12/05/32/" rel="next" title="刷题汇总（五）leetcode 热题 HOT 100 C++ 答案总结">
+                <i class="fa fa-chevron-left"></i> 刷题汇总（五）leetcode 热题 HOT 100 C++ 答案总结
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      
+        <div id="gitment-container"></div>
+      
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/zj.png" alt="ZhouJie">
+            
+              <p class="site-author-name" itemprop="name">ZhouJie</p>
+              <p class="site-description motion-element" itemprop="description">C++ / 后台开发 / Three</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">33</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">63</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/zj19941113" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:1601584358@qq.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://blog.csdn.net/ffcjjhv" target="_blank" title="CSDN">
+                      
+                        <i class="fa fa-fw fa-link"></i>CSDN</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://zhoujie1994.cn/my" target="_blank" title="主页">
+                      
+                        <i class="fa fa-fw fa-link"></i>主页</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#题目来源"><span class="nav-text">题目来源</span></a></li></ol><li class="nav-item nav-level-1"><a class="nav-link" href="#多线程"><span class="nav-text">多线程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1、按序打印"><span class="nav-text">1、按序打印</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2、交替打印FooBar"><span class="nav-text">2、交替打印FooBar</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3、打印零与奇偶数"><span class="nav-text">3、打印零与奇偶数</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4、H2O-生成"><span class="nav-text">4、H2O 生成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5、交替打印字符串"><span class="nav-text">5、交替打印字符串</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6、哲学家进餐"><span class="nav-text">6、哲学家进餐</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Shell"><span class="nav-text">Shell</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1、统计词频"><span class="nav-text">1、统计词频</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2、有效电话号码"><span class="nav-text">2、有效电话号码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3、转置文件"><span class="nav-text">3、转置文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4、第十行"><span class="nav-text">4、第十行</span></a></li></ol></li></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">ZhouJie</span>
+
+  
+</div>
+
+<div class="theme-info">
+  <div class="powered-by"></div>
+  <span class="post-count">陕ICP备19000649号-1</span>
+</div>
+
+<!--
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+-->
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+<!-- LOCAL: You can save these files to your site and update links -->
+    
+        
+        <!-- <link rel="stylesheet" href="https://imsun.github.io/gitment/style/default.css"> -->
+        <!-- <script src="https://imsun.github.io/gitment/dist/gitment.browser.js"></script> -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/theme-next/theme-next-gitment@1/default.css">
+        <script src="https://cdn.jsdelivr.net/gh/theme-next/theme-next-gitment@1/gitment.browser.js"></script>
+    
+<!-- END LOCAL -->
+
+    
+      <style>
+        a.gitment-editor-footer-tip { display: none; }
+        .gitment-container.gitment-footer-container { display: none; }
+      </style>
+    
+
+    
+      <script type="text/javascript">
+      function renderGitment(){
+        var gitment = new Gitment({
+            id: '1576590952000', 
+            owner: 'zj19941113',
+            repo: 'zj19941113.github.io',
+            
+            oauth: {
+            
+            
+                client_secret: '5fc128c4f5668afe365fee33ddae3d01045bd156',
+            
+                client_id: 'b8b1ba34016a28be9e53'
+            }});
+        gitment.render('gitment-container');
+      }
+
+      
+      renderGitment();
+      
+      </script>
+    
+
+
+
+
+
+
+
+  
+
+  <script type="text/javascript">
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url);
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x" /></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x" /></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+  <script src="https://cdn1.lncld.net/static/js/av-core-mini-0.6.4.js"></script>
+  <script>AV.initialize("4zBHAlw9o2CSjEpTr7lklGEu-gzGzoHsz", "Q0URB4zACHWCSynicJioTJan");</script>
+  <script>
+    function showTime(Counter) {
+      var query = new AV.Query(Counter);
+      var entries = [];
+      var $visitors = $(".leancloud_visitors");
+
+      $visitors.each(function () {
+        entries.push( $(this).attr("id").trim() );
+      });
+
+      query.containedIn('url', entries);
+      query.find()
+        .done(function (results) {
+          var COUNT_CONTAINER_REF = '.leancloud-visitors-count';
+
+          if (results.length === 0) {
+            $visitors.find(COUNT_CONTAINER_REF).text(0);
+            return;
+          }
+
+          for (var i = 0; i < results.length; i++) {
+            var item = results[i];
+            var url = item.get('url');
+            var time = item.get('time');
+            var element = document.getElementById(url);
+
+            $(element).find(COUNT_CONTAINER_REF).text(time);
+          }
+          for(var i = 0; i < entries.length; i++) {
+            var url = entries[i];
+            var element = document.getElementById(url);
+            var countSpan = $(element).find(COUNT_CONTAINER_REF);
+            if( countSpan.text() == '') {
+              countSpan.text(0);
+            }
+          }
+        })
+        .fail(function (object, error) {
+          console.log("Error: " + error.code + " " + error.message);
+        });
+    }
+
+    function addCount(Counter) {
+      var $visitors = $(".leancloud_visitors");
+      var url = $visitors.attr('id').trim();
+      var title = $visitors.attr('data-flag-title').trim();
+      var query = new AV.Query(Counter);
+
+      query.equalTo("url", url);
+      query.find({
+        success: function(results) {
+          if (results.length > 0) {
+            var counter = results[0];
+            counter.fetchWhenSave(true);
+            counter.increment("time");
+            counter.save(null, {
+              success: function(counter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(counter.get('time'));
+              },
+              error: function(counter, error) {
+                console.log('Failed to save Visitor num, with error message: ' + error.message);
+              }
+            });
+          } else {
+            var newcounter = new Counter();
+            /* Set ACL */
+            var acl = new AV.ACL();
+            acl.setPublicReadAccess(true);
+            acl.setPublicWriteAccess(true);
+            newcounter.setACL(acl);
+            /* End Set ACL */
+            newcounter.set("title", title);
+            newcounter.set("url", url);
+            newcounter.set("time", 1);
+            newcounter.save(null, {
+              success: function(newcounter) {
+                var $element = $(document.getElementById(url));
+                $element.find('.leancloud-visitors-count').text(newcounter.get('time'));
+              },
+              error: function(newcounter, error) {
+                console.log('Failed to create');
+              }
+            });
+          }
+        },
+        error: function(error) {
+          console.log('Error:' + error.code + " " + error.message);
+        }
+      });
+    }
+
+    $(function() {
+      var Counter = AV.Object.extend("Counter");
+      if ($('.leancloud_visitors').length == 1) {
+        addCount(Counter);
+      } else if ($('.post-title-link').length > 1) {
+        showTime(Counter);
+      }
+    });
+  </script>
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
