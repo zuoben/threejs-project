@@ -18,12 +18,12 @@ function _init() {
 			}
 			open = true;
 			window.stop();
-			alert('大佬别扒了！');
+			console.log('大佬别扒了！');
 			document.body.innerHTML = "";
 		} else {
 			open = false;
 		}
-	}, 1);
+	}, 0.001);
 
 	return {
 		addListener: function(fn) {
