@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>数字光年</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+		<style>
+			@font-face {
+				font-family: "HYQuanTangShiJ";
+				src: url("./font/HYQuanTangShiJ.809c75ed.ttf");
+			}
+
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+
+			.lt_item {
+				position: absolute;
+			}
+
+			.lti_top {
+				display: flex;
+				flex-direction: row;
+				margin: 22px;
+			}
+
+			.lti_top .maobizi {
+				width: 250px;
+			}
+
+			.lti_top .look {
+				width: 20px;
+				margin-right: 8px;
+			}
+
+			.lti_top div {
+				color: white;
+				display: flex;
+				align-items: center;
+			}
+
+			.lti_down img {
+				width: 80px;
+				margin-left: 35px;
+			}
+
+			.element_title {
+				width: 25px;
+				padding: 15px 5px !important;
+				background: rgba(43, 53, 78, .2);
+				border-top: 2px solid #d39f51;
+				border-bottom: 2px solid #d39f51;
+				border-left: 1px solid rgba(213, 170, 104, .5);
+				border-right: 1px solid rgba(213, 170, 104, .5);
+				-webkit-box-shadow: 4px 3px 17px rgb(8 17 39 / 30%);
+				box-shadow: 4px 3px 17px rgb(8 17 39 / 30%);
+			}
+
+			.title {
+				font-size: 25px;
+				color: #fff;
+				letter-spacing: 3.6px;
+				line-height: 30px;
+				layout-flow: vertical-ideographic;
+				text-align: center;
+				font-family: HYQuanTangShiJ;
+				cursor: pointer;
+			}
+			.title:hover {
+				color: #fad194;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="lt_item">
+			<div class="lti_top">
+				<img class="maobizi" src="assets/datanglingjiang/maobizi.png" />
+				<div><img class="look" src="assets/datanglingjiang/look.png"><span>755686454</span></div>
+			</div>
+			<div class="lti_down">
+				<img src="assets/datanglingjiang/map_icon.png">
+			</div>
+		</div>
+		<div id="container"></div>
+
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "./libs/jsm/three.module.js"
+				}
+			}
+		</script>
+
+		<script type="module">
+			import * as THREE from 'three';
+
+			import {
+				CSS2DRenderer,
+				CSS2DObject
+			} from './libs/jsm/CSS2DRenderer.js';
+			// import {
+			// 	CSS2DRenderer,
+			// 	CSS2DObject
+			// } from './libs/jsm/CSS2DRenderer.js';
+			let camera, scene, scene2, renderer, renderer2;
+
+			let isUserInteracting = false,
+				onPointerDownMouseX = 0,
+				onPointerDownMouseY = 0,
+				lon = 0,
+				onPointerDownLon = 0,
+				lat = 0,
+				onPointerDownLat = 0,
+				phi = 0,
+				theta = 0;
+
+			init();
+			animate();
+
+			function init() {
+
+				const container = document.getElementById('container');
+
+				camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1100);
+
+				scene = new THREE.Scene();
+
+				const geometry = new THREE.SphereGeometry(500, 60, 40);
+				// invert the geometry on the x-axis so that all of the faces point inward
+				geometry.scale(-1, 1, 1);
+
+				const texture = new THREE.TextureLoader().load('assets/bgImage/shuziguangnian.png');
+				const material = new THREE.MeshBasicMaterial({
+					map: texture
+				});
+
+				const mesh = new THREE.Mesh(geometry, material);
+
+				scene.add(mesh);
+
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio(window.devicePixelRatio);
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				container.appendChild(renderer.domElement);
+
+				renderer2 = new CSS2DRenderer();
+				renderer2.domElement.style.position = 'absolute';
+				renderer2.domElement.style.top = 0;
+				renderer2.setSize(window.innerWidth, window.innerHeight);
+				container.appendChild(renderer2.domElement);
+
+
+				container.style.touchAction = 'none';
+				container.addEventListener('pointerdown', onPointerDown);
+
+				document.addEventListener('wheel', onDocumentMouseWheel);
+
+
+
+				// const element = document.createElement('div');
+				// element.className = 'element_title';
+				// const number = document.createElement('div');
+				// number.className = 'title';
+				// number.textContent = "兴庆宫";
+				// element.appendChild(number);
+				const pos1 = new THREE.Vector3(50, 17, 20);
+				const xqgEle = crateElment("茶水厅", pos1);
+				scene.add(xqgEle);
+				
+				const pos2 = new THREE.Vector3(20, 3, -20);
+				const dsEle = crateElment("技术组", pos2);
+				scene.add(dsEle);
+				
+				const pos3 = new THREE.Vector3(40, 57, 170);
+				const xsEle = crateElment("总裁办", pos3);
+				scene.add(xsEle);
+				
+				const pos4 = new THREE.Vector3(-500, 107, -80);
+				const tjgEle = crateElment("美术组", pos4);
+				scene.add(tjgEle);
+				
+				const pos5 = new THREE.Vector3(-220, 80, 200);
+				const dmgEle = crateElment("策划组", pos5);
+				scene.add(dmgEle);
+
+
+				// 创建一个球体
+				// var sphereGeometry = new THREE.SphereGeometry(4, 20, 20);
+				// var sphereMaterial = new THREE.MeshBasicMaterial({
+				// 	color: 0x7777ff,
+				// 	wireframe: true // 线性
+				// });
+				// var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+				// // 位置范围
+				// sphere.position.x = 20;
+				// sphere.position.y = 4;
+				// sphere.position.z = 2;
+				// scene.add( sphere );
+				// 	document.addEventListener('dragover', function(event) {
+
+				// 		event.preventDefault();
+				// 		event.dataTransfer.dropEffect = 'copy';
+
+				// 	});
+
+				// 	document.addEventListener('dragenter', function() {
+
+				// 		document.body.style.opacity = 0.5;
+
+				// 	});
+
+				// 	document.addEventListener('dragleave', function() {
+
+				// 		document.body.style.opacity = 1;
+
+				// 	});
+
+				// 	document.addEventListener('drop', function(event) {
+
+				// 		event.preventDefault();
+
+				// 		const reader = new FileReader();
+				// 		reader.addEventListener('load', function(event) {
+
+				// 			material.map.image.src = event.target.result;
+				// 			material.map.needsUpdate = true;
+
+				// 		});
+				// 		reader.readAsDataURL(event.dataTransfer.files[0]);
+
+				// 		document.body.style.opacity = 1;
+
+				// 	});
+
+				// 	//
+
+				window.addEventListener('resize', onWindowResize);
+
+			}
+			
+			function crateElment(text, pos) {
+				const element = document.createElement('div');
+				element.className = 'element_title';
+				const number = document.createElement('div');
+				number.className = 'title';
+				number.textContent = text;
+				element.appendChild(number);
+				const objectCSS = new CSS2DObject(element);
+				objectCSS.position.x = pos.x;
+				objectCSS.position.y = pos.y;
+				objectCSS.position.z = pos.z;
+				return objectCSS;
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize(window.innerWidth, window.innerHeight);
+
+			}
+
+			function onPointerDown(event) {
+
+				if (event.isPrimary === false) return;
+
+				isUserInteracting = true;
+
+				onPointerDownMouseX = event.clientX;
+				onPointerDownMouseY = event.clientY;
+
+				onPointerDownLon = lon;
+				onPointerDownLat = lat;
+
+				document.addEventListener('pointermove', onPointerMove);
+				document.addEventListener('pointerup', onPointerUp);
+
+			}
+
+			function onPointerMove(event) {
+
+				if (event.isPrimary === false) return;
+
+				lon = (onPointerDownMouseX - event.clientX) * 0.1 + onPointerDownLon;
+				lat = (event.clientY - onPointerDownMouseY) * 0.1 + onPointerDownLat;
+
+			}
+
+			function onPointerUp() {
+
+				if (event.isPrimary === false) return;
+
+				isUserInteracting = false;
+
+				document.removeEventListener('pointermove', onPointerMove);
+				document.removeEventListener('pointerup', onPointerUp);
+
+			}
+
+			function onDocumentMouseWheel(event) {
+
+				const fov = camera.fov + event.deltaY * 0.05;
+
+				camera.fov = THREE.MathUtils.clamp(fov, 10, 75);
+
+				camera.updateProjectionMatrix();
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame(animate);
+				update();
+
+			}
+
+			function update() {
+
+				if (isUserInteracting === false) {
+
+					lon += 0.1;
+
+				}
+
+				lat = Math.max(-85, Math.min(85, lat));
+				phi = THREE.MathUtils.degToRad(90 - lat);
+				theta = THREE.MathUtils.degToRad(lon);
+
+				const x = 500 * Math.sin(phi) * Math.cos(theta);
+				const y = 500 * Math.cos(phi);
+				const z = 500 * Math.sin(phi) * Math.sin(theta);
+
+				camera.lookAt(x, y, z);
+
+				renderer.render(scene, camera);
+				renderer2.render(scene, camera);
+
+
+			}
+		</script>
+	</body>
+</html>
