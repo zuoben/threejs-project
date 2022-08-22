@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Threejs实现引入FBX模型</title>
+		<meta charset="UTF-8">
+		<script type="text/javascript" src="libs/three.js"></script>
+		<script type="text/javascript" src="libs/FBXLoader.js"></script>
+		<script type="text/javascript" src="libs/inflate.min.js"></script>
+		<script type="text/javascript" src="libs/OrbitControls.js"></script>
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+		<link href='libs/nprogress.css' rel='stylesheet' />
+	</head>
+	<body>
+		<div id="dom"></div>
+		<script id="vs1" type="x-shader/x-vertex">
+			varying vec3 vNormal;
+			varying vec3 vPositionNormal;
+			void main() 
+			{
+				vNormal = normalize( normalMatrix * normal ); // 转换到视图空间
+				vPositionNormal = normalize(( modelViewMatrix * vec4(position, 1.0) ).xyz);
+				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+			}
+
+		</script>
+		<script id="fs1" type="x-shader/x-fragment">
+			uniform vec3 glowColor;
+			uniform float b;
+			uniform float p;
+			uniform float s;
+			varying vec3 vNormal;
+			varying vec3 vPositionNormal;
+			void main() 
+			{
+				float a = pow( b + s * abs(dot(vNormal, vPositionNormal)), p );
+				gl_FragColor = vec4( glowColor, a );
+			}
+
+		</script>
+		<script type="text/javascript">
+			var camera;
+			var renderer;
+			var mesh = [];
+
+			function init() {
+				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
+				var scene = new THREE.Scene();
+
+				var cubeLoader = new THREE.CubeTextureLoader();
+
+				// 创建一个摄像机，它定义了我们正在看的地方
+				camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 10000);
+				// 将摄像机对准场景的中心
+				camera.position.x = 100;
+				// camera.position.y = 45;
+				// camera.position.z = 65;
+				camera.lookAt(scene.position);
+				var orbit = new THREE.OrbitControls(camera);
+
+				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
+				renderer = new THREE.WebGLRenderer({
+					antialias: true,
+					logarithmicDepthBuffer: true,
+				});
+				renderer.setClearColor(new THREE.Color("#0e0934"));
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				// 基础光源，并应用到场景
+				scene.add(new THREE.AmbientLight("#ffffff", 1.5));
+
+				initModelb5();
+				initModelb6();
+				initModelb7();
+				initModela6();
+
+				// 将呈现器的输出添加到HTML元素
+				document.getElementById("dom").appendChild(renderer.domElement);
+
+				// 启动动画
+				renderScene();
+
+				// 添加模型
+				function initModelb6() {
+					var loader = new THREE.FBXLoader();
+					loader.load('assets/models/zhongjianxintang/b6.fbx', function(result) {
+						console.log(result)
+						result.traverse(function(item) {
+							if (item instanceof THREE.Mesh) {
+								item.material.color.set(0x1DA9FC);
+								item.material.transparent = true;
+								item.material.opacity = 0.5;
+							}
+						});
+
+						result.rotateX(Math.PI / 2);
+						scene.add(result)
+					});
+				}
+
+				function initModelb5() {
+					var loader = new THREE.FBXLoader();
+					loader.load('assets/models/zhongjianxintang/b5.fbx', function(result) {
+						console.log(result)
+						result.traverse(function(item) {
+							if (item instanceof THREE.Mesh) {
+								item.material.color.set(0x1DA9FC);
+								item.material.transparent = true;
+								item.material.opacity = 0.5;
+							}
+						});
+
+						result.translateY(20);
+						result.rotateX(Math.PI / 2);
+						scene.add(result)
+					});
+				}
+
+				function initModelb7() {
+					var loader = new THREE.FBXLoader();
+					loader.load('assets/models/zhongjianxintang/b7.fbx', function(result) {
+						console.log(result)
+						result.traverse(function(item) {
+							if (item instanceof THREE.Mesh) {
+								item.material.color.set(0x1DA9FC);
+								item.material.transparent = true;
+								item.material.opacity = 0.5;
+								// shaderObj(item);
+							}
+						});
+
+						result.translateZ(-85);
+						result.translateX(-85);
+						result.rotateX(Math.PI / 2);
+						scene.add(result)
+					});
+				}
+
+				function initModela6() {
+					var loader = new THREE.FBXLoader();
+					loader.load('assets/models/zhongjianxintang/a6.fbx', function(result) {
+						console.log(result)
+						result.traverse(function(item) {
+							if (item instanceof THREE.Mesh) {
+								item.material.color.set(0x1DA9FC);
+								item.material.transparent = true;
+								item.material.opacity = 0.5;
+							}
+						});
+
+						result.translateX(50);
+						result.translateZ(20);
+						result.translateY(50);
+						result.rotateX(Math.PI / 2);
+						scene.add(result)
+					});
+				}
+
+				function shaderObj(selectedObjects) {
+					const customMaterial = new THREE.ShaderMaterial({
+						uniforms: {
+							"s": {
+								type: "f",
+								value: -1.0
+							},
+							"b": {
+								type: "f",
+								value: 1.0
+							}, //bias 颜色最亮的位置
+							"p": {
+								type: "f",
+								value: 1.0
+							}, //power决定了透明度变化速度及方向。
+							glowColor: {
+								type: "c",
+								value: new THREE.Color(0x1DA9FC)
+							}
+						},
+						vertexShader: document.getElementById('vs1').textContent,
+						fragmentShader: document.getElementById('fs1').textContent,
+						side: THREE.FrontSide,
+						blending: THREE.AdditiveBlending,
+						// transparent: true,
+						opacity: 0.4
+					})
+
+					selectedObjects.material = customMaterial;
+				}
+
+
+				// document.addEventListener('click', onDocumentMouseDown, false); //监听单击拾取对象初始化球体
+
+				function onDocumentMouseDown(event) {
+					// 点击屏幕创建一个向量
+					var vector = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window
+						.innerHeight) * 2 + 1, 0.5);
+					vector = vector.unproject(camera); // 将屏幕的坐标转换成三维场景中的坐标
+					var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+					var intersects = raycaster.intersectObjects(mesh.children, true);
+					console.log(intersects)
+					if (intersects.length > 0) {
+						// intersects[0].object.material.color.set("#006100");
+					}
+				}
+
+				function renderScene() {
+					orbit.update();
+					// 使用requestAnimationFrame函数进行渲染
+					requestAnimationFrame(renderScene);
+					renderer.render(scene, camera);
+				}
+
+				// 渲染的场景
+				renderer.render(scene, camera);
+			}
+			window.onload = init;
+
+			// 随着窗体的变化修改场景
+			function onResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+			// 监听窗体调整大小事件
+			window.addEventListener('resize', onResize, false);
+		</script>
+	</body>
+</html>
