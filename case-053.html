@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Threejs实现局部纹理刷新</title>
+		<meta charset="UTF-8">
+		<script type="text/javascript" src="libs/three.js"></script>
+		<!-- <script type="text/javascript" src="libs/OrbitControls.js"></script> -->
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="dom"></div>
+		<script type="text/javascript">
+			var camera;
+			var renderer;
+			var mesh = [];
+
+			function init() {
+				// 创建一个场景，它将包含我们所有的元素，如物体，相机和灯光。
+				var scene = new THREE.Scene();
+
+				// 创建一个摄像机，它定义了我们正在看的地方
+				camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 10000);
+				camera.position.set(0, 0, 3000);
+				// 将摄像机对准场景的中心
+				// camera.position.x = 100;
+				// camera.position.y = 45;
+				// camera.position.z = 65;
+				// camera.lookAt(scene.position);
+				// var orbit = new THREE.OrbitControls(camera);
+
+				// 创建一个渲染器并设置大小，WebGLRenderer将会使用电脑显卡来渲染场景
+				renderer = new THREE.WebGLRenderer({
+					antialias: true,
+					logarithmicDepthBuffer: true,
+				});
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				// 基础光源，并应用到场景
+				scene.add(new THREE.AmbientLight("#ffffff", 1.5));
+
+				// 将呈现器的输出添加到HTML元素
+				document.getElementById("dom").appendChild(renderer.domElement);
+
+				// 启动动画
+				renderScene();
+				initMesh();
+
+				function initMesh() {
+					var material = new THREE.MeshBasicMaterial({
+						map: new THREE.Texture()
+					}); //创建材质
+					let sceneBlockModel = {
+						sceneWidth: 6912,
+						sceneHeight: 3456,
+						fileBlockWidth: 1024,
+						fileBlockHeight: 512,
+						dir: "assets/bgImage/"
+					};
+					let plane = new THREE.Mesh(new THREE.PlaneGeometry(sceneBlockModel.sceneWidth, sceneBlockModel.sceneHeight),
+						material);
+					scene.add(plane);
+					let img = new Image();
+					img.onload = function() {
+
+						let canvas = document.createElement("canvas");
+						let ctx = canvas.getContext("2d");
+
+						canvas.width = sceneBlockModel.sceneWidth;
+						canvas.height = sceneBlockModel.sceneHeight;
+
+						ctx.drawImage(img, 0, 0, sceneBlockModel.sceneWidth, sceneBlockModel.sceneHeight);
+
+						material.map.image = canvas;
+						material.map.minFilter = THREE.LinearFilter;
+						material.map.generateMipmaps = false;
+						material.map.needsUpdate = true;
+
+						// //加载分块图片
+						// let xLen = Math.ceil(sceneBlockModel.sceneWidth / sceneBlockModel.fileBlockWidth);
+						// let yLen = Math.ceil(sceneBlockModel.sceneHeight / sceneBlockModel.fileBlockHeight);
+
+						// //延迟三秒开始加载分块图片
+						setTimeout(function() {
+							let img1 = new Image();
+							img1.src = "assets/bgImage/work1.jpg";
+							img1.onload = function() {
+								console.log(img1)
+								// ctx.drawImage(img1, 0, 0, sceneBlockModel.sceneWidth, sceneBlockModel.sceneHeight);
+								let position = new THREE.Vector2();
+								let texture = new THREE.Texture(img1);
+								console.log(position)
+								position.x = 1024*3;
+								position.y = 512*5;
+								renderer.copyTextureToTexture(position, texture, material.map);
+							}
+						// 	for (let x = 0; x < xLen; x++) {
+						// 		for (let y = 0; y < yLen; y++) {
+						// 			let img = new Image();
+						// 			img.src = sceneBlockModel.dir + x + "_" + y + ".jpg";
+						// 			img.onload = function() {
+
+						// 				let texture = new THREE.Texture(img);
+
+						// 				//获取渲染的起始位置
+						// 				let position = new THREE.Vector2();
+
+						// 				position.x = y * sceneBlockModel.fileBlockWidth;
+
+						// 				if (x === yLen - 1) {
+						// 					position.y = 0;
+						// 				} else {
+						// 					position.y = (yLen - 2 - x) * sceneBlockModel.fileBlockHeight + (
+						// 						sceneBlockModel.sceneHeight % sceneBlockModel.fileBlockHeight
+						// 						);
+						// 				}
+
+						// 				renderer.copyTextureToTexture(position, texture, material.map);
+						// 			}
+						// 		}
+						// 	}
+						}, 3000);
+					};
+
+					img.src = sceneBlockModel.dir + "work.jpg";
+				}
+
+				function renderScene() {
+					// 使用requestAnimationFrame函数进行渲染
+					requestAnimationFrame(renderScene);
+					renderer.render(scene, camera);
+				}
+
+				// 渲染的场景
+				renderer.render(scene, camera);
+			}
+			window.onload = init;
+
+			// 随着窗体的变化修改场景
+			function onResize() {
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+			}
+			// 监听窗体调整大小事件
+			window.addEventListener('resize', onResize, false);
+		</script>
+	</body>
+</html>
