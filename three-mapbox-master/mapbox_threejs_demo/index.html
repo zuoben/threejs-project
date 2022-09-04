@@ -2,10 +2,15 @@
 <html>
 	<head>
 		<meta charset="utf-8">
-		<title>Add a 3D model</title>
+		<title>智慧养殖</title>
 		<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
 		<link href="https://api.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.css" rel="stylesheet">
+		<link rel="stylesheet"
+			href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css"
+			type="text/css">
 		<script src="https://api.mapbox.com/mapbox-gl-js/v2.9.2/mapbox-gl.js"></script>
+		<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js">
+		</script>
 		<style>
 			body {
 				margin: 0;
@@ -19,10 +24,52 @@
 				width: 100%;
 			}
 		</style>
+		<style type="text/css">
+			#info {
+				display: table;
+				position: relative;
+				margin: 0px auto;
+				word-wrap: anywhere;
+				white-space: pre-wrap;
+				padding: 10px;
+				border: none;
+				border-radius: 3px;
+				font-size: 12px;
+				text-align: center;
+				color: #222;
+				background: #fff;
+				z-index: 12;
+			}
+
+			.marker {
+				color: white;
+				width: 160px;
+				height: 40px;
+				font-size: 18px;
+				line-height: 40px;
+				padding: 15px;
+				background-color: #061d4b;
+				border-radius: 10px;
+				text-align: center;
+				background: url(img/label-bg.png) center no-repeat;
+				background-size: 100% 100%;
+			}
+
+			.marker::after {
+				content: "";
+				width: calc(100% + 22px);
+				height: 39px;
+				position: absolute;
+				bottom: -45px;
+				left: 45%;
+				background: url(img/arrow.png) no-repeat;
+			}
+		</style>
 	</head>
 	<body>
 		<script src="https://unpkg.com/three@0.126.0/build/three.min.js"></script>
 		<script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
+		<!-- <pre id="info"></pre> -->
 		<div id="map"></div>
 		<script>
 			// TO MAKE THE MAP APPEAR YOU MUST
@@ -36,14 +83,14 @@
 				// style: 'mapbox://mapbox.mapbox-terrain-dem-v1', // style URL
 				// zoom: 18,
 				zoom: 1,
-				center: [124.808596,44.318896],
-				pitch: 60,
-				projection: 'globe'
-				// antialias: true // create the gl context with MSAA antialiasing, so custom layers are antialiased
+				center: [124.79340084, 44.30442681],
+				pitch: 85,
+				projection: 'globe',
+				antialias: true // create the gl context with MSAA antialiasing, so custom layers are antialiased
 			});
 
 			// parameters to ensure the model is georeferenced correctly on the map
-			const modelOrigin = [124.808596,44.318896];
+			const modelOrigin = [124.79340084, 44.30442681];
 			const modelAltitude = 0;
 			const modelRotate = [Math.PI / 2, 0, 0];
 
@@ -69,6 +116,178 @@
 			const THREE = window.THREE;
 			const mouse = new THREE.Vector4(-1000, -1000, 1, 1);
 			var methArr = [];
+			// 模拟位置数据
+			const lnglot = [{
+				lng: 124.79086246315228,
+				lat: 44.305412742814895
+			}, {
+				lng: 124.79079781007545,
+				lat: 44.30510981149729
+			}, {
+				lng: 124.79061622058305,
+				lat: 44.30443087526436
+			}, {
+				lng: 124.790489860972,
+				lat: 44.303896842889515
+			}, {
+				lng: 124.79042444463789,
+				lat: 44.30353046218468
+			}, {
+				lng: 124.78981299186944,
+				lat: 44.303592149806406
+			}];
+			var point = {
+				'type': 'FeatureCollection',
+				'features': [{
+					// feature for Mapbox DC
+					'type': 'Feature',
+					'geometry': {
+						'type': 'Point',
+						'coordinates': [
+							lnglot[0].lng, lnglot[0].lat
+						]
+					},
+					'properties': {
+						'title': '张三'
+					}
+				}]
+			}
+			const geojson = {
+				'type': 'FeatureCollection',
+				'features': [{
+						'type': 'Feature',
+						'properties': {
+							'message': "育肥养殖一",
+							'iconSize': [80, 60]
+						},
+						'geometry': {
+							'type': 'Point',
+							'coordinates': [124.78895464986249, 44.30611021351882]
+						}
+					},
+					{
+						'type': 'Feature',
+						'properties': {
+							'message': "育肥养殖二",
+							'iconSize': [80, 60]
+						},
+						'geometry': {
+							'type': 'Point',
+							'coordinates': [124.79039376913283, 44.30545638211504]
+						}
+					},
+					{
+						'type': 'Feature',
+						'properties': {
+							'message': "育肥养殖三",
+							'iconSize': [80, 60]
+						},
+						'geometry': {
+							'type': 'Point',
+							'coordinates': [124.78900981691345, 44.30518343877026]
+						}
+					},
+					{
+						'type': 'Feature',
+						'properties': {
+							'message': "育肥养殖四",
+							'iconSize': [80, 60]
+						},
+						'geometry': {
+							'type': 'Point',
+							'coordinates': [124.7898458596494, 44.30465803367352]
+						}
+					},
+					{
+						'type': 'Feature',
+						'properties': {
+							'message': "育肥养殖五",
+							'iconSize': [80, 60]
+						},
+						'geometry': {
+							'type': 'Point',
+							'coordinates': [124.78887884831761, 44.30427768113424]
+						}
+					},
+					{
+						'type': 'Feature',
+						'properties': {
+							'message': "育肥养殖六",
+							'iconSize': [80, 60]
+						},
+						'geometry': {
+							'type': 'Point',
+							'coordinates': [124.78996396790126, 44.303722995929746]
+						}
+					},
+					{
+						'type': 'Feature',
+						'properties': {
+							'message': "育肥养殖一",
+							'iconSize': [80, 60]
+						},
+						'geometry': {
+							'type': 'Point',
+							'coordinates': [124.78659952517751, 44.30636995519194]
+						}
+					},
+					{
+						'type': 'Feature',
+						'properties': {
+							'message': "育肥养殖二",
+							'iconSize': [80, 60]
+						},
+						'geometry': {
+							'type': 'Point',
+							'coordinates': [124.78779901104167, 44.3057633499661]
+						}
+					},
+					{
+						'type': 'Feature',
+						'properties': {
+							'message': "育肥养殖三",
+							'iconSize': [80, 60]
+						},
+						'geometry': {
+							'type': 'Point',
+							'coordinates': [124.78648489446823, 44.30546119001821]
+						}
+					},
+					{
+						'type': 'Feature',
+						'properties': {
+							'message': "育肥养殖四",
+							'iconSize': [80, 60]
+						},
+						'geometry': {
+							'type': 'Point',
+							'coordinates': [124.78760522602101, 44.30486026699472]
+						}
+					},
+					{
+						'type': 'Feature',
+						'properties': {
+							'message': "育肥养殖五",
+							'iconSize': [80, 60]
+						},
+						'geometry': {
+							'type': 'Point',
+							'coordinates': [124.78629049012909, 44.304592168224644]
+						}
+					},
+					{
+						'type': 'Feature',
+						'properties': {
+							'message': "育肥养殖六",
+							'iconSize': [80, 60]
+						},
+						'geometry': {
+							'type': 'Point',
+							'coordinates': [124.78736493408655, 44.303995309122314]
+						}
+					}
+				]
+			};
 
 			// configuration of the custom layer for a 3D model per the CustomLayerInterface
 			const customLayer = {
@@ -82,21 +301,25 @@
 					// create two three.js lights to illuminate the model
 					const directionalLight = new THREE.DirectionalLight(0xffffff);
 					directionalLight.position.set(0, -70, 100).normalize();
-					this.scene.add(directionalLight);
-					
-					this.scene.add(new THREE.AmbientLight("#ffffff", 1.5));
+					// this.scene.add(directionalLight);
+
+					this.scene.add(new THREE.AmbientLight("#ffffff", 3));
 
 					const directionalLight2 = new THREE.DirectionalLight(0xffffff);
 					directionalLight2.position.set(0, 70, 100).normalize();
-					this.scene.add(directionalLight2);
+					// this.scene.add(directionalLight2);
 
 					// use the three.js GLTF loader to add the 3D model to the three.js scene
 					const loader = new THREE.GLTFLoader();
 					loader.load(
-						'../../assets/models/gongchang/gongchang.glb',
+						'2222.glb',
 						(gltf) => {
-							// this.scene.add(gltf.scene);
-							// methArr = gltf.scene;
+							let mesh = gltf.scene;
+							console.log(mesh)
+							// mesh.scale.set(1, 1, 1);
+							mesh.rotation.y = -0.05 * Math.PI;
+							this.scene.add(mesh);
+							methArr = mesh;
 						}
 					);
 					this.map = map;
@@ -105,10 +328,11 @@
 					this.renderer = new THREE.WebGLRenderer({
 						canvas: map.getCanvas(),
 						context: gl,
-						antialias: true
+						antialias: true,
+						logarithmicDepthBuffer: true,
 					});
 
-				this.renderer.setClearColor(new THREE.Color("#0e0934"));
+					// this.renderer.setClearColor(new THREE.Color("#0e0934"));
 					this.renderer.autoClear = false;
 					this.raycaster = new THREE.Raycaster();
 
@@ -117,12 +341,12 @@
 						mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
 						mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 						// 通过摄像机和鼠标位置更新射线
-						// this.raycaster.setFromCamera(mouse, this.camera);
+						this.raycaster.setFromCamera(mouse, this.camera);
 						// 计算物体和射线的焦点
-						// const intersects = this.raycaster.intersectObjects(methArr.children, true);
-						// if (intersects.length > 0) {
-						// 	intersects[0].object.material.wireframe = true;
-						// }
+						const intersects = this.raycaster.intersectObjects(methArr.children, true);
+						if (intersects.length > 0) {
+							// intersects[0].object.material.wireframe = true;
+						}
 					})
 				},
 				render: function(gl, matrix) {
@@ -178,15 +402,122 @@
 					}
 
 					this.renderer.render(this.scene, this.camera);
-					// this.map.triggerRepaint();
 
 					for (let i = 0; i < intersects.length; i++) {
 						// intersects[i].object.material.wireframe = false;
 					}
+					this.map.triggerRepaint();
 				}
 			};
 
+			// map.on('mousemove', (e) => {
+				// document.getElementById('info').innerHTML =
+				// `e.point` is the x, y coordinates of the `mousemove` event
+				// relative to the top-left corner of the map.
+				// JSON.stringify(e.point) +
+				// '<br />' +
+				// `e.lngLat` is the longitude, latitude geographical position of the event.
+				// JSON.stringify(e.lngLat.wrap());
+			// });
+			map.on('click', (e) => {
+				console.log(e.lngLat.wrap())
+			});
+
+			/* Given a query in the form "lng, lat" or "lat, lng"
+			 * returns the matching geographic coordinate(s)
+			 * as search results in carmen geojson format,
+			 * https://github.com/mapbox/carmen/blob/master/carmen-geojson.md */
+			const coordinatesGeocoder = function(query) {
+				// Match anything which looks like
+				// decimal degrees coordinate pair.
+				const matches = query.match(
+					/^[ ]*(?:Lat: )?(-?\d+\.?\d*)[, ]+(?:Lng: )?(-?\d+\.?\d*)[ ]*$/i
+				);
+				if (!matches) {
+					return null;
+				}
+
+				function coordinateFeature(lng, lat) {
+					return {
+						center: [lng, lat],
+						geometry: {
+							type: 'Point',
+							coordinates: [lng, lat]
+						},
+						place_name: 'Lat: ' + lat + ' Lng: ' + lng,
+						place_type: ['coordinate'],
+						properties: {},
+						type: 'Feature'
+					};
+				}
+
+				const coord1 = Number(matches[1]);
+				const coord2 = Number(matches[2]);
+				const geocodes = [];
+
+				if (coord1 < -90 || coord1 > 90) {
+					// must be lng, lat
+					geocodes.push(coordinateFeature(coord1, coord2));
+				}
+
+				if (coord2 < -90 || coord2 > 90) {
+					// must be lat, lng
+					geocodes.push(coordinateFeature(coord2, coord1));
+				}
+
+				if (geocodes.length === 0) {
+					// else could be either lng, lat or lat, lng
+					geocodes.push(coordinateFeature(coord1, coord2));
+					geocodes.push(coordinateFeature(coord2, coord1));
+				}
+
+				return geocodes;
+			};
+
+			// Add the control to the map.
+			// map.addControl(
+			// 	new MapboxGeocoder({
+			// 		accessToken: mapboxgl.accessToken,
+			// 		localGeocoder: coordinatesGeocoder,
+			// 		zoom: 4,
+			// 		placeholder: 'Try: -40, 170',
+			// 		mapboxgl: mapboxgl,
+			// 		reverseGeocode: true
+			// 	})
+			// );
+
 			map.on('style.load', () => {
+				for (const marker of geojson.features) {
+					// Create a DOM element for each marker.
+					const el = document.createElement('div');
+					const width = marker.properties.iconSize[0];
+					const height = marker.properties.iconSize[1];
+					el.className = 'marker';
+					el.innerText = marker.properties.message;
+					// el.style.color = "#ffffff"; //border-radius: 50%;
+					// el.style.border = "2px solid #009400"
+					// el.style.borderRadius = "50%";
+					// el.style.lineHeight = `${height}px`;
+					// el.style.backgroundColor = "#2b2b2b";
+					// el.style.opacity = 0.5;
+					// el.style.textAlign = "center";
+					// el.style.backgroundImage = `url(img/label-bg.png)`;
+					// el.style.width = `${width}px`;
+					// el.style.height = `${height}px`;
+					// el.style.backgroundSize = '100%';
+					// el.style.marginBottom = "1150px";
+
+					el.addEventListener('click', () => {
+						window.alert(marker.properties.message);
+					});
+
+					// Add markers to the map.
+					new mapboxgl.Marker(el)
+						.setOffset([0, -120])
+						.setLngLat(marker.geometry.coordinates)
+						.addTo(map);
+				}
+
 				map.addLayer(customLayer, 'waterway-label');
 
 				map.on('mousemove', (event) => {
@@ -194,17 +525,115 @@
 					mouse.y = -(event.point.y / window.innerHeight) * 2 + 1;
 					map.triggerRepaint();
 				});
+
+				map.loadImage(
+					'https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png',
+					(error, image) => {
+						if (error) throw error;
+						map.addImage('custom-marker', image);
+						// Add a GeoJSON source with 2 points
+						map.addSource('points', {
+							'type': 'geojson',
+							'data': point
+						});
+
+						// Add a symbol layer
+						map.addLayer({
+							'id': 'points',
+							'type': 'symbol',
+							'source': 'points',
+							'paint': {
+								'text-color': '#ffffff',
+							},
+							'layout': {
+								'icon-image': 'custom-marker',
+								// get the title name from the source's "title" property
+								'text-field': ['get', 'title'],
+								'text-font': [
+									'Open Sans Semibold',
+									'Arial Unicode MS Bold'
+								],
+								'text-offset': [0, -3.25],
+								'text-anchor': 'top'
+							}
+						});
+
+
+						setInterval(function() {
+							var i = Math.floor(Math.random() * 5);
+							// console.log([lnglot[i].lng, lnglot[i].lat])
+							point.features[0].geometry.coordinates = [lnglot[i].lng, lnglot[i].lat];
+							map.getSource('points').setData(point);
+						}, 1000)
+					}
+				);
+
+				map.addSource('lines', {
+					'type': 'geojson',
+					'data': {
+						'type': 'FeatureCollection',
+						
+						
+						'features': [{
+							'type': 'Feature',
+							'properties': {
+								'color': '#33C9EB' // blue
+							},
+							'geometry': {
+								'type': 'LineString',
+								'coordinates': [
+									[lnglot[0].lng, lnglot[0].lat],
+									[lnglot[1].lng, lnglot[1].lat],
+									[lnglot[2].lng, lnglot[2].lat],
+									[lnglot[3].lng, lnglot[3].lat],
+									[lnglot[4].lng, lnglot[4].lat],
+									[lnglot[5].lng, lnglot[5].lat]
+								]
+							}
+						}]
+					}
+				});
+				map.addLayer({
+					'id': 'lines',
+					'type': 'line',
+					'source': 'lines',
+					'paint': {
+						'line-width': 3,
+						// Use a get expression (https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-get)
+						// to set the line-color to a feature property value.
+						'line-color': ['get', 'color']
+					}
+				});
 				
+				// evening
+				// map.setFog({
+				// 	color: 'rgb(186, 210, 235)', // Lower atmosphere
+				// 	'high-color': 'rgb(36, 92, 223)', // Upper atmosphere
+				// 	'horizon-blend': 0.02, // Atmosphere thickness (default 0.2 at low zooms)
+				// 	'space-color': 'rgb(11, 11, 25)', // Background color
+				// 	'star-intensity': 0.6 // Background star brightness (default 0.35 at low zoooms )
+				// });
+				
+				// add the DEM source as a terrain layer with exaggerated height
+				// map.setTerrain({ 'source': 'lines', 'exaggeration': 1.5 });
+				
+				// daytime
 				map.setFog({
-				        color: 'rgb(186, 210, 235)', // Lower atmosphere
-				        'high-color': 'rgb(36, 92, 223)', // Upper atmosphere
-				        'horizon-blend': 0.02, // Atmosphere thickness (default 0.2 at low zooms)
-				        'space-color': 'rgb(11, 11, 25)', // Background color
-				        'star-intensity': 0.6 // Background star brightness (default 0.35 at low zoooms )
-				    });
-					
-					// fly with default options to null island
-					map.flyTo({center: [124.808596,44.318896], zoom: 18, duration: 12000, essential: true});
+					'horizon-blend': 0.3,
+					'color': '#f8f0e3',
+					'high-color': '#add8e6',
+					'space-color': '#d8f2ff',
+					'star-intensity': 0.0
+				});
+
+				// fly with default options to null island
+				map.flyTo({
+					curve: 3000,
+					center: [124.79340084, 44.30442681],
+					zoom: 19,
+					duration: 5000,
+					essential: true
+				});
 			});
 		</script>
 
