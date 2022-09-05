@@ -108,11 +108,15 @@
 				align-items: center;
 				background-color: #00000085;
 				display: none;
-				z-index: 2;
+				z-index: 3;
 			}
 
 			.lti_haibao img {
 				width: 18%;
+			}
+
+			.lti_shipin video {
+				width: 50%;
 			}
 		</style>
 	</head>
@@ -143,8 +147,10 @@
 				CSS2DRenderer,
 				CSS2DObject
 			} from './libs/jsm/CSS2DRenderer.js';
+			import { TransformControls } from './libs/jsm/TransformControls.js';
 
-			let camera, scene, renderer, renderer2;
+			var camera;
+			var renderer, renderer2, scene, control;
 
 			let isUserInteracting = false,
 				onPointerDownMouseX = 0,
@@ -176,6 +182,9 @@
 					map: texture
 				});
 
+				// 基础光源，并应用到场景
+				scene.add(new THREE.AmbientLight("#ffffff", 1.5));
+
 				const mesh = new THREE.Mesh(geometry, material);
 				scene.add(mesh);
 
@@ -189,6 +198,31 @@
 				renderer2.domElement.style.top = 0;
 				renderer2.setSize(window.innerWidth, window.innerHeight);
 				container.appendChild(renderer2.domElement);
+				
+				
+				
+								control = new TransformControls( camera, renderer.domElement );
+								control.addEventListener( 'change', animate );
+				
+								control.addEventListener( 'dragging-changed', function ( event ) {
+				
+									// orbit.enabled = ! event.value;
+				
+								} );
+								
+								window.addEventListener( 'keyup', function ( event ) {
+								
+													switch ( event.keyCode ) {
+								
+														case 16: // Shift
+															control.setTranslationSnap( null );
+															control.setRotationSnap( null );
+															control.setScaleSnap( null );
+															break;
+								
+													}
+								
+												} );
 
 				container.style.touchAction = 'none';
 				container.addEventListener('pointerdown', onPointerDown);
@@ -230,16 +264,39 @@
 					document.body.style.opacity = 1;
 
 				});
+				const x = 0,
+					y = 0;
+				const fishShape = new THREE.Shape()
+					.moveTo(x, y)
+					.lineTo(x + 10, y)
+					.lineTo(x + 10, y + 15)
+					.lineTo(x + 15, y + 15)
+					.lineTo(x + 5, y + 30)
+					.lineTo(x - 5, y + 15)
+					.lineTo(x, y + 15)
+					.lineTo(x, y);
 
+
+				let geometryFish = new THREE.ExtrudeGeometry(fishShape);
+
+				let meshFish = new THREE.Mesh(geometryFish, new THREE.MeshPhongMaterial({
+					color: "#00aa7f"
+				}));
+				meshFish.name = "jiantou";
+				meshFish.position.set(-27, -5, 1);
+				meshFish.rotation.set(Math.PI / 2, Math.PI / 1.1, Math.PI / -2);
+				meshFish.scale.set(0.1, 0.1, 0.1);
+				scene.add(meshFish);
+				
 				// 在屏幕上显示坐标轴
 				var axes = new THREE.AxesHelper(100);
-				scene.add(axes);
+				// scene.add(axes);
 
 				window.addEventListener('resize', onWindowResize);
 
-				const pos1 = new THREE.Vector3(20, 7, -1);
-				const xqgEle = crateElment("兴庆宫", pos1);
-				// scene.add(xqgEle);
+				const pos1 = new THREE.Vector3(-50, -8, 40);
+				const xqgEle = crateElmentHaibao("taobao", pos1);
+				scene.add(xqgEle);
 
 				const pos2 = new THREE.Vector3(-100, -8, -35);
 				const dsEle = crateElmentHaibao("haibao", pos2);
@@ -247,6 +304,10 @@
 
 				const pos3 = new THREE.Vector3(100, -10, 40);
 				const vEle = crateElmentHaibao("shipin", pos3);
+				scene.add( vEle );
+
+				control.attach( vEle );
+				scene.add( control );
 				scene.add(vEle);
 
 			}
@@ -348,15 +409,15 @@
 			// 拾取对象
 			function pickupObjects(event) {
 				// 点击屏幕创建一个向量
-				var raycaster = new THREE.Raycaster();
-				var vector = new THREE.Vector2((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window
-					.innerHeight) * 2 + 1);
-				var fxl = new THREE.Vector3(0, 1, 0);
-				var groundplane = new THREE.Plane(fxl, 0);
-				raycaster.setFromCamera(vector, camera);
-				var ray = raycaster.ray;
-				// let intersects = ray.intersectObject(groundplane);
-				// console.log(ray)
+				var vector = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window
+					.innerHeight) * 2 + 1, 0.5);
+				vector = vector.unproject(camera); // 将屏幕的坐标转换成三维场景中的坐标
+				var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+				var intersects = raycaster.intersectObjects(scene.children, true);
+
+				if (intersects[0].object.name == "jiantou") {
+					alert()
+				}
 			}
 			document.addEventListener('click', pickupObjects, false); //监听单击拾取对象初始化球体
 
@@ -368,8 +429,10 @@
 				if (id == "haibao") {
 					document.getElementsByClassName("lti_haibao")[0].style.display = "flex";
 				}
+				if (id == "taobao") {
+					window.open("https://www.baidu.com/")
+				}
 			}
-
 
 			$(document).keydown(function(event) {
 				if (event.keyCode == 27) {
