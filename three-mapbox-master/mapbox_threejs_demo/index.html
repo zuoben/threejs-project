@@ -68,6 +68,7 @@
 	</head>
 	<body>
 		<script src="https://unpkg.com/three@0.126.0/build/three.min.js"></script>
+		<script src="https://unpkg.com/three@0.126.0/examples/js/loaders/DRACOLoader.js"></script>
 		<script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
 		<!-- <pre id="info"></pre> -->
 		<div id="map"></div>
@@ -76,16 +77,23 @@
 			// ADD YOUR ACCESS TOKEN FROM
 			// https://account.mapbox.com
 			mapboxgl.accessToken = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
+			var bounds = [
+			[124.70807959428063, 44.272345443754745], // Southwest coordinates
+			[124.85932153159754, 44.32953688658034]  // Northeast coordinates
+			];
 			const map = new mapboxgl.Map({
 				container: 'map',
 				style: 'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
 				// style: 'mapbox://styles/mapbox/satellite-streets-v11',
 				// style: 'mapbox://mapbox.mapbox-terrain-dem-v1', // style URL
 				// zoom: 18,
-				zoom: 1,
+				// zoom: 1,
+				minZoom: 20,  // 地图最小缩放级别（0-24）
+				maxZoom: 21, // 地图最大缩放级别（0-24）
 				center: [124.79340084, 44.30442681],
-				pitch: 85,
+				pitch: 88,
 				projection: 'globe',
+				maxBounds: bounds, // 限制加载区域
 				antialias: true // create the gl context with MSAA antialiasing, so custom layers are antialiased
 			});
 
@@ -309,17 +317,72 @@
 					directionalLight2.position.set(0, 70, 100).normalize();
 					// this.scene.add(directionalLight2);
 
+
+					const dracoLoader = new THREE.DRACOLoader();
+
+					dracoLoader.setDecoderPath('draco/');
+					dracoLoader.setDecoderConfig({type: 'js'});
+					
 					// use the three.js GLTF loader to add the 3D model to the three.js scene
 					const loader = new THREE.GLTFLoader();
+					loader.setDRACOLoader(dracoLoader);
 					loader.load(
-						'2222.glb',
+						'3.glb',
 						(gltf) => {
 							let mesh = gltf.scene;
-							console.log(mesh)
+							// console.log(mesh)
 							// mesh.scale.set(1, 1, 1);
 							mesh.rotation.y = -0.05 * Math.PI;
 							this.scene.add(mesh);
 							methArr = mesh;
+							
+							
+							loader.load(
+								'4.glb',
+								(gltf) => {
+									let mesh = gltf.scene;
+									// console.log(mesh)
+									// mesh.scale.set(1, 1, 1);
+									mesh.rotation.y = -0.05 * Math.PI;
+									this.scene.add(mesh);
+									methArr = mesh;
+									
+									loader.load(
+										'1.glb',
+										(gltf) => {
+											let mesh = gltf.scene;
+											// console.log(mesh)
+											// mesh.scale.set(1, 1, 1);
+											mesh.rotation.y = -0.05 * Math.PI;
+											this.scene.add(mesh);
+											methArr = mesh;
+										}
+									);
+								}
+							);
+							loader.load(
+								'2.glb',
+								(gltf) => {
+									let mesh = gltf.scene;
+									// console.log(mesh)
+									// mesh.scale.set(1, 1, 1);
+									mesh.rotation.y = -0.05 * Math.PI;
+									this.scene.add(mesh);
+									methArr = mesh;
+									
+									loader.load(
+										'5.glb',
+										(gltf) => {
+											let mesh = gltf.scene;
+											// console.log(mesh)
+											// mesh.scale.set(1, 1, 1);
+											mesh.rotation.y = -0.05 * Math.PI;
+											this.scene.add(mesh);
+											methArr = mesh;
+										}
+									);
+								}
+							);
 						}
 					);
 					this.map = map;
@@ -411,13 +474,13 @@
 			};
 
 			// map.on('mousemove', (e) => {
-				// document.getElementById('info').innerHTML =
-				// `e.point` is the x, y coordinates of the `mousemove` event
-				// relative to the top-left corner of the map.
-				// JSON.stringify(e.point) +
-				// '<br />' +
-				// `e.lngLat` is the longitude, latitude geographical position of the event.
-				// JSON.stringify(e.lngLat.wrap());
+			// document.getElementById('info').innerHTML =
+			// `e.point` is the x, y coordinates of the `mousemove` event
+			// relative to the top-left corner of the map.
+			// JSON.stringify(e.point) +
+			// '<br />' +
+			// `e.lngLat` is the longitude, latitude geographical position of the event.
+			// JSON.stringify(e.lngLat.wrap());
 			// });
 			map.on('click', (e) => {
 				console.log(e.lngLat.wrap())
@@ -572,8 +635,8 @@
 					'type': 'geojson',
 					'data': {
 						'type': 'FeatureCollection',
-						
-						
+
+
 						'features': [{
 							'type': 'Feature',
 							'properties': {
@@ -604,7 +667,7 @@
 						'line-color': ['get', 'color']
 					}
 				});
-				
+
 				// evening
 				// map.setFog({
 				// 	color: 'rgb(186, 210, 235)', // Lower atmosphere
@@ -613,10 +676,10 @@
 				// 	'space-color': 'rgb(11, 11, 25)', // Background color
 				// 	'star-intensity': 0.6 // Background star brightness (default 0.35 at low zoooms )
 				// });
-				
+
 				// add the DEM source as a terrain layer with exaggerated height
 				// map.setTerrain({ 'source': 'lines', 'exaggeration': 1.5 });
-				
+
 				// daytime
 				map.setFog({
 					'horizon-blend': 0.3,
