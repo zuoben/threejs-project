@@ -169,14 +169,13 @@
 				controls.autoRotate = true;
 				controls.autoRotateSpeed = 0;
 				//设置相机距离原点的最远距离
-				controls.minDistance = 1;
+				controls.minDistance = 100;
 				//设置相机距离原点的最远距离
 				controls.maxDistance = 1200;
 				//是否开启右键拖拽
 				controls.enablePan = false
 				//是否开启旋转
 				controls.enableRotate = false
-				this.controls = controls
 
 				return controls
 			}
@@ -184,14 +183,7 @@
 			function OneScene() {
 				//camera
 				this.camera = new THREE.PerspectiveCamera(170, el.offsetWidth / el.offsetHeight, 0.1, 10000)
-				// camera = this.camera;
-				// this.camera.position.x = 3000;
-				// this.camera.position.y = 0;
-				// this.camera.position.z = 60;
-
-				this.camera.position.x = 0;
 				this.camera.position.y = 1200;
-				this.camera.position.z = 0;
 
 				// Setup scene
 				this.scene = new THREE.Scene();
@@ -230,22 +222,19 @@
 			const sceneB = new OneScene()
 
 			setTimeout(function() {
-				var mesh = sceneA.scene.getObjectByName("mesh_a");
 				new TWEEN.Tween({
 						fov: 170,
 						ars: 40,
 					})
 					.to({
 						fov: 130,
-						ars: 0.2,
+						ars: 0,
 					}, 3200)
 					.easing(TWEEN.Easing.Quadratic.Out)
 					.onComplete(function() {
 						$(".welPage").css("display", "flex")
-						// sceneA.controls.autoRotateSpeed = 0.4;
 					})
 					.onUpdate(function() {
-						// console.log(this.fov)
 						sceneA.camera.fov = this.fov;
 						sceneA.camera.updateProjectionMatrix()
 						sceneA.controls.autoRotateSpeed = this.ars;
@@ -255,43 +244,40 @@
 
 			$("#btn_css").on("click", function() {
 				$(".welPage").addClass("animate__fadeOut");
-				// $(".welPage").css("display", "none");
+
 				var mesh = sceneA.scene.getObjectByName("mesh_a");
-				// sceneA.controls.autoRotateSpeed = 15;
-				var yn = 0;
+				const cameraLook = new THREE.Vector3();
+				sceneA.controls.object.getWorldDirection(cameraLook);
 
 				new TWEEN.Tween({
 						fov: 130,
-						y: 0,
-						z: 0,
-						x: 0,
-						ars: 15,
+						y: sceneA.camera.position.y,
+						z: cameraLook.z,
+						x: cameraLook.x,
 					})
 					.to({
-						fov: 40,
-						y: 600,
-						z: 60,
+						fov: 50,
+						y: 0,
+						z: 600,
 						x: 600,
-						ars: 0,
 					}, 5000)
 					.easing(TWEEN.Easing.Quadratic.Out)
 					.onComplete(function() {
+						// sceneA.controls.autoRotateSpeed = 0.2;
 						sceneA.controls.enableRotate = true;
 						sceneA.controls.enableZoom = true;
 					})
 					.onUpdate(function() {
-						sceneA.controls.autoRotateSpeed = this.ars;
 						sceneA.camera.fov = this.fov;
 						sceneA.camera.updateProjectionMatrix()
-						// console.log(sceneA.camera.position)
-						// console.log(sceneA.controls.object.position)
-						// sceneA.controls.target.set(this.z, this.y, this.z);
-						// sceneA.controls.update();
-						sceneA.camera.position.x = 600 - this.x;
-						// yn += this.y;
-						sceneA.camera.position.y = 1200 - this.y;
-						console.log(sceneA.camera.position)
-						// sceneA.camera.position.z = this.z;
+						mesh.rotation.y += 0.007;
+
+						sceneA.camera.position.y = this.y;
+						
+						console.log(cameraLook)
+
+						const target = new THREE.Vector3(this.x, cameraLook.y, this.z);
+						sceneA.controls.object.lookAt(target);
 					})
 					.start();
 			})
