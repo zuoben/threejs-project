@@ -261,7 +261,7 @@
 						z: 600,
 						x: 600,
 					}, 5000)
-					.easing(TWEEN.Easing.Quadratic.Out)
+					.easing(TWEEN.Easing.Linear.None)
 					.onComplete(function() {
 						// sceneA.controls.autoRotateSpeed = 0.2;
 						sceneA.controls.enableRotate = true;
@@ -273,11 +273,10 @@
 						mesh.rotation.y += 0.007;
 
 						sceneA.camera.position.y = this.y;
-						
-						console.log(cameraLook)
 
 						const target = new THREE.Vector3(this.x, cameraLook.y, this.z);
 						sceneA.controls.object.lookAt(target);
+						// sceneA.controls.target = targets;
 					})
 					.start();
 			})
