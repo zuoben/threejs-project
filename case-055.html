@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>全景故宫</title>
+		<title>舒迈科技-单场景</title>
 		<meta charset="utf-8">
-		<script type="text/javascript" src="libs/statistics.js"></script>
-		<script type="text/javascript" src="libs/steak.js"></script>
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-
+		<script type="text/javascript" src="libs/jquery-1.11.2.min.js"></script>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 		<style>
 			@font-face {
 				font-family: "HYQuanTangShiJ";
@@ -20,6 +19,7 @@
 
 			.lt_item {
 				position: absolute;
+				display: none;
 			}
 
 			.lti_top {
@@ -70,20 +70,67 @@
 				font-family: HYQuanTangShiJ;
 				cursor: pointer;
 			}
+
 			.title:hover {
 				color: #fad194;
+			}
+
+			.welPage {
+				position: absolute;
+				top: 0;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				flex-direction: column;
+				width: 100%;
+				height: 100%;
+				display: none;
+			}
+
+			.welPage #welPage_bg {
+				width: 660px;
+				height: 660px;
+			}
+
+			.welPage_top {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+
+			.welPage_top .title_img {
+				position: absolute;
+			}
+
+			.welPage #btn_css {
+				width: 10%;
+				cursor: pointer;
+				margin-top: -3%;
+			}
+
+			.title_img #welPage_text {
+				width: 100px;
 			}
 		</style>
 	</head>
 	<body>
-		<div class="lt_item">
+		<div class="lt_item animate__animated">
 			<div class="lti_top">
-				<!-- <img class="maobizi" src="assets/datanglingjiang/maobizi.png" /> -->
-				<!-- <div><img class="look" src="assets/datanglingjiang/look.png"><span>755686454</span></div> -->
+				<img class="maobizi" src="assets/bgImage/shumai/chuangkedajie.png" />
+				<div><img class="look" src="assets/datanglingjiang/look.png"><span>755686454</span></div>
 			</div>
 			<div class="lti_down">
 				<img src="assets/datanglingjiang/map_icon.png">
 			</div>
+		</div>
+		<div id="welPage" class="welPage animate__animated animate__fadeIn">
+			<div class="welPage_top">
+				<img id="welPage_bg" src="assets/bgImage/shumai/welPage-circle-background.png" alt="">
+				<div class="title_img">
+					<img id="welPage_text" src="assets/bgImage/shumai/title.png" alt="">
+				</div>
+			</div>
+			<img id="btn_css" src="assets/bgImage/shumai/jinruquanjing.png" />
 		</div>
 		<div id="container"></div>
 
@@ -99,16 +146,22 @@
 			import * as THREE from 'three';
 
 			import {
+				OrbitControls
+			} from './libs/jsm/OrbitControls.js';
+
+			import {
+				TWEEN
+			} from './libs/jsm/tween.module.min.js';
+
+			import {
 				CSS2DRenderer,
 				CSS2DObject
 			} from './libs/jsm/CSS2DRenderer.js';
-			// import {
-			// 	CSS2DRenderer,
-			// 	CSS2DObject
-			// } from './libs/jsm/CSS2DRenderer.js';
-			let camera, scene, scene2, renderer, renderer2;
 
-			let isUserInteracting = false,
+			var camera, scene, controls, renderer, renderer2;
+			var bool = true;
+
+			var isUserInteracting = false,
 				onPointerDownMouseX = 0,
 				onPointerDownMouseY = 0,
 				lon = 0,
@@ -121,19 +174,48 @@
 			init();
 			animate();
 
+			function initControls(camera, renderer) {
+				let controls = new OrbitControls(camera, renderer.domElement)
+				// 如果使用animate方法时，将此函数删除
+				//controls.addEventListener( 'change', render );
+				// 使动画循环使用时阻尼或自转 意思是否有惯性
+				controls.enableDamping = true;
+				//动态阻尼系数 就是鼠标拖拽旋转灵敏度
+				controls.dampingFactor = 1.4;
+				//是否可以缩放
+				controls.enableZoom = true;
+				//是否自动旋转
+				controls.autoRotate = true;
+				controls.autoRotateSpeed = 0;
+				//设置相机距离原点的最远距离
+				controls.minDistance = 100;
+				//设置相机距离原点的最远距离
+				controls.maxDistance = 1200;
+				//是否开启右键拖拽
+				controls.enablePan = false
+				//是否开启旋转
+				controls.enableRotate = false
+				return controls
+			}
+
 			function init() {
-
 				const container = document.getElementById('container');
-
-				camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1100);
-
 				scene = new THREE.Scene();
 
-				const geometry = new THREE.SphereGeometry(500, 60, 40);
-				// invert the geometry on the x-axis so that all of the faces point inward
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio(window.devicePixelRatio);
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				container.appendChild(renderer.domElement);
+
+				camera = new THREE.PerspectiveCamera(170, window.innerWidth / window.innerHeight, 0.1, 10000);
+				camera.position.set(0, 1200, 0);
+
+				controls = initControls(camera, renderer);
+
+				const geometry = new THREE.SphereGeometry(1200, 1200, 1200);
 				geometry.scale(-1, 1, 1);
 
-				const texture = new THREE.TextureLoader().load('assets/bgImage/shumai/001.jpg');
+				const texture = new THREE.TextureLoader().load('assets/bgImage/shumai/000.jpg');
 				const material = new THREE.MeshBasicMaterial({
 					map: texture
 				});
@@ -142,23 +224,17 @@
 
 				scene.add(mesh);
 
-
-				renderer = new THREE.WebGLRenderer();
-				renderer.setPixelRatio(window.devicePixelRatio);
-				renderer.setSize(window.innerWidth, window.innerHeight);
-				container.appendChild(renderer.domElement);
-
-				renderer2 = new CSS2DRenderer();
-				renderer2.domElement.style.position = 'absolute';
-				renderer2.domElement.style.top = 0;
-				renderer2.setSize(window.innerWidth, window.innerHeight);
-				container.appendChild(renderer2.domElement);
+				// renderer2 = new CSS2DRenderer();
+				// renderer2.domElement.style.position = 'absolute';
+				// renderer2.domElement.style.top = 0;
+				// renderer2.setSize(window.innerWidth, window.innerHeight);
+				// container.appendChild(renderer2.domElement);
 
 
-				container.style.touchAction = 'none';
-				container.addEventListener('pointerdown', onPointerDown);
+				// container.style.touchAction = 'none';
+				// container.addEventListener('pointerdown', onPointerDown);
 
-				document.addEventListener('wheel', onDocumentMouseWheel);
+				// document.addEventListener('wheel', onDocumentMouseWheel);
 
 
 
@@ -168,94 +244,113 @@
 				// number.className = 'title';
 				// number.textContent = "兴庆宫";
 				// element.appendChild(number);
-				const pos1 = new THREE.Vector3(20, 7, -1);
-				const xqgEle = crateElment("兴庆宫", pos1);
-				scene.add(xqgEle);
-				
-				const pos2 = new THREE.Vector3(-150, 387, -850);
-				const dsEle = crateElment("东市", pos2);
-				scene.add(dsEle);
-				
-				const pos3 = new THREE.Vector3(20, 57, 170);
-				const xsEle = crateElment("西市", pos3);
-				scene.add(xsEle);
-				
-				const pos4 = new THREE.Vector3(-500, 157, -200);
-				const tjgEle = crateElment("太极宫", pos4);
-				scene.add(tjgEle);
-				
-				const pos5 = new THREE.Vector3(-220, 80, 200);
-				const dmgEle = crateElment("大明宫", pos5);
-				scene.add(dmgEle);
+				// const pos1 = new THREE.Vector3(20, 7, -1);
+				// const xqgEle = crateElment("兴庆宫", pos1);
+				// scene.add(xqgEle);
 
+				// const pos2 = new THREE.Vector3(-150, 387, -850);
+				// const dsEle = crateElment("东市", pos2);
+				// scene.add(dsEle);
 
-				// 创建一个球体
-				// var sphereGeometry = new THREE.SphereGeometry(4, 20, 20);
-				// var sphereMaterial = new THREE.MeshBasicMaterial({
-				// 	color: 0x7777ff,
-				// 	wireframe: true // 线性
-				// });
-				// var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-				// // 位置范围
-				// sphere.position.x = 20;
-				// sphere.position.y = 4;
-				// sphere.position.z = 2;
-				// scene.add( sphere );
-				// 	document.addEventListener('dragover', function(event) {
+				// const pos3 = new THREE.Vector3(20, 57, 170);
+				// const xsEle = crateElment("西市", pos3);
+				// scene.add(xsEle);
 
-				// 		event.preventDefault();
-				// 		event.dataTransfer.dropEffect = 'copy';
+				// const pos4 = new THREE.Vector3(-500, 157, -200);
+				// const tjgEle = crateElment("太极宫", pos4);
+				// scene.add(tjgEle);
 
-				// 	});
+				// const pos5 = new THREE.Vector3(-220, 80, 200);
+				// const dmgEle = crateElment("大明宫", pos5);
+				// scene.add(dmgEle);
 
-				// 	document.addEventListener('dragenter', function() {
-
-				// 		document.body.style.opacity = 0.5;
-
-				// 	});
-
-				// 	document.addEventListener('dragleave', function() {
-
-				// 		document.body.style.opacity = 1;
-
-				// 	});
-
-				// 	document.addEventListener('drop', function(event) {
-
-				// 		event.preventDefault();
-
-				// 		const reader = new FileReader();
-				// 		reader.addEventListener('load', function(event) {
-
-				// 			material.map.image.src = event.target.result;
-				// 			material.map.needsUpdate = true;
-
-				// 		});
-				// 		reader.readAsDataURL(event.dataTransfer.files[0]);
-
-				// 		document.body.style.opacity = 1;
-
-				// 	});
-
-				// 	//
 
 				window.addEventListener('resize', onWindowResize);
 
+
+				setTimeout(function() {
+					new TWEEN.Tween({
+							fov: 170,
+							ars: 40,
+						})
+						.to({
+							fov: 130,
+							ars: 0,
+						}, 2300)
+						.easing(TWEEN.Easing.Quadratic.Out)
+						.onComplete(function() {
+							$(".welPage").css("display", "flex")
+						})
+						.onUpdate(function(t) {
+							controls.object.fov = t.fov;
+							controls.object.updateProjectionMatrix()
+
+							controls.autoRotateSpeed = t.ars;
+							controls.update();
+						})
+						.start();
+				}, 1000)
+
+
+
+				$("#btn_css").on("click", function() {
+					$(".welPage").addClass("animate__fadeOut");
+					setTimeout(function() {
+						$(".welPage").css("display", "none")
+					}, 1000)
+
+					const cameraLook = new THREE.Vector3();
+					camera.getWorldDirection(cameraLook);
+
+					new TWEEN.Tween({
+							fov: camera.fov,
+							x: cameraLook.x,
+							y: cameraLook.y,
+							z: cameraLook.z,
+							cy: camera.position.y,
+						})
+						.to({
+							fov: 70,
+							x: 0,
+							y: 0,
+							z: 1200,
+							cy: 0,
+						}, 5000)
+						.easing(TWEEN.Easing.Linear.None)
+						.onComplete(function() {
+							controls.autoRotateSpeed = 0.2;
+							controls.enableRotate = true;
+							controls.enableZoom = true;
+							$(".lt_item").addClass("animate__fadeInLeft");
+							$(".lt_item").css("display", "block")
+						})
+						.onUpdate(function(t) {
+							camera.fov = t.fov;
+							camera.updateProjectionMatrix();
+
+							camera.position.y = t.cy;
+
+							const target = new THREE.Vector3(t.x, t.y, t.z);
+							camera.lookAt(target);
+						})
+						.start();
+				})
+
 			}
-			
-			function crateElment(text, pos) {
-				const element = document.createElement('div');
-				element.className = 'element_title';
-				const number = document.createElement('div');
-				number.className = 'title';
-				number.textContent = text;
-				element.appendChild(number);
-				const objectCSS = new CSS2DObject(element);
-				objectCSS.position.x = pos.x;
-				objectCSS.position.y = pos.y;
-				objectCSS.position.z = pos.z;
-				return objectCSS;
-			}
+
+			// function crateElment(text, pos) {
+			// 	const element = document.createElement('div');
+			// 	element.className = 'element_title';
+			// 	const number = document.createElement('div');
+			// 	number.className = 'title';
+			// 	number.textContent = text;
+			// 	element.appendChild(number);
+			// 	const objectCSS = new CSS2DObject(element);
+			// 	objectCSS.position.x = pos.x;
+			// 	objectCSS.position.y = pos.y;
+			// 	objectCSS.position.z = pos.z;
+			// 	return objectCSS;
+			// }
 
 			function onWindowResize() {
 
@@ -263,53 +358,6 @@
 				camera.updateProjectionMatrix();
 
 				renderer.setSize(window.innerWidth, window.innerHeight);
-
-			}
-
-			function onPointerDown(event) {
-
-				if (event.isPrimary === false) return;
-
-				isUserInteracting = true;
-
-				onPointerDownMouseX = event.clientX;
-				onPointerDownMouseY = event.clientY;
-
-				onPointerDownLon = lon;
-				onPointerDownLat = lat;
-
-				document.addEventListener('pointermove', onPointerMove);
-				document.addEventListener('pointerup', onPointerUp);
-
-			}
-
-			function onPointerMove(event) {
-
-				if (event.isPrimary === false) return;
-
-				lon = (onPointerDownMouseX - event.clientX) * 0.1 + onPointerDownLon;
-				lat = (event.clientY - onPointerDownMouseY) * 0.1 + onPointerDownLat;
-
-			}
-
-			function onPointerUp() {
-
-				if (event.isPrimary === false) return;
-
-				isUserInteracting = false;
-
-				document.removeEventListener('pointermove', onPointerMove);
-				document.removeEventListener('pointerup', onPointerUp);
-
-			}
-
-			function onDocumentMouseWheel(event) {
-
-				const fov = camera.fov + event.deltaY * 0.05;
-
-				camera.fov = THREE.MathUtils.clamp(fov, 10, 75);
-
-				camera.updateProjectionMatrix();
 
 			}
 
@@ -321,26 +369,12 @@
 			}
 
 			function update() {
+				// controls.update();
 
-				if (isUserInteracting === false) {
-
-					lon += 0;
-
-				}
-
-				lat = Math.max(-85, Math.min(85, lat));
-				phi = THREE.MathUtils.degToRad(90 - lat);
-				theta = THREE.MathUtils.degToRad(lon);
-
-				const x = 500 * Math.sin(phi) * Math.cos(theta);
-				const y = 500 * Math.cos(phi);
-				const z = 500 * Math.sin(phi) * Math.sin(theta);
-
-				camera.lookAt(x, y, z);
+				TWEEN.update();
 
 				renderer.render(scene, camera);
-				renderer2.render(scene, camera);
-
+				// renderer2.render(scene, camera);
 
 			}
 		</script>

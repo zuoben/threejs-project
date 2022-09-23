@@ -146,6 +146,10 @@
 			const clock = new THREE.Clock(); //声明一个时钟对象
 			const textures = []
 			const loader = new THREE.TextureLoader()
+			
+			
+			var sceneA = new OneScene()
+			var sceneB = new OneScene()
 
 			const transitionParams = {
 				useTexture: true, //为 false 默认采用渐变式
@@ -184,6 +188,7 @@
 				//camera
 				this.camera = new THREE.PerspectiveCamera(170, el.offsetWidth / el.offsetHeight, 0.1, 10000)
 				this.camera.position.y = 1200;
+				// this.camera.lookAt(new THREE.Vector3(0, 1200, 0));
 
 				// Setup scene
 				this.scene = new THREE.Scene();
@@ -213,70 +218,40 @@
 					}
 
 					renderer2.render(this.scene, this.camera);
-					this.controls.update()
+					// this.controls.update()
 					TWEEN.update();
 				}
 			}
 
-			const sceneA = new OneScene()
-			const sceneB = new OneScene()
-
-			setTimeout(function() {
-				new TWEEN.Tween({
-						fov: 170,
-						ars: 40,
-					})
-					.to({
-						fov: 130,
-						ars: 0,
-					}, 3200)
-					.easing(TWEEN.Easing.Quadratic.Out)
-					.onComplete(function() {
-						$(".welPage").css("display", "flex")
-					})
-					.onUpdate(function() {
-						sceneA.camera.fov = this.fov;
-						sceneA.camera.updateProjectionMatrix()
-						sceneA.controls.autoRotateSpeed = this.ars;
-					})
-					.start();
-			}, 10)
-
 			$("#btn_css").on("click", function() {
 				$(".welPage").addClass("animate__fadeOut");
 
-				var mesh = sceneA.scene.getObjectByName("mesh_a");
-				const cameraLook = new THREE.Vector3();
-				sceneA.controls.object.getWorldDirection(cameraLook);
-
 				new TWEEN.Tween({
 						fov: 130,
-						y: sceneA.camera.position.y,
-						z: cameraLook.z,
-						x: cameraLook.x,
+						y: 1200,
+						z: 0,
+						x: 0,
 					})
 					.to({
-						fov: 50,
+						fov: 70,
 						y: 0,
 						z: 600,
-						x: 600,
-					}, 5000)
+						x: 0,
+					}, 3000)
 					.easing(TWEEN.Easing.Linear.None)
 					.onComplete(function() {
-						// sceneA.controls.autoRotateSpeed = 0.2;
+						sceneA.controls.autoRotateSpeed = 0.2;
 						sceneA.controls.enableRotate = true;
 						sceneA.controls.enableZoom = true;
 					})
 					.onUpdate(function() {
 						sceneA.camera.fov = this.fov;
-						sceneA.camera.updateProjectionMatrix()
-						mesh.rotation.y += 0.007;
+						sceneA.camera.updateProjectionMatrix();
 
-						sceneA.camera.position.y = this.y;
+						// sceneA.camera.position.y = this.y;
 
-						const target = new THREE.Vector3(this.x, cameraLook.y, this.z);
-						sceneA.controls.object.lookAt(target);
-						// sceneA.controls.target = targets;
+						const target = new THREE.Vector3(this.x, 0, this.z);
+						sceneA.camera.lookAt(target);
 					})
 					.start();
 			})
@@ -458,6 +433,28 @@
 
 					}
 				})
+				
+				setTimeout(function() {
+					new TWEEN.Tween({
+							fov: 170,
+							ars: 40,
+						})
+						.to({
+							fov: 130,
+							ars: 0,
+						}, 3200)
+						.easing(TWEEN.Easing.Quadratic.Out)
+						.onComplete(function() {
+							$(".welPage").css("display", "flex")
+						})
+						.onUpdate(function() {
+							sceneA.controls.autoRotateSpeed = this.ars;
+							sceneA.camera.fov = this.fov;
+							sceneA.camera.updateProjectionMatrix()
+							sceneA.controls.update()
+						})
+						.start();
+				}, 500)
 			}
 			window.onload = init;
 

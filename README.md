@@ -24,6 +24,9 @@ threejs学习案例
 1，手机拍摄全景图并且使用Threejs实现VR全景
 2，web3D全景图分隔链接地址，动画链接地址，shader学习链接地址，案例文档链接地址...
 
+培训课程，宫灯效果，Tween文档说明
+
+
 
 
 本群专注Web3DThreeJs学习交流，主要是给大家一个交流平台，方便知识分享。
@@ -32,9 +35,17 @@ threejs学习案例
 群内禁止骂人、吵架、人身攻击；禁止在群内发不良信息。禁止其他微信群二维码，广告，点赞/加速/拼单等各种链接！
 
 --- 案例Demo ---
+
 http://zuoben.top 
+
 供大家学习参考，源码素材自己扒。
 
 --- 资源地址 ---
 
-http://sole.github.io/tween.js/examples/03_graphs.html
+Tween.js动画：	http://sole.github.io/tween.js/examples/03_graphs.html
+
+ShaderToy效果：	https://www.shadertoy.com/browse
+
+全景图转换网站：	https://jaxry.github.io/panorama-to-cubemap/
+				https://360toolkit.co/convert-spherical-equirectangular-tocubemap.html
+				
