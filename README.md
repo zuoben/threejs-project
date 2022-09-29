@@ -26,6 +26,8 @@ threejs学习案例
 
 培训课程，宫灯效果，Tween文档说明
 
+VR全景，VR看房Threejs实现  动画效果进场
+
 
 
 
