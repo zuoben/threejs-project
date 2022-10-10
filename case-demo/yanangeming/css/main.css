@@ -1,0 +1,94 @@
+html,
+body {
+	margin: 0;
+	background-color: #000;
+	color: #fff;
+	font-family: Monospace;
+	font-size: 13px;
+	line-height: 24px;
+	width: 100%;
+	height: 100%;
+}
+
+html,
+body #container {
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+}
+
+#progress {
+	position: absolute;
+	width: 100%;
+	height: 3px;
+}
+
+#bar {
+	background-color: #fff;
+	height: 100%;
+	transition: width 0.1s ease;
+}
+
+#bar.hide {
+	opacity: 0;
+	transition: opacity 1s ease;
+}
+
+#audio-play-button {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  /*display: none;*/
+  padding: 10px;
+  font-size: 16px;
+}
+
+a {
+	color: #ff0;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+button {
+	cursor: pointer;
+	text-transform: uppercase;
+}
+
+canvas {
+	display: block;
+}
+
+#info {
+	position: absolute;
+	top: 0px;
+	width: 100%;
+	padding: 10px;
+	box-sizing: border-box;
+	text-align: center;
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	pointer-events: none;
+	z-index: 1;
+	/* TODO Solve this in HTML */
+}
+
+a,
+button,
+input,
+select {
+	pointer-events: auto;
+}
+
+.dg.ac {
+	-moz-user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+	z-index: 2 !important;
+	/* TODO Solve this in HTML */
+}

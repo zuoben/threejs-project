@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - scenes transition</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+
+			.status {
+				width: 30px;
+				height: 30px;
+				position: relative;
+				cursor: pointer;
+			}
+
+			.solid {
+				width: 100%;
+				height: 100%;
+				position: absolute;
+				z-index: 999;
+				left: 0;
+				top: 0;
+				background: #fff;
+				border-radius: 100%;
+			}
+
+			.status .animate1,
+			.status .animate2 {
+				background: #fff;
+				width: 30px;
+				height: 30px;
+				border-radius: 100%;
+				position: absolute;
+				left: 0;
+				top: 0;
+				z-index: 1;
+			}
+
+			@keyframes circle {
+				0% {
+					-webkit-transform: scale(1);
+					transform: scale(1);
+					opacity: 1;
+				}
+
+				100% {
+					-webkit-transform: scale(1.8);
+					transform: scale(1.8);
+					opacity: 0.1;
+				}
+			}
+
+			.status .animate1 {
+				-webkit-animation: circle 2s 0s ease-out infinite running;
+				animation: circle 2s 0s ease-out infinite running;
+			}
+
+			.status .animate2 {
+				-webkit-animation: circle 2s 1s ease-out infinite running;
+				animation: circle 2s 1s ease-out infinite running;
+			}
+
+			.element_title {
+				width: 25px;
+				padding: 15px 5px !important;
+				background: rgba(43, 53, 78, .2);
+				border-top: 2px solid #d39f51;
+				border-bottom: 2px solid #d39f51;
+				border-left: 1px solid rgba(213, 170, 104, .5);
+				border-right: 1px solid rgba(213, 170, 104, .5);
+				-webkit-box-shadow: 4px 3px 17px rgb(8 17 39 / 30%);
+				box-shadow: 4px 3px 17px rgb(8 17 39 / 30%);
+			}
+
+			.title {
+				font-size: 25px;
+				color: #fff;
+				letter-spacing: 3.6px;
+				line-height: 30px;
+				layout-flow: vertical-ideographic;
+				text-align: center;
+				font-family: HYQuanTangShiJ;
+				cursor: pointer;
+			}
+
+			.title:hover {
+				color: #fad194;
+			}
+
+			.lt_item {
+				position: absolute;
+				display: flex;
+				align-content: center;
+				justify-content: center;
+				width: 100%;
+				height: 100%;
+			}
+
+			.lti_layer {
+				width: 100%;
+				height: 100%;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				background-color: #00000085;
+				display: none;
+				z-index: 3;
+			}
+
+			.lti_haibao img {
+				width: 18%;
+			}
+
+			.lti_shipin video {
+				width: 50%;
+			}
+			.lti_win iframe {
+				width: 70%;
+				height: 700px;
+			}
+			.ThemeMenu {
+			    width: 100%;
+				height: 100px;
+			    bottom: 100px;
+			    left: 0;
+			    position: fixed;
+			    right: 0;
+			    z-index: 4001;
+			    background: rgba(0,0,0,.3);
+			    color: #fff;
+				display: flex;
+				justify-content: center;
+			}
+			.ThemeMenu .ImageMenuContent {
+				margin: 10px;
+				width: 85px;
+				border-radius: 5px;
+				cursor: pointer;
+				border: 2px solid #fff;
+			}
+			.ThemeMenu .ImageMenuContent img {
+				width: 100%;
+				height: 100%;
+				border-radius: 5px;
+			}
+			.ThemeMenu .selected {
+				border: 2px solid #fa6400;
+			}
+		</style>
+	</head>
+	<body>
+		<!-- <div class="lt_item">
+			<div class="lti_haibao lti_layer">
+				<img src="assets/bgImage/shumai/haibao.jpg">
+			</div>
+			<div class="lti_shipin lti_layer">
+				<video src="assets/bgImage/ruixing.mp4" autoplay muted preload
+					controls="controls" webkit-playsinline="webkit-playsinline"></video>
+			</div>
+			<div class="lti_win lti_layer">
+				<iframe src="https://item.jd.com/10033048864972.html" frameborder="0"></iframe>
+			</div>
+		</div> -->
+		<div class="ThemeMenu">
+			<div class="ImageMenuContent selected" id="01">
+				<img src="img/0、序言/01.jpg" alt="01">
+			</div>
+			<div class="ImageMenuContent" id="02">
+				<img src="img/0、序言/02.jpg" alt="02">
+			</div>
+		</div>
+		<div id="container"></div>
+		<script src="js/jquery-1.11.2.min.js"></script>
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "./js/three.module.js"
+				}
+			}
+		</script>
+
+		<script type="module">
+			import * as THREE from 'three';
+
+			import {
+				CSS2DRenderer,
+				CSS2DObject
+			} from './js/CSS2DRenderer.js';
+
+			import {
+				TWEEN
+			} from './js/tween.module.min.js';
+
+			import {
+				VRButton
+			} from './js/jsm/webxr/VRButton.js';
+
+			let container, stats;
+			let renderer;
+			let renderer2;
+			let transition;
+			let sceneA, sceneB, sceneC;
+
+			const transitionParams = {
+				// 'presentScene': "sceneB",
+				'useTexture': false,
+				'transition': 0,
+				'texture': 5,
+				'cycle': true,
+				'threshold': 0.3
+			};
+
+			const clock = new THREE.Clock();
+
+			init();
+			animate();
+
+			function init() {
+
+				container = document.getElementById('container');
+
+				renderer = new THREE.WebGLRenderer({
+					antialias: true
+				});
+				renderer.setPixelRatio(window.devicePixelRatio);
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				container.appendChild(renderer.domElement);
+				
+				renderer.xr.enabled = true;
+				container.appendChild(VRButton.createButton(renderer));
+
+				// renderer2 = new CSS2DRenderer();
+				// renderer2.domElement.style.position = 'absolute';
+				// renderer2.domElement.style.top = 0;
+				// renderer2.domElement.id = "label";
+				// renderer2.setSize(window.innerWidth, window.innerHeight);
+				// container.appendChild(renderer2.domElement);
+
+				const geometryA = new THREE.BoxGeometry(2, 2, 2);
+				const geometryB = new THREE.IcosahedronGeometry(1, 1);
+
+				// const mesh1 = generateInstancedMesh('img/0、序言/延安革命纪念馆大厅雕塑.jpg');
+				// const mesh2 = generateInstancedMesh('img/0、序言/伟大历程-前言.jpg');
+				// const mesh3 = generateInstancedMesh('img/1、中共中央和红军长征的落脚点/第二单元 西北革命根据地的创建与发展/01-中共陕西党团组织的建立.jpg');
+
+				const mesh1 = generateInstancedMesh('img/000.jpg');
+				const mesh2 = generateInstancedMesh('img/001.jpg');
+				const mesh3 = generateInstancedMesh('img/002.jpg');
+				
+				sceneA = new FXScene(mesh1, "sceneA");
+				sceneB = new FXScene(mesh2, "sceneB");
+				sceneC = new FXScene(mesh3, "sceneC");
+
+				transition = new Transition(sceneA, sceneB);
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame(animate);
+
+				render();
+			}
+
+			function render() {
+
+				transition.render(clock.getDelta());
+
+			}
+
+			function generateInstancedMesh(bgImage) {
+				const geometry = new THREE.SphereGeometry(500, 60, 40);
+				geometry.scale(-1, 1, 1);
+				const texture = new THREE.TextureLoader().load(bgImage);
+				const material = new THREE.MeshBasicMaterial({
+					map: texture
+				});
+				const mesh = new THREE.Mesh(geometry, material);
+				return mesh;
+			}
+
+			// function crateElmentHaibao(id, pos) {
+			// 	const waves = document.createElement('div');
+			// 	waves.id = id;
+			// 	waves.className = 'status';
+			// 	waves.addEventListener('click', haibaoFun, true);
+
+			// 	const solid = document.createElement('div');
+			// 	solid.className = 'solid';
+			// 	const animate1 = document.createElement('div');
+			// 	animate1.className = 'animate1';
+			// 	const animate2 = document.createElement('div');
+			// 	animate2.className = 'animate2';
+			// 	waves.appendChild(solid);
+			// 	waves.appendChild(animate1);
+			// 	waves.appendChild(animate2);
+
+			// 	const objectCSS = new CSS2DObject(waves);
+			// 	objectCSS.position.x = pos.x;
+			// 	objectCSS.position.y = pos.y;
+			// 	objectCSS.position.z = pos.z;
+			// 	objectCSS.layers.set(0);
+			// 	return objectCSS;
+			// }
+
+			// function haibaoFun(e) {
+			// 	let id = e.target.parentElement.id;
+			// 	if (id == "shipin") {
+			// 		document.getElementsByClassName("lti_shipin")[0].style.display = "flex";
+			// 	}
+			// 	if (id == "haibao") {
+			// 		document.getElementsByClassName("lti_haibao")[0].style.display = "flex";
+			// 	}
+			// 	if (id == "taobao") {
+			// 		document.getElementsByClassName("lti_win")[0].style.display = "flex";
+			// 	}
+			// }
+
+			// $(document).keydown(function(event) {
+			// 	if (event.keyCode == 27) {
+			// 		document.getElementsByClassName("lti_haibao")[0].style.display = "none";
+			// 		document.getElementsByClassName("lti_shipin")[0].style.display = "none";
+			// 		document.getElementsByClassName("lti_win")[0].style.display = "none";
+			// 	}
+			// });
+
+			function FXScene(mesh, name) {
+
+				let isUserInteracting = false,
+					onPointerDownMouseX = 0,
+					onPointerDownMouseY = 0,
+					lon = 0,
+					onPointerDownLon = 0,
+					lat = 0,
+					onPointerDownLat = 0,
+					phi = 0,
+					theta = 0;
+
+				const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
+				// camera.layers.enableAll();
+				// camera.layers.toggle(0);
+
+				const scene = new THREE.Scene();
+				scene.add(new THREE.AmbientLight(0x555555));
+				scene.add(mesh);
+
+				// const x = 0,
+				// 	y = 0;
+				// const fishShape = new THREE.Shape()
+				// 	.moveTo(x, y)
+				// 	.lineTo(x + 10, y)
+				// 	.lineTo(x + 10, y + 15)
+				// 	.lineTo(x + 15, y + 15)
+				// 	.lineTo(x + 5, y + 30)
+				// 	.lineTo(x - 5, y + 15)
+				// 	.lineTo(x, y + 15)
+				// 	.lineTo(x, y);
+
+
+				// let geometryFish = new THREE.ExtrudeGeometry(fishShape);
+
+				// let meshFish = new THREE.Mesh(geometryFish, new THREE.MeshPhongMaterial({
+				// 	color: "#00aa7f"
+				// }));
+				// meshFish.scale.set(0.1, 0.1, 0.1);
+				// meshFish.rotation.set(Math.PI / 2, Math.PI / 1.1, Math.PI / -2);
+
+				if (name == "sceneA") {
+					// meshFish.position.set(27, -5, 1);
+					// meshFish.rotation.set(Math.PI / 2, Math.PI / -1.1, Math.PI / 2);
+					// meshFish.name = "to_B"
+					// scene.add(meshFish);
+				}
+				if (name == "sceneB") {
+					// meshFish.name = "to_A";
+					// meshFish.position.set(-27, -5, 1);
+					// scene.add(meshFish);
+
+					// let m = meshFish.clone();
+					// m.rotation.set(Math.PI / 2, Math.PI / -1.1, Math.PI / 2);
+					// m.name = "to_C"
+					// m.position.set(27, -5, 1);
+					// scene.add(m);
+				}
+				if (name == "sceneC") {
+					// meshFish.name = "to_B";
+					// meshFish.position.set(-27, -5, 1);
+					// scene.add(meshFish);
+				}
+
+				if (name == "sceneC") {
+
+					// const pos1 = new THREE.Vector3(-50, -8, 40);
+					// const xqgEle = crateElmentHaibao("taobao", pos1);
+					// scene.add(xqgEle);
+
+					// const pos2 = new THREE.Vector3(-100, -8, -35);
+					// const dsEle = crateElmentHaibao("haibao", pos2);
+					// scene.add(dsEle);
+
+					// const pos3 = new THREE.Vector3(100, -10, 40);
+					// const vEle = crateElmentHaibao("shipin", pos3);
+					// scene.add(vEle);
+				}
+
+				const light = new THREE.SpotLight(0xffffff, 1.5);
+				light.position.set(0, 500, 2000);
+				scene.add(light);
+
+				this.fbo = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
+
+
+				container.addEventListener('pointerdown', onPointerDown);
+
+				document.addEventListener('wheel', onDocumentMouseWheel);
+
+				window.addEventListener('resize', onWindowResize);
+
+				function onWindowResize() {
+
+					camera.aspect = window.innerWidth / window.innerHeight;
+					camera.updateProjectionMatrix();
+
+					renderer.setSize(window.innerWidth, window.innerHeight);
+					// renderer2.setSize( window.innerWidth, window.innerHeight );
+					
+					
+					renderer.render(scene, camera);
+					// renderer2.render(scene, camera);
+					
+				}
+
+				function onPointerDown(event) {
+
+					if (event.isPrimary === false) return;
+
+					isUserInteracting = true;
+
+					onPointerDownMouseX = event.clientX;
+					onPointerDownMouseY = event.clientY;
+
+					onPointerDownLon = lon;
+					onPointerDownLat = lat;
+
+					document.addEventListener('pointermove', onPointerMove);
+					document.addEventListener('pointerup', onPointerUp);
+
+				}
+
+				function onPointerMove(event) {
+
+					if (event.isPrimary === false) return;
+
+					lon = (onPointerDownMouseX - event.clientX) * 0.1 + onPointerDownLon;
+					lat = (event.clientY - onPointerDownMouseY) * 0.1 + onPointerDownLat;
+
+				}
+
+				function onPointerUp() {
+
+					if (event.isPrimary === false) return;
+
+					isUserInteracting = false;
+
+					document.removeEventListener('pointermove', onPointerMove);
+					document.removeEventListener('pointerup', onPointerUp);
+
+				}
+
+				function onDocumentMouseWheel(event) {
+
+					const fov = camera.fov + event.deltaY * 0.05;
+
+					camera.fov = THREE.MathUtils.clamp(fov, 10, 75);
+
+					camera.updateProjectionMatrix();
+
+				}
+
+				// 拾取对象
+				// function pickupObjects(event) {
+				// 	// 点击屏幕创建一个向量
+				// 	var vector = new THREE.Vector3((event.clientX / window.innerWidth) * 2 - 1, -(event.clientY / window
+				// 		.innerHeight) * 2 + 1, 0.5);
+				// 	vector = vector.unproject(camera); // 将屏幕的坐标转换成三维场景中的坐标
+				// 	var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+				// 	var intersects = raycaster.intersectObjects(scene.children, true);
+				// 	console.log(transitionParams.presentScene, intersects[0].object.name)
+				// 	if (intersects[0].object.name == "to_B" && transitionParams.presentScene == "sceneA") {
+				// 		new TWEEN.Tween(transitionParams)
+				// 			.to({
+				// 				transition: 0
+				// 			}, 1500)
+				// 			.yoyo(true)
+				// 			.start();
+				// 		transitionParams.presentScene = "sceneB";
+				// 	}
+
+				// 	if (intersects[0].object.name == "to_A" && transitionParams.presentScene == "sceneB") {
+				// 		transition = new Transition(sceneA, sceneB);
+				// 		new TWEEN.Tween(transitionParams)
+				// 			.to({
+				// 				transition: 1
+				// 			}, 1500)
+				// 			.yoyo(true)
+				// 			.start();
+				// 		transitionParams.presentScene = "sceneA";
+				// 	}
+				// 	if (intersects[0].object.name == "to_C" && transitionParams.presentScene == "sceneB") {
+				// 		transition = new Transition(sceneC, sceneB);
+				// 		let num = transitionParams.transition == 0 ? 1 : 0;
+				// 		console.log(transitionParams.transition, num)
+				// 		new TWEEN.Tween(transitionParams)
+				// 			.to({
+				// 				transition: num
+				// 			}, 1500)
+				// 			.onComplete(function() {
+				// 				$("#label").find("div").show();
+				// 			})
+				// 			.start();
+				// 		transitionParams.presentScene = "sceneC";
+				// 	}
+				// 	if (intersects[0].object.name == "to_B" && transitionParams.presentScene == "sceneC") {
+				// 		$("#label").find("div").hide();
+				// 		new TWEEN.Tween(transitionParams)
+				// 			.to({
+				// 				transition: 0
+				// 			}, 1500)
+				// 			.start();
+				// 		transitionParams.presentScene = "sceneB";
+				// 	}
+				// }
+				
+				$(".ImageMenuContent").click(function() {
+					if($(this).hasClass("selected")) return;
+					$(".ImageMenuContent").removeClass("selected");
+					$(this).addClass("selected");
+					let id = this.id;
+					if(id == "01") {
+						transition = new Transition(sceneA, sceneB);
+						new TWEEN.Tween(transitionParams)
+							.to({
+								transition: 0
+							}, 1500)
+							.yoyo(true)
+							.start();
+					}
+					if(id == "02") {
+						transition = new Transition(sceneA, sceneB);
+						new TWEEN.Tween(transitionParams)
+							.to({
+								transition: 1
+							}, 2500)
+							.yoyo(true)
+							.start();
+					}
+				})
+				
+				// document.addEventListener('click', pickupObjects, false);
+
+				this.render = function(delta, rtt) {
+					if (rtt) {
+
+						renderer.setRenderTarget(this.fbo);
+						renderer.clear();
+						renderer.render(scene, camera);
+
+					} else {
+
+						renderer.setRenderTarget(null);
+						renderer.render(scene, camera);
+
+					}
+
+					// renderer2.render(scene, camera);
+
+
+					if (isUserInteracting === false) {
+
+						lon += 0;
+
+					}
+
+					lat = Math.max(-85, Math.min(85, lat));
+					phi = THREE.MathUtils.degToRad(90 - lat);
+					theta = THREE.MathUtils.degToRad(lon);
+
+					const x = 500 * Math.sin(phi) * Math.cos(theta);
+					const y = 500 * Math.cos(phi);
+					const z = 500 * Math.sin(phi) * Math.sin(theta);
+
+					camera.lookAt(x, y, z);
+
+				};
+
+			}
+
+			function Transition(sceneA, sceneB) {
+
+				const scene = new THREE.Scene();
+
+				const width = window.innerWidth;
+				const height = window.innerHeight;
+
+				const camera = new THREE.OrthographicCamera(width / -2, width / 2, height / 2, height / -2, -10, 10);
+				
+				const textures = [];
+
+				const loader = new THREE.TextureLoader();
+				textures[0] = loader.load('assets/bgImage/transition/transition1.png');
+
+
+				const material = new THREE.ShaderMaterial({
+
+					uniforms: {
+
+						tDiffuse1: {
+							value: null
+						},
+						tDiffuse2: {
+							value: null
+						},
+						mixRatio: {
+							value: 0.0
+						},
+						threshold: {
+							value: 0.1
+						},
+						useTexture: {
+							value: false
+						},
+						tMixTexture: {
+							value: textures[0]
+						}
+					},
+					vertexShader: [
+
+						'varying vec2 vUv;',
+
+						'void main() {',
+
+						'vUv = vec2( uv.x, uv.y );',
+						'gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );',
+
+						'}'
+
+					].join('\n'),
+					fragmentShader: [
+
+						'uniform float mixRatio;',
+
+						'uniform sampler2D tDiffuse1;',
+						'uniform sampler2D tDiffuse2;',
+						'uniform sampler2D tMixTexture;',
+
+						'uniform int useTexture;',
+						'uniform float threshold;',
+
+						'varying vec2 vUv;',
+
+						'void main() {',
+
+						'	vec4 texel1 = texture2D( tDiffuse1, vUv );',
+						'	vec4 texel2 = texture2D( tDiffuse2, vUv );',
+
+						'	if (useTexture==1) {',
+
+						'		vec4 transitionTexel = texture2D( tMixTexture, vUv );',
+						'		float r = mixRatio * (1.0 + threshold * 2.0) - threshold;',
+						'		float mixf=clamp((transitionTexel.r - r)*(1.0/threshold), 0.0, 1.0);',
+
+						'		gl_FragColor = mix( texel1, texel2, mixf );',
+
+						'	} else {',
+
+						'		gl_FragColor = mix( texel2, texel1, mixRatio );',
+
+						'	}',
+
+						'}'
+
+					].join('\n')
+
+				});
+
+				const geometry = new THREE.PlaneGeometry(window.innerWidth, window.innerHeight);
+				const mesh = new THREE.Mesh(geometry, material);
+				scene.add(mesh);
+
+				material.uniforms.tDiffuse1.value = sceneA.fbo.texture;
+				material.uniforms.tDiffuse2.value = sceneB.fbo.texture;
+
+				this.needsTextureChange = false;
+
+				this.setTextureThreshold = function(value) {
+
+					material.uniforms.threshold.value = value;
+
+				};
+
+				this.useTexture = function(value) {
+
+					material.uniforms.useTexture.value = value ? 1 : 0;
+
+				};
+
+				this.setTexture = function(i) {
+
+					material.uniforms.tMixTexture.value = textures[i];
+
+				};
+
+				this.render = function(delta) {
+
+					TWEEN.update();
+					if (transitionParams.cycle) {
+
+						if (transitionParams.transition == 0 || transitionParams.transition == 1) {
+
+							if (this.needsTextureChange) {
+
+								transitionParams.texture = (transitionParams.texture + 1) % textures.length;
+								material.uniforms.tMixTexture.value = textures[transitionParams.texture];
+								this.needsTextureChange = false;
+
+							}
+
+						} else {
+
+							this.needsTextureChange = true;
+
+						}
+
+					} else {
+
+						this.needsTextureChange = true;
+
+					}
+
+
+					material.uniforms.mixRatio.value = transitionParams.transition;
+
+					if (transitionParams.transition == 0) {
+
+						sceneB.render(delta, false);
+
+					} else if (transitionParams.transition == 1) {
+
+						sceneA.render(delta, false);
+
+					} else {
+
+						sceneA.render(delta, true);
+						sceneB.render(delta, true);
+
+						renderer.setRenderTarget(null);
+						renderer.clear();
+						renderer.render(scene, camera);
+
+						// renderer2.render(scene, camera);
+
+					}
+
+				};
+
+			}
+		</script>
+	</body>
+</html>

@@ -1,19 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
-		<title>舒迈科技</title>
-		<meta charset="UTF-8">
-		<script type="text/javascript" src="libs/three.js"></script>
-		<script type="text/javascript" src="libs/OrbitControls.js"></script>
-		<script type="text/javascript" src="libs/CSS2DRenderer.js"></script>
-		<script type="text/javascript" src="libs/dat.gui.js"></script>
+		<title>舒迈科技-VR眼镜</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<script type="text/javascript" src="libs/jquery-1.11.2.min.js"></script>
-		<script type="text/javascript" charset="UTF-8" src="libs/Tween.min.js"></script>
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 		<style>
+			@font-face {
+				font-family: "HYQuanTangShiJ";
+				src: url("./font/HYQuanTangShiJ.809c75ed.ttf");
+			}
+
 			body {
 				margin: 0;
 				overflow: hidden;
+			}
+
+			.lt_item {
+				position: absolute;
+				display: none;
+			}
+
+			.lti_top {
+				display: flex;
+				flex-direction: row;
+				margin: 22px;
+			}
+
+			.lti_top .maobizi {
+				width: 250px;
+			}
+
+			.lti_top .look {
+				width: 20px;
+				margin-right: 8px;
+			}
+
+			.lti_top div {
+				color: white;
+				display: flex;
+				align-items: center;
+			}
+
+			.lti_down img {
+				width: 80px;
+				margin-left: 35px;
 			}
 
 			.element_title {
@@ -82,85 +114,54 @@
 		</style>
 	</head>
 	<body>
-		<div id="dom"></div>
-		<div id="welPage" class="welPage animate__animated animate__fadeIn">
-			<div class="welPage_top">
-				<img id="welPage_bg" src="assets/bgImage/shumai/welPage-circle-background.png" alt="">
-				<div class="title_img">
-					<img id="welPage_text" src="assets/bgImage/shumai/title.png" alt="">
-				</div>
-			</div>
-			<img id="btn_css" src="assets/bgImage/shumai/jinruquanjing.png" />
-		</div>
-		<!-- 顶点着色器的目的是将几何体的每个顶点放置在2D渲染空间上。换句话说，顶点着色器将3D顶点坐标转换为2D画布坐标。 -->
-		<script id="vertex-shader" type="x-shader/x-vertex">
-			varying vec2 vUv;
-			void main() {
-				vUv = vec2( uv.x, uv.y );
-				gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-			}
-		</script>
+		<div id="container"></div>
 
-		<!-- 片元着色器的代码将应用于几何体的每个可见片元(像素)。片元着色器运行在顶点着色器之后。 -->
-		<script id="fragment-shader" type="x-shader/x-fragment">
-			uniform float mixRatio;
-			uniform sampler2D tDiffuse1;
-			uniform sampler2D tDiffuse2;
-			uniform sampler2D tMixTexture;
-			uniform bool useTexture;
-			uniform float threshold;
-			varying vec2 vUv;
-			void main() {
-				vec4 texel1 = texture2D( tDiffuse1, vUv );
-				vec4 texel2 = texture2D( tDiffuse2, vUv );
-				if (useTexture==true) {
-					vec4 transitionTexel = texture2D( tMixTexture, vUv );
-					float r = mixRatio * (1.0 + threshold * 2.0) - threshold;
-					float mixf=clamp((transitionTexel.r - r)*(1.0/threshold), 0.0, 1.0);
-					gl_FragColor = mix( texel1, texel2, mixf );
-				} else {
-					gl_FragColor = mix( texel2, texel1, mixRatio );
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "./libs/jsm/three.module.js"
 				}
 			}
 		</script>
-		<script type="text/javascript">
-			const el = document.getElementById("dom");
-			var camera;
-			var renderer, renderer2;
 
-			renderer = new THREE.WebGLRenderer({
-				antialias: true,
-				logarithmicDepthBuffer: true,
-				alpha: true
-			});
-			renderer.setSize(window.innerWidth, window.innerHeight);
-			// 将呈现器的输出添加到HTML元素
-			el.appendChild(renderer.domElement);
+		<script type="module">
+			import * as THREE from 'three';
 
-			renderer2 = new THREE.CSS2DRenderer();
-			renderer2.domElement.style.position = 'absolute';
-			renderer2.domElement.style.top = 0;
-			renderer2.setSize(window.innerWidth, window.innerHeight);
-			el.appendChild(renderer2.domElement);
+			import {
+				OrbitControls
+			} from './libs/jsm/OrbitControls.js';
 
-			const clock = new THREE.Clock(); //声明一个时钟对象
-			const textures = []
-			const loader = new THREE.TextureLoader()
-			
-			
-			var sceneA = new OneScene()
-			var sceneB = new OneScene()
+			import {
+				TWEEN
+			} from './libs/jsm/tween.module.min.js';
 
-			const transitionParams = {
-				useTexture: true, //为 false 默认采用渐变式
-				transition: 0,
-				transitionSpeed: 0.01,
-				texture: textures[0],
-				animate: false,
-			}
+			import {
+				CSS2DRenderer,
+				CSS2DObject
+			} from './libs/jsm/CSS2DRenderer.js';
 
-			function initControls(camera) {
-				const controls = new THREE.OrbitControls(camera)
+			import {
+				VRButton
+			} from './libs/jsm/webxr/VRButton.js';
+
+			var camera, scene, controls, renderer, renderer2;
+			var bool = true;
+
+			var isUserInteracting = false,
+				onPointerDownMouseX = 0,
+				onPointerDownMouseY = 0,
+				lon = 0,
+				onPointerDownLon = 0,
+				lat = 0,
+				onPointerDownLat = 0,
+				phi = 0,
+				theta = 0;
+
+			init();
+			animate();
+
+			function initControls(camera, renderer) {
+				let controls = new OrbitControls(camera, renderer.domElement)
 				// 如果使用animate方法时，将此函数删除
 				//controls.addEventListener( 'change', render );
 				// 使动画循环使用时阻尼或自转 意思是否有惯性
@@ -168,7 +169,7 @@
 				//动态阻尼系数 就是鼠标拖拽旋转灵敏度
 				controls.dampingFactor = 1.4;
 				//是否可以缩放
-				controls.enableZoom = false;
+				controls.enableZoom = true;
 				//是否自动旋转
 				controls.autoRotate = true;
 				controls.autoRotateSpeed = 0;
@@ -177,293 +178,64 @@
 				//设置相机距离原点的最远距离
 				controls.maxDistance = 1200;
 				//是否开启右键拖拽
-				controls.enablePan = false
+				controls.enablePan = true
 				//是否开启旋转
-				controls.enableRotate = false
-
+				controls.enableRotate = true
 				return controls
 			}
 
-			function OneScene() {
-				//camera
-				this.camera = new THREE.PerspectiveCamera(170, el.offsetWidth / el.offsetHeight, 0.1, 10000)
-				this.camera.position.y = 1200;
-				// this.camera.lookAt(new THREE.Vector3(0, 1200, 0));
-
-				// Setup scene
-				this.scene = new THREE.Scene();
-
-				var axes = new THREE.AxisHelper(10000);
-				// this.scene.add(axes);
-
-				// WebGLRenderTarget
-				const renderTargetParameters = {
-					minFilter: THREE.LinearFilter,
-					magFilter: THREE.LinearFilter,
-					format: THREE.RGBFormat,
-					stencilBuffer: false
-				};
-				this.fbo = new THREE.WebGLRenderTarget(el.offsetWidth, el.offsetHeight, renderTargetParameters)
-
-				this.controls = initControls(this.camera)
-				this.render = function(delta, rtt) {
-					// console.log(this.camera.position)
-					if (rtt) {
-						renderer.setRenderTarget(this.fbo)
-						renderer.clear()
-						renderer.render(this.scene, this.camera)
-					} else {
-						renderer.setRenderTarget(null)
-						renderer.render(this.scene, this.camera)
-					}
-
-					renderer2.render(this.scene, this.camera);
-					// this.controls.update()
-					TWEEN.update();
-				}
-			}
-
-			$("#btn_css").on("click", function() {
-				$(".welPage").addClass("animate__fadeOut");
-
-				new TWEEN.Tween({
-						fov: 130,
-						y: 1200,
-						z: 0,
-						x: 0,
-					})
-					.to({
-						fov: 70,
-						y: 0,
-						z: 600,
-						x: 0,
-					}, 3000)
-					.easing(TWEEN.Easing.Linear.None)
-					.onComplete(function() {
-						sceneA.controls.autoRotateSpeed = 0.2;
-						sceneA.controls.enableRotate = true;
-						sceneA.controls.enableZoom = true;
-					})
-					.onUpdate(function() {
-						sceneA.camera.fov = this.fov;
-						sceneA.camera.updateProjectionMatrix();
-
-						// sceneA.camera.position.y = this.y;
-
-						const target = new THREE.Vector3(this.x, 0, this.z);
-						sceneA.camera.lookAt(target);
-					})
-					.start();
-			})
-
-			function SceneTransition(sceneA, sceneB, transitionParams) {
-				const that = this
-				const vertShader = document.getElementById("vertex-shader").innerHTML;
-				const fragShader = document.getElementById("fragment-shader").innerHTML;
-				that.scene = new THREE.Scene();
-				that.camera = new THREE.OrthographicCamera(el.offsetWidth / -2, el.offsetWidth / 2, el.offsetHeight / 2, el
-					.offsetHeight / -2, -10, 10)
-
-				that.quadmaterial = new THREE.ShaderMaterial({
-					uniforms: {
-						tDiffuse1: {
-							value: null
-						},
-						tDiffuse2: {
-							value: null
-						},
-						mixRatio: {
-							value: 0.0
-						},
-						threshold: {
-							value: 0.1
-						},
-						useTexture: {
-							value: true
-						},
-						tMixTexture: {
-							value: transitionParams.texture
-						}
-					},
-					vertexShader: vertShader,
-					fragmentShader: fragShader,
-				})
-
-				const quadgeometry = new THREE.PlaneBufferGeometry(el.offsetWidth, el.offsetHeight)
-				that.quad = new THREE.Mesh(quadgeometry, that.quadmaterial)
-				that.scene.add(that.quad);
-
-				that.update = function(sceneA, sceneB, animate) {
-					that.sceneA = sceneA
-					that.sceneB = sceneB
-					that.quadmaterial.uniforms.tDiffuse1.value = that.sceneB.fbo.texture
-					that.quadmaterial.uniforms.tDiffuse2.value = that.sceneA.fbo.texture
-					that.quadmaterial.uniforms.mixRatio.value = 0.0
-					that.quadmaterial.uniforms.threshold.value = 0.1
-					that.quadmaterial.uniforms.useTexture.value = transitionParams.useTexture
-					that.quadmaterial.uniforms.tMixTexture.value = transitionParams.texture
-
-					transitionParams.animate = animate
-					transitionParams.transition = 0
-				}
-				that.update(sceneA, sceneB, transitionParams.animate)
-
-				that.render = function(delta) {
-					if (transitionParams.transition === 0) {
-						that.sceneA.render(delta, false)
-					} else if (transitionParams.transition >= 1) {
-						that.sceneB.render(delta, false)
-						transitionParams.animate = false // 停止
-					} else {
-						that.sceneA.render(delta, true)
-						that.sceneB.render(delta, true)
-						renderer.setRenderTarget(null)
-						renderer.clear()
-						renderer.render(that.scene, that.camera)
-					}
-
-					if (transitionParams.animate && transitionParams.transition <= 1) {
-						transitionParams.transition = transitionParams.transition + transitionParams.transitionSpeed
-						that.quadmaterial.uniforms.mixRatio.value = transitionParams.transition
-					}
-				}
-			}
-
-			function crateElment(id, text, pos) {
-				const element = document.createElement('div');
-				element.className = 'element_title';
-				element.id = id;
-				const number = document.createElement('div');
-				number.className = 'title';
-				number.textContent = text;
-				element.appendChild(number);
-				const objectCSS = new THREE.CSS2DObject(element);
-				objectCSS.position.x = pos.x;
-				objectCSS.position.y = pos.y;
-				objectCSS.position.z = pos.z;
-				return objectCSS;
-			}
-
 			function init() {
-				//场景A中的物体
-				const geometryA = new THREE.SphereGeometry(1200, 60, 40);
-				// invert the geometry on the x-axis so that all of the faces point inward
-				geometryA.scale(-1, 1, 1);
+				const container = document.getElementById('container');
+				scene = new THREE.Scene();
 
-				const textureA = new THREE.TextureLoader().load('assets/bgImage/shumai/000.jpg');
-				const materialA = new THREE.MeshBasicMaterial({
-					map: textureA
-				});
-
-				const meshA = new THREE.Mesh(geometryA, materialA);
-				meshA.name = "mesh_a";
-
-				sceneA.scene.add(meshA);
-
-				// const pos1 = new THREE.Vector3(350, 50, 100);
-				// const xqgEle = crateElment("cst", "茶水厅", pos1);
-				// sceneA.scene.add(xqgEle);
-
-				// const pos2 = new THREE.Vector3(0, 50, -30);
-				// const dsEle = crateElment("jsz", "办公区", pos2);
-				// sceneA.scene.add(dsEle);
-
-				// const pos3 = new THREE.Vector3(100, 50, 300);
-				// const xsEle = crateElment("zcb", "总裁办", pos3);
-				// sceneA.scene.add(xsEle);
-
-				// const pos4 = new THREE.Vector3(-300, 50, -30);
-				// const tjgEle = crateElment("msz", "美术组", pos4);
-				// sceneA.scene.add(tjgEle);
-
-				// const pos5 = new THREE.Vector3(-300, 50, 300);
-				// const dmgEle = crateElment("chz", "策划组", pos5);
-				// sceneA.scene.add(dmgEle);
-
-				//场景B中的物体
-				const geometryB = new THREE.SphereGeometry(600, 60, 40);
-				// invert the geometry on the x-axis so that all of the faces point inward
-				geometryB.scale(-1, 1, 1);
-
-				const textureB = new THREE.TextureLoader().load('assets/bgImage/shuziguangnian_cst.png');
-				const materialB = new THREE.MeshBasicMaterial({
-					map: textureB
-				});
-
-				const meshB = new THREE.Mesh(geometryB, materialB);
-
-				sceneB.scene.add(meshB);
-
-				const transition = new SceneTransition(sceneA, sceneB, transitionParams)
-
-				// 使用GUI调试库
-				var controls = new function() {
-					this.下一个场景 = function() {
-						transitionParams.useTexture = false
-						transition.update(sceneA, sceneB, true)
-					}
-				}
-				// var gui = new dat.GUI();
-				// 设置两个变量的取值范围
-				// gui.add(controls, '下一个场景');
-
-				renderScene()
-
-				function renderScene() {
-					transition.render(clock.getDelta())
-					requestAnimationFrame(renderScene);
-				}
-
-				$('.element_title').click(function() {
-					switch (this.id) {
-						case "cst":
-							transitionParams.useTexture = false
-							transition.update(sceneA, sceneB, true)
-							break;
-						case "jsz":
-							transitionParams.useTexture = false
-							transition.update(sceneB, sceneA, true)
-							break;
-						case "zcb":
-							break;
-						case "msz":
-							break;
-						case "chz":
-							break;
-
-					}
-				})
-				
-				setTimeout(function() {
-					new TWEEN.Tween({
-							fov: 170,
-							ars: 40,
-						})
-						.to({
-							fov: 130,
-							ars: 0,
-						}, 3200)
-						.easing(TWEEN.Easing.Quadratic.Out)
-						.onComplete(function() {
-							$(".welPage").css("display", "flex")
-						})
-						.onUpdate(function() {
-							sceneA.controls.autoRotateSpeed = this.ars;
-							sceneA.camera.fov = this.fov;
-							sceneA.camera.updateProjectionMatrix()
-							sceneA.controls.update()
-						})
-						.start();
-				}, 500)
-			}
-			window.onload = init;
-
-			// 随着窗体的变化修改场景
-			function onResize() {
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio(window.devicePixelRatio);
 				renderer.setSize(window.innerWidth, window.innerHeight);
+				container.appendChild(renderer.domElement);
+
+				renderer.xr.enabled = true;
+				container.appendChild(VRButton.createButton(renderer));
+
+
+				camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10000);
+				camera.position.set(0, 0, 1);
+
+				controls = initControls(camera, renderer);
+
+				const geometry = new THREE.SphereGeometry(1200, 1200, 1200);
+				geometry.scale(-1, 1, 1);
+
+				const texture = new THREE.TextureLoader().load('assets/bgImage/shumai/000.jpg');
+				const material = new THREE.MeshBasicMaterial({
+					map: texture
+				});
+
+				const mesh = new THREE.Mesh(geometry, material);
+
+				scene.add(mesh);
+
+				window.addEventListener('resize', onWindowResize);
 			}
-			// 监听窗体调整大小事件
-			window.addEventListener('resize', onResize, false);
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize(window.innerWidth, window.innerHeight);
+
+			}
+
+			function animate() {
+				renderer.setAnimationLoop(render);
+			}
+
+			function render() {
+				controls.update();
+
+				renderer.render(scene, camera);
+
+			}
 		</script>
 	</body>
 </html>

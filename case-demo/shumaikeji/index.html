@@ -4,149 +4,116 @@
 		<title>舒迈科技-创意盒子</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<link rel="stylesheet" href="css/main.css">
+		<!-- <script type="text/javascript" src="../../libs/jquery-1.11.2.min.js"></script> -->
+		<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" /> -->
+		<!-- <link rel="stylesheet" href="css/main.css">
 		<script src="js/three.min.js"></script>
 		<script src="js/panolens.min.js"></script>
+		<script src="js/vr/WebVR.js"></script> -->
 	</head>
 	<body>
-		<button id="audio-play-button">Play Audio</button>
-		<div id="progress">
-			<div id="bar"></div>
-		</div>
+		<!-- <div class="lt_item animate__animated"> -->
+			<!-- <div class="lti_top">
+				<img class="maobizi" src="assets/bgImage/shumai/chuangkedajie.png" />
+				<div><img class="look" src="assets/datanglingjiang/look.png"><span>755686454</span></div>
+			</div> -->
+			<!-- <div class="lti_down">
+				<img src="assets/datanglingjiang/map_icon.png">
+			</div> -->
+		<!-- </div> -->
+		<!-- <div id="welPage" class="welPage animate__animated animate__fadeIn">
+			<div class="welPage_top">
+				<img id="welPage_bg" src="../../assets/bgImage/shumai/welPage-circle-background.png" alt="">
+				<div class="title_img">
+					<img id="welPage_text" src="../../assets/bgImage/shumai/title.png" alt="">
+				</div>
+			</div>
+			<img id="btn_css" src="../../assets/bgImage/shumai/jinruquanjing.png" />
+		</div> -->
 		<div id="container"></div>
-		<script type="text/javascript">
-			var panorama1, panorama2, panorama3, viewer, container, infospot, bar, audioPlayButton, audioBuffer;
-
-			bar = document.querySelector('#bar');
-			container = document.querySelector('#container');
-
-			panorama1 = new PANOLENS.ImagePanorama('img/000.jpg');
-
-			panorama2 = new PANOLENS.ImagePanorama('img/001.jpg');
-
-			panorama3 = new PANOLENS.ImagePanorama('img/002.jpg');
-
-			panorama1.link(panorama2, new THREE.Vector3(5000.00, -172.93, -3733.74));
-			panorama2.link(panorama1, new THREE.Vector3(5000.00, -1622.55, 108.70));
-			panorama2.link(panorama3, new THREE.Vector3(-5000.00, -688.97, -70.77));
-			panorama3.link(panorama2, new THREE.Vector3(5000.00, -377.32, -49.98));
-
-			infospot = new PANOLENS.Infospot(350, PANOLENS.DataImage.Info);
-			infospot.position.set(406.27, -971.13, -5000.00);
-
-			panorama1.add(infospot);
 
 
+		<script>
+				alert("https://photo-sphere-viewer.js.org/demos/")
+				window.location.href = "https://photo-sphere-viewer.js.org/demos/"
+			// import * as THREE from 'three';
 
-			// 创建全景查看器 
-			viewer = new PANOLENS.Viewer({
-				container: container,
-				controlBar: false,
-				output: 'console',
-			});
+			// import {
+			// 	OrbitControls
+			// } from '../../libs/jsm/OrbitControls.js';
+
+			// import {
+			// 	TWEEN
+			// } from '../../libs/jsm/tween.module.min.js';
+
+			// import {
+			// 	VRButton
+			// } from '../../libs/jsm/webxr/VRButton.js';
+
+			// var camera, scene, controls, renderer, renderer2;
+			// var bool = true;
+
+			// var isUserInteracting = false,
+			// 	onPointerDownMouseX = 0,
+			// 	onPointerDownMouseY = 0,
+			// 	lon = 0,
+			// 	onPointerDownLon = 0,
+			// 	lat = 0,
+			// 	onPointerDownLat = 0,
+			// 	phi = 0,
+			// 	theta = 0;
+
+			// init();
+
+			function init() {
+				alert("https://photo-sphere-viewer.js.org/demos/")
+				window.location.href = "https://photo-sphere-viewer.js.org/demos/"
+				// const container = document.getElementById('container');
+				// scene = new THREE.Scene();
+
+				// renderer = new THREE.WebGLRenderer();
+				// renderer.setPixelRatio(window.devicePixelRatio);
+				// renderer.setSize(window.innerWidth, window.innerHeight);
+				// container.appendChild(renderer.domElement);
+
+				// renderer.xr.enabled = true;
+				// container.appendChild(WEBVR.createButton(renderer));
 
 
-			var littlePlanet = new PANOLENS.ImageLittlePlanet('img/000.jpg');
+				// camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 10000);
+				// camera.position.set(0, 0, 10);
 
-			viewer.add(panorama1, panorama2, panorama3);
+				// const geometry = new THREE.SphereGeometry(1200, 1200, 1200);
+				// geometry.scale(-1, 1, 1);
 
-			var controlItemCube = {
-				style: {
-					backgroundImage: 'url(http://i40.tinypic.com/1531w79.jpg)'
-				},
+				// const texture = new THREE.TextureLoader().load('../../assets/bgImage/shumai/000.jpg');
+				// const material = new THREE.MeshBasicMaterial({
+				// 	map: texture
+				// });
 
-				onTap: function() {
-					viewer.tweenControlCenterByObject(cube);
-				}
-			};
-			// viewer.appendControlItem(controlItemCube);
+				// const mesh = new THREE.Mesh(geometry, material);
 
-			// Wonder women custom item
-			// var posterInfospot = new PANOLENS.Infospot(2000,
-			// 	'https://images-na.ssl-images-amazon.com/images/I/91nELBuo3kL._RI_SX200_.jpg');
-			// posterInfospot.position.set(-4774.9, 474.16, -1375.02);
-			// panorama1.add(posterInfospot);
+				// scene.add(mesh);
 
-			var controlItemPoster = {
-				style: {
-					backgroundImage: 'url(https://images-na.ssl-images-amazon.com/images/I/31DcBWmTrNL._CR0,25,201,201.jpg)',
-					float: 'left'
-				},
+				// window.addEventListener('resize', onWindowResize);
+				
+				// renderer.setAnimationLoop(render);
 
-				onTap: function() {
-					posterInfospot.focus();
-				}
-			};
-			// viewer.appendControlItem(controlItemPoster);
+			}
 
-			// Video control item
-			var controlItemVideoGroup = {
-				style: {
-					backgroundImage: 'url(https://images-na.ssl-images-amazon.com/images/I/91ovrqFkzkL._RI_SX200_.jpg)',
-					float: 'left'
-				},
+			// function onWindowResize() {
 
-				onTap: function() {
-					viewer.setPanorama(panorama1);
-				},
+			// 	camera.aspect = window.innerWidth / window.innerHeight;
+			// 	camera.updateProjectionMatrix();
 
-				group: 'video'
-			};
-			// viewer.appendControlItem(controlItemVideoGroup);
-
-			// if (navigator.userAgent.match(/Android/i) ||
-			// 	navigator.userAgent.match(/webOS/i) ||
-			// 	navigator.userAgent.match(/iPhone/i) ||
-			// 	navigator.userAgent.match(/iPad/i) ||
-			// 	navigator.userAgent.match(/iPod/i) ||
-			// 	navigator.userAgent.match(/BlackBerry/i) ||
-			// 	navigator.userAgent.match(/Windows Phone/i)) {
-			audioPlayButton = document.querySelector('#audio-play-button');
-			// 	// audioPlayButton.style.display = 'block';
-			// 	alert()
-			audioPlayButton.addEventListener('click', function() {
-				// alert()
-				var audioCtx = listener.context;
-
-				// create empty buffer
-				var buffer = audioCtx.createBuffer(1, 1, 22050);
-				var source = audioCtx.createBufferSource();
-				source.buffer = audioBuffer;
-
-				// connect to output (your speakers)
-				source.connect(audioCtx.destination);
-
-				// play the file
-				source.start();
-
-			});
+			// 	renderer.setSize(window.innerWidth, window.innerHeight);
 
 			// }
 
-			var listener = new THREE.AudioListener();
-			viewer.getCamera().add(listener);
-			var audioLoader = new THREE.AudioLoader();
-			var sound = new THREE.PositionalAudio(listener);
-			audioLoader.load('img/225.mp3', function(buffer) {
-				// audioBuffer = buffer;
-				sound.setBuffer(buffer);
-				sound.setRefDistance(100);
-				sound.setLoop(true);
-				sound.play();
-			})
 
-			function onProgressUpdate(event) {
-				var percentage = event.progress.loaded / event.progress.total * 100;
-				bar.style.width = percentage + "%";
-				if (percentage >= 100) {
-					bar.classList.add('hide');
-					setTimeout(function() {
-						bar.style.width = 0;
-					}, 1000);
-				}
-			}
-
-			panorama1.addEventListener('progress', onProgressUpdate);
+			// function render() {
+			// 	renderer.render(scene, camera);
+			// }
 		</script>
 	</body>
 </html>

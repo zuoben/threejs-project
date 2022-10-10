@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>舒迈科技-创意盒子</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<link rel="stylesheet" href="css/main.css">
+		<script src="js/three.min.js"></script>
+		<script src="js/panolens.min.js"></script>
+		<script src="js/vr/WebVR.js"></script>
+	</head>
+	<body>
+		<button id="audio-play-button">Play Audio</button>
+		<div id="progress">
+			<div id="bar"></div>
+		</div>
+		<div id="container"></div>
+		<script type="text/javascript">
+			var renderer;
+			var panorama1, panorama2, panorama3, viewer, container, infospot, bar, audioPlayButton, audioBuffer;
+
+			bar = document.querySelector('#bar');
+			container = document.querySelector('#container');
+
+			panorama1 = new PANOLENS.ImagePanorama('img/000.jpg');
+
+			panorama2 = new PANOLENS.ImagePanorama('img/001.jpg');
+
+			panorama3 = new PANOLENS.ImagePanorama('img/002.jpg');
+
+			panorama1.link(panorama2, new THREE.Vector3(5000.00, -172.93, -3733.74));
+			panorama2.link(panorama1, new THREE.Vector3(5000.00, -1622.55, 108.70));
+			panorama2.link(panorama3, new THREE.Vector3(-5000.00, -688.97, -70.77));
+			panorama3.link(panorama2, new THREE.Vector3(5000.00, -377.32, -49.98));
+
+			infospot = new PANOLENS.Infospot(350, PANOLENS.DataImage.Info);
+			infospot.position.set(406.27, -971.13, -5000.00);
+
+			panorama1.add(infospot);
+
+
+
+			renderer = new THREE.WebGLRenderer();
+			renderer.setPixelRatio( window.devicePixelRatio );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			// renderer.vr.enabled = true;
+			// 创建全景查看器 
+			viewer = new PANOLENS.Viewer({
+				container: container,
+				// controlBar: false,
+				output: 'console',
+				renderer: renderer,
+				enableReticle: true,
+			});
+			
+			container.appendChild( WEBVR.createButton( renderer ) );
+			renderer.setAnimationLoop( render );
+
+		function render() {
+
+			renderer.render( viewer.getScene(), viewer.getCamera() );
+
+		}
+
+			var littlePlanet = new PANOLENS.ImageLittlePlanet('img/000.jpg');
+
+			viewer.add(panorama1, panorama2, panorama3);
+
+			var controlItemCube = {
+				style: {
+					backgroundImage: 'url(http://i40.tinypic.com/1531w79.jpg)'
+				},
+
+				onTap: function() {
+					viewer.tweenControlCenterByObject(cube);
+				}
+			};
+			// viewer.appendControlItem(controlItemCube);
+
+			// Wonder women custom item
+			// var posterInfospot = new PANOLENS.Infospot(2000,
+			// 	'https://images-na.ssl-images-amazon.com/images/I/91nELBuo3kL._RI_SX200_.jpg');
+			// posterInfospot.position.set(-4774.9, 474.16, -1375.02);
+			// panorama1.add(posterInfospot);
+
+			var controlItemPoster = {
+				style: {
+					backgroundImage: 'url(https://images-na.ssl-images-amazon.com/images/I/31DcBWmTrNL._CR0,25,201,201.jpg)',
+					float: 'left'
+				},
+
+				onTap: function() {
+					posterInfospot.focus();
+				}
+			};
+			// viewer.appendControlItem(controlItemPoster);
+
+			// Video control item
+			var controlItemVideoGroup = {
+				style: {
+					backgroundImage: 'url(https://images-na.ssl-images-amazon.com/images/I/91ovrqFkzkL._RI_SX200_.jpg)',
+					float: 'left'
+				},
+
+				onTap: function() {
+					viewer.setPanorama(panorama1);
+				},
+
+				group: 'video'
+			};
+			// viewer.appendControlItem(controlItemVideoGroup);
+
+			// if (navigator.userAgent.match(/Android/i) ||
+			// 	navigator.userAgent.match(/webOS/i) ||
+			// 	navigator.userAgent.match(/iPhone/i) ||
+			// 	navigator.userAgent.match(/iPad/i) ||
+			// 	navigator.userAgent.match(/iPod/i) ||
+			// 	navigator.userAgent.match(/BlackBerry/i) ||
+			// 	navigator.userAgent.match(/Windows Phone/i)) {
+			audioPlayButton = document.querySelector('#audio-play-button');
+			// 	// audioPlayButton.style.display = 'block';
+			// 	alert()
+			audioPlayButton.addEventListener('click', function() {
+				// alert()
+				var audioCtx = listener.context;
+
+				// create empty buffer
+				var buffer = audioCtx.createBuffer(1, 1, 22050);
+				var source = audioCtx.createBufferSource();
+				source.buffer = audioBuffer;
+
+				// connect to output (your speakers)
+				source.connect(audioCtx.destination);
+
+				// play the file
+				source.start();
+
+			});
+
+			// }
+
+			var listener = new THREE.AudioListener();
+			viewer.getCamera().add(listener);
+			var audioLoader = new THREE.AudioLoader();
+			var sound = new THREE.PositionalAudio(listener);
+			audioLoader.load('img/225.mp3', function(buffer) {
+				// audioBuffer = buffer;
+				sound.setBuffer(buffer);
+				sound.setRefDistance(100);
+				sound.setLoop(true);
+				sound.play();
+			})
+
+			function onProgressUpdate(event) {
+				var percentage = event.progress.loaded / event.progress.total * 100;
+				bar.style.width = percentage + "%";
+				if (percentage >= 100) {
+					bar.classList.add('hide');
+					setTimeout(function() {
+						bar.style.width = 0;
+					}, 1000);
+				}
+			}
+
+			panorama1.addEventListener('progress', onProgressUpdate);
+		</script>
+	</body>
+</html>

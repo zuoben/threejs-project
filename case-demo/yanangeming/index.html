@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>舒迈科技-VR眼镜</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+
+			.ThemeMenu {
+				width: 100%;
+				height: 100px;
+				bottom: 100px;
+				left: 0;
+				position: fixed;
+				right: 0;
+				z-index: 4001;
+				background: rgba(0, 0, 0, .3);
+				color: #fff;
+				display: flex;
+				justify-content: center;
+			}
+
+			.ThemeMenu .ImageMenuContent {
+				margin: 10px;
+				width: 85px;
+				border-radius: 5px;
+				cursor: pointer;
+				border: 2px solid #fff;
+			}
+
+			.ThemeMenu .ImageMenuContent img {
+				width: 100%;
+				height: 100%;
+				border-radius: 5px;
+			}
+
+			.ThemeMenu .selected {
+				border: 2px solid #fa6400;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="container"></div>
+		<div class="ThemeMenu">
+			<div class="ImageMenuContent selected" id="01">
+				<img src="img/0、序言/01.jpg" alt="01">
+			</div>
+			<div class="ImageMenuContent" id="02">
+				<img src="img/0、序言/02.jpg" alt="02">
+			</div>
+		</div>
+		<script type="text/javascript" src="js/jquery-1.11.2.min.js"></script>
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "./js/three.module.js"
+				}
+			}
+		</script>
+
+		<script type="module">
+			import * as THREE from 'three';
+
+			import {
+				OrbitControls
+			} from './js/OrbitControls.js';
+
+			import {
+				TWEEN
+			} from './js/tween.module.min.js';
+
+			import {
+				CSS2DRenderer,
+				CSS2DObject
+			} from './js/CSS2DRenderer.js';
+
+			import {
+				VRButton
+			} from './js/jsm/webxr/VRButton.js';
+
+			import Stats from './js/stats.module.js';
+			import {
+				GUI
+			} from './js/lil-gui.module.min.js';
+
+			var camera, scene, controls, renderer, renderer2;
+			var sceneMesh;
+
+			var isUserInteracting = false,
+				onPointerDownMouseX = 0,
+				onPointerDownMouseY = 0,
+				lon = 0,
+				onPointerDownLon = 0,
+				lat = 0,
+				onPointerDownLat = 0,
+				phi = 0,
+				theta = 0;
+
+			init();
+			animate();
+
+			function initControls(camera, renderer) {
+				let controls = new OrbitControls(camera, renderer.domElement)
+				// 如果使用animate方法时，将此函数删除
+				//controls.addEventListener( 'change', render );
+				// 使动画循环使用时阻尼或自转 意思是否有惯性
+				controls.enableDamping = false;
+				//动态阻尼系数 就是鼠标拖拽旋转灵敏度
+				controls.dampingFactor = 1.4;
+				//是否可以缩放
+				controls.enableZoom = true;
+				//是否自动旋转
+				controls.autoRotate = false;
+				controls.autoRotateSpeed = 0;
+				//设置相机距离原点的最远距离
+				controls.minDistance = 100;
+				//设置相机距离原点的最远距离
+				controls.maxDistance = 800;
+				//是否开启右键拖拽
+				controls.enablePan = false
+				//是否开启旋转
+				controls.enableRotate = true
+				return controls
+			}
+
+			function init() {
+				const container = document.getElementById('container');
+				scene = new THREE.Scene();
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio(window.devicePixelRatio);
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				container.appendChild(renderer.domElement);
+
+				renderer.xr.enabled = true;
+				container.appendChild(VRButton.createButton(renderer));
+
+
+				camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 10000);
+				camera.position.set(0, 0, 1);
+
+				controls = initControls(camera, renderer);
+
+				const geometry = new THREE.SphereGeometry(1200, 1200, 1200);
+				geometry.scale(-1, 1, 1);
+
+				const texture = new THREE.TextureLoader().load('img/0、序言/延安革命纪念馆大厅雕塑.jpg');
+
+				const textures = getTexturesFromAtlasFile( 'img/1.jpg', 6 );
+
+				const materials = [];
+
+				// for ( let i = 0; i < 6; i ++ ) {
+
+					materials.push( new THREE.MeshBasicMaterial( { map: textures[ 0 ] } ) );
+					materials.push( new THREE.MeshBasicMaterial( { map: textures[ 1 ] } ) );
+					materials.push( new THREE.MeshBasicMaterial( { map: textures[ 4 ] } ) );
+					materials.push( new THREE.MeshBasicMaterial( { map: textures[ 5 ] } ) );
+					// materials.push( new THREE.MeshBasicMaterial( { map: textures[ 2 ] } ) );
+					// materials.push( new THREE.MeshBasicMaterial( { map: textures[ 3 ] } ) );
+
+				// }
+				const material = new THREE.MeshBasicMaterial({
+					map: texture
+				});
+				
+				
+				const geometryBox = new THREE.BoxGeometry( 1200, 1200, 1200 );
+				geometryBox.scale( 1, 1, - 1 );
+
+				sceneMesh = new THREE.Mesh(geometryBox, materials);
+
+				scene.add(sceneMesh);
+
+				window.addEventListener('resize', onWindowResize);
+			}
+			
+			
+			function getTexturesFromAtlasFile( atlasImgUrl, tilesNum ) {
+			
+				const textures = [];
+			
+				for ( let i = 0; i < tilesNum; i ++ ) {
+			
+					textures[ i ] = new THREE.Texture();
+			
+				}
+			
+				const loader = new THREE.ImageLoader();
+				loader.load( atlasImgUrl, function ( imageObj ) {
+			
+					let canvas, context;
+					const tileWidth = imageObj.width;
+			
+					for ( let i = 0; i < textures.length; i ++ ) {
+			
+						canvas = document.createElement( 'canvas' );
+						context = canvas.getContext( '2d' );
+						canvas.height = tileWidth;
+						canvas.width = tileWidth;
+						context.drawImage( imageObj, 0, tileWidth * i, tileWidth, tileWidth, 0, 0, tileWidth, tileWidth );
+						textures[ i ].image = canvas;
+						textures[ i ].needsUpdate = true;
+			
+					}
+			
+				} );
+			
+				return textures;
+			
+			}
+
+
+			$(".ImageMenuContent").click(function() {
+				if ($(this).hasClass("selected")) return;
+				$(".ImageMenuContent").removeClass("selected");
+				$(this).addClass("selected");
+				let id = this.id;
+				if (id == "01") {
+					var material = sceneMesh.material;
+					material.map = new THREE.TextureLoader().load('img/0、序言/延安革命纪念馆大厅雕塑.jpg');
+					material.map.version = 100;
+					material.map.needsUpdate = true;
+				}
+				if (id == "02") {
+					var material = sceneMesh.material;
+					material.map = new THREE.TextureLoader().load('img/0、序言/伟大历程-前言.jpg');
+					material.map.version = 100;
+					material.map.needsUpdate = true;
+				}
+			})
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize(window.innerWidth, window.innerHeight);
+
+			}
+
+			function animate() {
+				renderer.setAnimationLoop(render);
+			}
+
+			function render() {
+				controls.update();
+
+				renderer.render(scene, camera);
+
+			}
+		</script>
+	</body>
+</html>
