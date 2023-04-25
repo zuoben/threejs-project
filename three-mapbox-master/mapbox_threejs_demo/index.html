@@ -76,24 +76,25 @@
 			// TO MAKE THE MAP APPEAR YOU MUST
 			// ADD YOUR ACCESS TOKEN FROM
 			// https://account.mapbox.com
-			mapboxgl.accessToken = 'pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4M29iazA2Z2gycXA4N2pmbDZmangifQ.-g_vE53SD2WrJ6tFX7QHmA';
+			mapboxgl.accessToken = 'pk.eyJ1IjoienVvYmVuIiwiYSI6ImNsZnVqb2h3eDBibHozZ3Bpemd5NHY5ODAifQ.TB8hfrsMY0BV7429ccE-Ig';
 			var bounds = [
-			[124.70807959428063, 44.272345443754745], // Southwest coordinates
-			[124.85932153159754, 44.32953688658034]  // Northeast coordinates
+				[124.70807959428063, 44.272345443754745], // Southwest coordinates
+				[124.85932153159754, 44.32953688658034] // Northeast coordinates
 			];
 			const map = new mapboxgl.Map({
+				language: 'zh-Hans',
 				container: 'map',
-				style: 'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
+				// style: 'mapbox://styles/mapbox-map-design/ckhqrf2tz0dt119ny6azh975y',
 				// style: 'mapbox://styles/mapbox/satellite-streets-v11',
-				// style: 'mapbox://mapbox.mapbox-terrain-dem-v1', // style URL
+				style: 'mapbox://styles/mapbox/satellite-streets-v12', // style URL
 				// zoom: 18,
 				// zoom: 1,
-				minZoom: 20,  // 地图最小缩放级别（0-24）
-				maxZoom: 21, // 地图最大缩放级别（0-24）
+				// minZoom: 20, // 地图最小缩放级别（0-24）
+				// maxZoom: 21, // 地图最大缩放级别（0-24）
 				center: [124.79340084, 44.30442681],
 				pitch: 88,
 				projection: 'globe',
-				maxBounds: bounds, // 限制加载区域
+				// maxBounds: bounds, // 限制加载区域
 				antialias: true // create the gl context with MSAA antialiasing, so custom layers are antialiased
 			});
 
@@ -321,13 +322,15 @@
 					const dracoLoader = new THREE.DRACOLoader();
 
 					dracoLoader.setDecoderPath('draco/');
-					dracoLoader.setDecoderConfig({type: 'js'});
-					
+					dracoLoader.setDecoderConfig({
+						type: 'js'
+					});
+
 					// use the three.js GLTF loader to add the 3D model to the three.js scene
 					const loader = new THREE.GLTFLoader();
 					loader.setDRACOLoader(dracoLoader);
 					loader.load(
-						'3.glb',
+						'models/3.glb',
 						(gltf) => {
 							let mesh = gltf.scene;
 							// console.log(mesh)
@@ -335,10 +338,10 @@
 							mesh.rotation.y = -0.05 * Math.PI;
 							this.scene.add(mesh);
 							methArr = mesh;
-							
-							
+
+
 							loader.load(
-								'4.glb',
+								'models/4.glb',
 								(gltf) => {
 									let mesh = gltf.scene;
 									// console.log(mesh)
@@ -346,9 +349,9 @@
 									mesh.rotation.y = -0.05 * Math.PI;
 									this.scene.add(mesh);
 									methArr = mesh;
-									
+
 									loader.load(
-										'1.glb',
+										// 'models/1.glb',
 										(gltf) => {
 											let mesh = gltf.scene;
 											// console.log(mesh)
@@ -361,7 +364,7 @@
 								}
 							);
 							loader.load(
-								'2.glb',
+								'models/2.glb',
 								(gltf) => {
 									let mesh = gltf.scene;
 									// console.log(mesh)
@@ -369,9 +372,9 @@
 									mesh.rotation.y = -0.05 * Math.PI;
 									this.scene.add(mesh);
 									methArr = mesh;
-									
+
 									loader.load(
-										'5.glb',
+										'models/5.glb',
 										(gltf) => {
 											let mesh = gltf.scene;
 											// console.log(mesh)
@@ -473,81 +476,14 @@
 				}
 			};
 
-			// map.on('mousemove', (e) => {
-			// document.getElementById('info').innerHTML =
-			// `e.point` is the x, y coordinates of the `mousemove` event
-			// relative to the top-left corner of the map.
-			// JSON.stringify(e.point) +
-			// '<br />' +
-			// `e.lngLat` is the longitude, latitude geographical position of the event.
-			// JSON.stringify(e.lngLat.wrap());
-			// });
-			map.on('click', (e) => {
-				console.log(e.lngLat.wrap())
+			// 鼠标移动获取坐标
+			map.on('mousemove', (e) => {
+				// console.log(e.lngLat.wrap())
 			});
-
-			/* Given a query in the form "lng, lat" or "lat, lng"
-			 * returns the matching geographic coordinate(s)
-			 * as search results in carmen geojson format,
-			 * https://github.com/mapbox/carmen/blob/master/carmen-geojson.md */
-			const coordinatesGeocoder = function(query) {
-				// Match anything which looks like
-				// decimal degrees coordinate pair.
-				const matches = query.match(
-					/^[ ]*(?:Lat: )?(-?\d+\.?\d*)[, ]+(?:Lng: )?(-?\d+\.?\d*)[ ]*$/i
-				);
-				if (!matches) {
-					return null;
-				}
-
-				function coordinateFeature(lng, lat) {
-					return {
-						center: [lng, lat],
-						geometry: {
-							type: 'Point',
-							coordinates: [lng, lat]
-						},
-						place_name: 'Lat: ' + lat + ' Lng: ' + lng,
-						place_type: ['coordinate'],
-						properties: {},
-						type: 'Feature'
-					};
-				}
-
-				const coord1 = Number(matches[1]);
-				const coord2 = Number(matches[2]);
-				const geocodes = [];
-
-				if (coord1 < -90 || coord1 > 90) {
-					// must be lng, lat
-					geocodes.push(coordinateFeature(coord1, coord2));
-				}
-
-				if (coord2 < -90 || coord2 > 90) {
-					// must be lat, lng
-					geocodes.push(coordinateFeature(coord2, coord1));
-				}
-
-				if (geocodes.length === 0) {
-					// else could be either lng, lat or lat, lng
-					geocodes.push(coordinateFeature(coord1, coord2));
-					geocodes.push(coordinateFeature(coord2, coord1));
-				}
-
-				return geocodes;
-			};
-
-			// Add the control to the map.
-			// map.addControl(
-			// 	new MapboxGeocoder({
-			// 		accessToken: mapboxgl.accessToken,
-			// 		localGeocoder: coordinatesGeocoder,
-			// 		zoom: 4,
-			// 		placeholder: 'Try: -40, 170',
-			// 		mapboxgl: mapboxgl,
-			// 		reverseGeocode: true
-			// 	})
-			// );
+			// 鼠标点击获取坐标
+			map.on('click', (e) => {
+				// console.log(e.lngLat.wrap())
+			});
 
 			map.on('style.load', () => {
 				for (const marker of geojson.features) {
@@ -557,28 +493,16 @@
 					const height = marker.properties.iconSize[1];
 					el.className = 'marker';
 					el.innerText = marker.properties.message;
-					// el.style.color = "#ffffff"; //border-radius: 50%;
-					// el.style.border = "2px solid #009400"
-					// el.style.borderRadius = "50%";
-					// el.style.lineHeight = `${height}px`;
-					// el.style.backgroundColor = "#2b2b2b";
-					// el.style.opacity = 0.5;
-					// el.style.textAlign = "center";
-					// el.style.backgroundImage = `url(img/label-bg.png)`;
-					// el.style.width = `${width}px`;
-					// el.style.height = `${height}px`;
-					// el.style.backgroundSize = '100%';
-					// el.style.marginBottom = "1150px";
 
 					el.addEventListener('click', () => {
 						window.alert(marker.properties.message);
 					});
 
 					// Add markers to the map.
-					new mapboxgl.Marker(el)
-						.setOffset([0, -120])
-						.setLngLat(marker.geometry.coordinates)
-						.addTo(map);
+					// new mapboxgl.Marker(el)
+					// 	.setOffset([0, -120])
+					// 	.setLngLat(marker.geometry.coordinates)
+					// 	.addTo(map);
 				}
 
 				map.addLayer(customLayer, 'waterway-label');
@@ -601,32 +525,32 @@
 						});
 
 						// Add a symbol layer
-						map.addLayer({
-							'id': 'points',
-							'type': 'symbol',
-							'source': 'points',
-							'paint': {
-								'text-color': '#ffffff',
-							},
-							'layout': {
-								'icon-image': 'custom-marker',
-								// get the title name from the source's "title" property
-								'text-field': ['get', 'title'],
-								'text-font': [
-									'Open Sans Semibold',
-									'Arial Unicode MS Bold'
-								],
-								'text-offset': [0, -3.25],
-								'text-anchor': 'top'
-							}
-						});
+						// map.addLayer({
+						// 	'id': 'points',
+						// 	'type': 'symbol',
+						// 	'source': 'points',
+						// 	'paint': {
+						// 		'text-color': '#ffffff',
+						// 	},
+						// 	'layout': {
+						// 		'icon-image': 'custom-marker',
+						// 		// get the title name from the source's "title" property
+						// 		'text-field': ['get', 'title'],
+						// 		'text-font': [
+						// 			'Open Sans Semibold',
+						// 			'Arial Unicode MS Bold'
+						// 		],
+						// 		'text-offset': [0, -3.25],
+						// 		'text-anchor': 'top'
+						// 	}
+						// });
 
 
 						setInterval(function() {
 							var i = Math.floor(Math.random() * 5);
 							// console.log([lnglot[i].lng, lnglot[i].lat])
 							point.features[0].geometry.coordinates = [lnglot[i].lng, lnglot[i].lat];
-							map.getSource('points').setData(point);
+							// map.getSource('points').setData(point);
 						}, 1000)
 					}
 				);
@@ -668,33 +592,33 @@
 					}
 				});
 
-				// evening
-				// map.setFog({
-				// 	color: 'rgb(186, 210, 235)', // Lower atmosphere
-				// 	'high-color': 'rgb(36, 92, 223)', // Upper atmosphere
-				// 	'horizon-blend': 0.02, // Atmosphere thickness (default 0.2 at low zooms)
-				// 	'space-color': 'rgb(11, 11, 25)', // Background color
-				// 	'star-intensity': 0.6 // Background star brightness (default 0.35 at low zoooms )
-				// });
-
-				// add the DEM source as a terrain layer with exaggerated height
-				// map.setTerrain({ 'source': 'lines', 'exaggeration': 1.5 });
-
-				// daytime
 				map.setFog({
-					'horizon-blend': 0.3,
-					'color': '#f8f0e3',
-					'high-color': '#add8e6',
-					'space-color': '#d8f2ff',
-					'star-intensity': 0.0
+					// 'range': [-1, 1],
+					'horizon-blend': 0.1,
+					'color': '#242B4B',
+					'high-color': '#161B36',
+					'space-color': '#0B1026',
+					'star-intensity': 0.8
 				});
+
+
+				// day fog styling
+				// map.setFog({
+				// 	'range': [-1, 2],
+				// 	'horizon-blend': 0.3,
+				// 	'color': 'white',
+				// 	'high-color': '#add8e6',
+				// 	'space-color': '#d8f2ff',
+				// 	'star-intensity': 0.0
+				// });
 
 				// fly with default options to null island
 				map.flyTo({
-					curve: 3000,
+					// curve: 3000,
+					// curve: -3000,
 					center: [124.79340084, 44.30442681],
-					zoom: 19,
-					duration: 5000,
+					zoom: 17,
+					duration: 8000,
 					essential: true
 				});
 			});

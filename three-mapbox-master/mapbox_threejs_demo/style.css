@@ -1,0 +1,51 @@
+body {
+	margin: 0;
+	padding: 0;
+}
+
+#map {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 100%;
+}
+
+#info {
+	display: table;
+	position: relative;
+	margin: 0px auto;
+	word-wrap: anywhere;
+	white-space: pre-wrap;
+	padding: 10px;
+	border: none;
+	border-radius: 3px;
+	font-size: 12px;
+	text-align: center;
+	color: #222;
+	background: #fff;
+	z-index: 12;
+}
+
+.marker {
+	color: white;
+	width: 160px;
+	height: 40px;
+	font-size: 18px;
+	line-height: 40px;
+	padding: 15px;
+	background-color: #061d4b;
+	border-radius: 10px;
+	text-align: center;
+	background: url(img/label-bg.png) center no-repeat;
+	background-size: 100% 100%;
+}
+
+.marker::after {
+	content: "";
+	width: calc(100% + 22px);
+	height: 39px;
+	position: absolute;
+	bottom: -45px;
+	left: 45%;
+	background: url(img/arrow.png) no-repeat;
+}
